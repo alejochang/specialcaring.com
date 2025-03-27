@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X, User, ChevronDown } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, User, ChevronDown, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,12 +10,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
-  const isAuthenticated = false; // Replace with actual auth state
+  const navigate = useNavigate();
+  const { user, signOut, isLoading } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,6 +37,26 @@ const Navbar = () => {
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+    closeMenu();
+  };
+
+  // Get the user's initials for the avatar fallback
+  const getUserInitials = () => {
+    if (!user || !user.user_metadata?.full_name) {
+      return "U";
+    }
+    const fullName = user.user_metadata.full_name as string;
+    return fullName
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2);
+  };
 
   return (
     <header
@@ -57,7 +80,7 @@ const Navbar = () => {
           >
             Home
           </Link>
-          {isAuthenticated ? (
+          {!isLoading && user ? (
             <>
               <Link
                 to="/dashboard"
@@ -68,22 +91,34 @@ const Navbar = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-2">
-                    <User size={18} />
-                    Account
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage 
+                        src={user.user_metadata?.avatar_url as string} 
+                        alt={user.user_metadata?.full_name as string || "User"} 
+                      />
+                      <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                    </Avatar>
+                    <span className="ml-2">{(user.user_metadata?.full_name as string) || user.email}</span>
                     <ChevronDown size={16} />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuItem asChild>
-                    <Link to="/profile" className="w-full cursor-pointer">
+                    <Link to="/profile" className="w-full cursor-pointer flex items-center">
+                      <User size={16} className="mr-2" />
                       Profile
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link to="/logout" className="w-full cursor-pointer">
-                      Sign Out
+                    <Link to="/settings" className="w-full cursor-pointer flex items-center">
+                      <Settings size={16} className="mr-2" />
+                      Settings
                     </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer flex items-center">
+                    <LogOut size={16} className="mr-2" />
+                    Sign Out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -128,7 +163,7 @@ const Navbar = () => {
             >
               Home
             </Link>
-            {isAuthenticated ? (
+            {!isLoading && user ? (
               <>
                 <Link
                   to="/dashboard"
@@ -145,12 +180,19 @@ const Navbar = () => {
                   Profile
                 </Link>
                 <Link
-                  to="/logout"
+                  to="/settings"
                   className="py-3 border-b border-border"
                   onClick={closeMenu}
                 >
-                  Sign Out
+                  Settings
                 </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="py-3 border-b border-border flex items-center text-left"
+                >
+                  <LogOut size={18} className="mr-2" />
+                  Sign Out
+                </button>
               </>
             ) : (
               <>
