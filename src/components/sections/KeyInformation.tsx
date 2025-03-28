@@ -1,9 +1,9 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Save, PlusCircle, Pencil } from "lucide-react";
+import { Save, PlusCircle, Pencil, Loader2 } from "lucide-react";
+import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +18,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 const formSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
@@ -37,12 +39,29 @@ type FormValues = z.infer<typeof formSchema>;
 
 const KeyInformation = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [savedData, setSavedData] = useState<FormValues | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: savedData || {
+  const { data: keyInfo, isLoading } = useQuery({
+    queryKey: ['keyInformation', user?.id],
+    queryFn: async () => {
+      if (!user) throw new Error("No user found");
+      
+      const { data, error } = await supabase
+        .from('key_information')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+        
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const dbToFormValues = (dbData: any): FormValues => {
+    if (!dbData) return {
       fullName: "",
       birthDate: "",
       ssn: "",
@@ -54,29 +73,103 @@ const KeyInformation = () => {
       emergencyContact: "",
       emergencyPhone: "",
       additionalNotes: "",
-    },
+    };
+    
+    return {
+      fullName: dbData.full_name,
+      birthDate: dbData.birth_date,
+      ssn: dbData.ssn || "",
+      address: dbData.address,
+      phoneNumber: dbData.phone_number,
+      email: dbData.email || "",
+      insuranceProvider: dbData.insurance_provider || "",
+      insuranceNumber: dbData.insurance_number || "",
+      emergencyContact: dbData.emergency_contact,
+      emergencyPhone: dbData.emergency_phone,
+      additionalNotes: dbData.additional_notes || "",
+    };
+  };
+
+  const formToDbValues = (formData: FormValues, userId: string) => {
+    return {
+      user_id: userId,
+      full_name: formData.fullName,
+      birth_date: formData.birthDate,
+      ssn: formData.ssn,
+      address: formData.address,
+      phone_number: formData.phoneNumber,
+      email: formData.email,
+      insurance_provider: formData.insuranceProvider,
+      insurance_number: formData.insuranceNumber,
+      emergency_contact: formData.emergencyContact,
+      emergency_phone: formData.emergencyPhone,
+      additional_notes: formData.additionalNotes,
+      updated_at: new Date().toISOString(),
+    };
+  };
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: dbToFormValues(keyInfo),
   });
 
-  const onSubmit = async (values: FormValues) => {
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 800));
+  useEffect(() => {
+    if (keyInfo) {
+      form.reset(dbToFormValues(keyInfo));
+    }
+  }, [keyInfo, form]);
+
+  const mutation = useMutation({
+    mutationFn: async (values: FormValues) => {
+      if (!user) throw new Error("No user found");
       
-      setSavedData(values);
+      const formattedData = formToDbValues(values, user.id);
+      
+      if (keyInfo) {
+        const { error } = await supabase
+          .from('key_information')
+          .update(formattedData)
+          .eq('id', keyInfo.id);
+          
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('key_information')
+          .insert([formattedData]);
+          
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['keyInformation', user?.id] });
       setIsEditing(false);
       
       toast({
         title: "Information saved",
         description: "Key information has been successfully updated.",
       });
-    } catch (error) {
+    },
+    onError: (error) => {
+      console.error("Error saving key information:", error);
       toast({
         title: "Error",
         description: "Failed to save information. Please try again.",
         variant: "destructive",
       });
-    }
+    },
+  });
+
+  const onSubmit = async (values: FormValues) => {
+    mutation.mutate(values);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-caregiver-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fadeIn">
@@ -87,7 +180,7 @@ const KeyInformation = () => {
             Manage essential personal and contact information
           </p>
         </div>
-        {savedData && !isEditing ? (
+        {keyInfo && !isEditing ? (
           <Button 
             onClick={() => setIsEditing(true)}
             variant="outline"
@@ -99,11 +192,11 @@ const KeyInformation = () => {
         ) : null}
       </div>
 
-      {savedData && !isEditing ? (
+      {keyInfo && !isEditing ? (
         <Card className="shadow-sm border border-border bg-white">
           <CardHeader>
             <CardTitle className="text-xl flex items-center gap-2">
-              {savedData.fullName}
+              {keyInfo.full_name}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -111,51 +204,51 @@ const KeyInformation = () => {
               <div className="space-y-4">
                 <div>
                   <h4 className="text-sm font-medium text-muted-foreground">Birth Date</h4>
-                  <p>{savedData.birthDate}</p>
+                  <p>{keyInfo.birth_date}</p>
                 </div>
                 
                 <div>
                   <h4 className="text-sm font-medium text-muted-foreground">Address</h4>
-                  <p>{savedData.address}</p>
+                  <p>{keyInfo.address}</p>
                 </div>
                 
                 <div>
                   <h4 className="text-sm font-medium text-muted-foreground">Phone Number</h4>
-                  <p>{savedData.phoneNumber}</p>
+                  <p>{keyInfo.phone_number}</p>
                 </div>
                 
                 <div>
                   <h4 className="text-sm font-medium text-muted-foreground">Email</h4>
-                  <p>{savedData.email || "Not provided"}</p>
+                  <p>{keyInfo.email || "Not provided"}</p>
                 </div>
               </div>
               
               <div className="space-y-4">
                 <div>
                   <h4 className="text-sm font-medium text-muted-foreground">Insurance Provider</h4>
-                  <p>{savedData.insuranceProvider || "Not provided"}</p>
+                  <p>{keyInfo.insurance_provider || "Not provided"}</p>
                 </div>
                 
                 <div>
                   <h4 className="text-sm font-medium text-muted-foreground">Insurance Number</h4>
-                  <p>{savedData.insuranceNumber || "Not provided"}</p>
+                  <p>{keyInfo.insurance_number || "Not provided"}</p>
                 </div>
                 
                 <div>
                   <h4 className="text-sm font-medium text-muted-foreground">Emergency Contact</h4>
-                  <p>{savedData.emergencyContact}</p>
+                  <p>{keyInfo.emergency_contact}</p>
                 </div>
                 
                 <div>
                   <h4 className="text-sm font-medium text-muted-foreground">Emergency Phone</h4>
-                  <p>{savedData.emergencyPhone}</p>
+                  <p>{keyInfo.emergency_phone}</p>
                 </div>
               </div>
               
-              {savedData.additionalNotes && (
+              {keyInfo.additional_notes && (
                 <div className="col-span-1 md:col-span-2">
                   <h4 className="text-sm font-medium text-muted-foreground">Additional Notes</h4>
-                  <p>{savedData.additionalNotes}</p>
+                  <p>{keyInfo.additional_notes}</p>
                 </div>
               )}
             </div>
@@ -165,7 +258,7 @@ const KeyInformation = () => {
         <Card className="shadow-sm border border-border bg-white">
           <CardHeader>
             <CardTitle className="text-xl">
-              {savedData ? "Edit Key Information" : "Add Key Information"}
+              {keyInfo ? "Edit Key Information" : "Add Key Information"}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -341,9 +434,19 @@ const KeyInformation = () => {
                       Cancel
                     </Button>
                   )}
-                  <Button type="submit" className="bg-caregiver-600 hover:bg-caregiver-700 flex items-center gap-2">
-                    {savedData ? <Save size={16} /> : <PlusCircle size={16} />}
-                    {savedData ? "Save Changes" : "Save Information"}
+                  <Button 
+                    type="submit" 
+                    className="bg-caregiver-600 hover:bg-caregiver-700 flex items-center gap-2"
+                    disabled={mutation.isPending}
+                  >
+                    {mutation.isPending ? (
+                      <Loader2 size={16} className="animate-spin mr-2" />
+                    ) : keyInfo ? (
+                      <Save size={16} />
+                    ) : (
+                      <PlusCircle size={16} />
+                    )}
+                    {keyInfo ? "Save Changes" : "Save Information"}
                   </Button>
                 </div>
               </form>
