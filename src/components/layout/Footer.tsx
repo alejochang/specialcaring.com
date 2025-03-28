@@ -11,8 +11,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
           <div>
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <span className="text-2xl font-bold text-special-600">Special</span>
-              <span className="text-2xl font-light text-kids-600">Caring</span>
+              <span className="text-3xl font-bold text-special-600">Special</span>
+              <span className="text-3xl font-light text-kids-600">Caring</span>
             </Link>
             <p className="text-muted-foreground">
               A central hub for managing care information and tasks for special-needs children,

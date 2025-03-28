@@ -68,8 +68,8 @@ const Navbar = () => {
     >
       <div className="container flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2" onClick={closeMenu}>
-          <span className="text-2xl font-bold text-special-600">Special</span>
-          <span className="text-2xl font-light text-kids-600">Caring</span>
+          <span className="text-3xl md:text-4xl font-bold text-special-600">Special</span>
+          <span className="text-3xl md:text-4xl font-light text-kids-600">Caring</span>
         </Link>
 
         {/* Desktop Navigation */}
