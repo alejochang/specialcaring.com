@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,66 +7,66 @@
 
 @layer base {
   :root {
-    --background: 210 50% 98%;
-    --foreground: 210 40% 10%;
+    --background: 280 50% 98%;
+    --foreground: 280 40% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 210 40% 10%;
+    --card-foreground: 280 40% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 40% 10%;
+    --popover-foreground: 280 40% 10%;
 
-    --primary: 210 100% 40%;
+    --primary: 270 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 20% 90%;
-    --secondary-foreground: 210 40% 10%;
+    --secondary: 280 20% 90%;
+    --secondary-foreground: 280 40% 10%;
 
-    --muted: 210 20% 90%;
-    --muted-foreground: 210 40% 40%;
+    --muted: 280 20% 90%;
+    --muted-foreground: 280 40% 40%;
 
-    --accent: 210 20% 90%;
-    --accent-foreground: 210 40% 10%;
+    --accent: 280 20% 90%;
+    --accent-foreground: 280 40% 10%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 280 40% 98%;
 
-    --border: 210 20% 88%;
-    --input: 210 20% 88%;
-    --ring: 210 100% 40%;
+    --border: 280 20% 88%;
+    --input: 280 20% 88%;
+    --ring: 270 100% 50%;
 
-    --radius: 0.75rem;
-    --font-sans: 'Inter', sans-serif;
+    --radius: 1rem;
+    --font-sans: 'Quicksand', sans-serif;
   }
 
   .dark {
-    --background: 210 40% 5%;
-    --foreground: 210 20% 98%;
+    --background: 280 40% 5%;
+    --foreground: 280 20% 98%;
 
-    --card: 210 40% 8%;
-    --card-foreground: 210 20% 98%;
+    --card: 280 40% 8%;
+    --card-foreground: 280 20% 98%;
 
-    --popover: 210 40% 8%;
-    --popover-foreground: 210 20% 98%;
+    --popover: 280 40% 8%;
+    --popover-foreground: 280 20% 98%;
 
-    --primary: 210 100% 50%;
+    --primary: 270 100% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 30% 15%;
-    --secondary-foreground: 210 20% 98%;
+    --secondary: 280 30% 15%;
+    --secondary-foreground: 280 20% 98%;
 
-    --muted: 210 30% 15%;
-    --muted-foreground: 210 20% 60%;
+    --muted: 280 30% 15%;
+    --muted-foreground: 280 20% 60%;
 
-    --accent: 210 30% 15%;
-    --accent-foreground: 210 20% 98%;
+    --accent: 280 30% 15%;
+    --accent-foreground: 280 20% 98%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 20% 98%;
+    --destructive-foreground: 280 20% 98%;
 
-    --border: 210 30% 15%;
-    --input: 210 30% 15%;
-    --ring: 210 100% 50%;
+    --border: 280 30% 15%;
+    --input: 280 30% 15%;
+    --ring: 270 100% 60%;
   }
 }
 
@@ -106,7 +106,7 @@
 
 @layer components {
   .glass-card {
-    @apply bg-white/80 backdrop-blur-lg border border-white/20 shadow-lg;
+    @apply bg-white/80 backdrop-blur-lg border border-white/20 shadow-lg rounded-2xl;
   }
   
   .section-container {
@@ -118,7 +118,7 @@
   }
   
   .hover-card {
-    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1 rounded-2xl;
   }
   
   .nav-link {
@@ -127,6 +127,14 @@
   
   .nav-link-active {
     @apply text-foreground after:scale-x-100 after:origin-left;
+  }
+
+  .kid-card {
+    @apply bg-gradient-to-br from-kids-100 to-special-100 hover:from-kids-200 hover:to-special-200 transition-all duration-300 rounded-3xl p-6 shadow-md hover:shadow-xl border-2 border-kids-300;
+  }
+
+  .special-button {
+    @apply bg-special-600 hover:bg-special-700 text-white font-medium py-3 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105;
   }
 }
 

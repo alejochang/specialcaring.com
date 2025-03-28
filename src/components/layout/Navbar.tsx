@@ -68,8 +68,8 @@ const Navbar = () => {
     >
       <div className="container flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2" onClick={closeMenu}>
-          <span className="text-2xl font-bold text-caregiver-600">Caregiver</span>
-          <span className="text-2xl font-light">Organizer</span>
+          <span className="text-2xl font-bold text-special-600">Special</span>
+          <span className="text-2xl font-light text-kids-600">Caring</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -127,12 +127,12 @@ const Navbar = () => {
             <>
               <Link
                 to="/login"
-                className="px-4 py-2 rounded-md text-caregiver-600 font-medium transition-colors hover:text-caregiver-700"
+                className="px-4 py-2 rounded-md text-special-600 font-medium transition-colors hover:text-special-700"
               >
                 Sign In
               </Link>
               <Link to="/register">
-                <Button className="bg-caregiver-600 hover:bg-caregiver-700">
+                <Button className="bg-special-600 hover:bg-special-700 rounded-full">
                   Get Started
                 </Button>
               </Link>
@@ -204,7 +204,7 @@ const Navbar = () => {
                   Sign In
                 </Link>
                 <Link to="/register" onClick={closeMenu}>
-                  <Button className="w-full bg-caregiver-600 hover:bg-caregiver-700 mt-4">
+                  <Button className="w-full bg-special-600 hover:bg-special-700 mt-4 rounded-full">
                     Get Started
                   </Button>
                 </Link>

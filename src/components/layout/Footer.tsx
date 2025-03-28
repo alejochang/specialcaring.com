@@ -11,12 +11,12 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
           <div>
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <span className="text-2xl font-bold text-caregiver-600">Caregiver</span>
-              <span className="text-2xl font-light">Organizer</span>
+              <span className="text-2xl font-bold text-special-600">Special</span>
+              <span className="text-2xl font-light text-kids-600">Caring</span>
             </Link>
             <p className="text-muted-foreground">
-              A central hub for managing caregiving information and tasks, designed to make
-              caregiving responsibilities easier to manage.
+              A central hub for managing care information and tasks for special-needs children,
+              designed to make caregiving responsibilities easier for parents and guardians.
             </p>
           </div>
           
@@ -70,10 +70,10 @@ const Footer = () => {
         
         <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            &copy; {currentYear} Caregiver Organizer. All rights reserved.
+            &copy; {currentYear} Special Caring. All rights reserved.
           </p>
           <p className="text-sm text-muted-foreground flex items-center">
-            Made with <Heart size={14} className="mx-1 text-red-500" /> for caregivers worldwide
+            Made with <Heart size={14} className="mx-1 text-kids-500" /> for special-needs families
           </p>
         </div>
       </div>
