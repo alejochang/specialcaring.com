@@ -52,8 +52,8 @@ const Index = () => {
                 <div className="absolute -right-6 -bottom-6 w-72 h-72 bg-special-200 rounded-full filter blur-3xl opacity-70 animate-pulse delay-700"></div>
                 <div className="relative glass-card rounded-3xl overflow-hidden shadow-xl z-10 border-2 border-special-200">
                   <img 
-                    src="https://images.unsplash.com/photo-1607453998774-d533f65dac99?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
-                    alt="Special needs child with caregiver"
+                    src="https://images.unsplash.com/photo-1517021897933-0e0319cfbc28?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                    alt="Diverse group of children including a child in wheelchair"
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
