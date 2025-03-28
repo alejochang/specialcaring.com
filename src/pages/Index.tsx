@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { ChevronRight, Heart, FileText, Calendar, Clock, Users, Check, Smile, Star, Sun, Baby } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,7 @@ const Index = () => {
                 <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-tight text-foreground max-w-lg">
                   Special Care Management For Special Kids
                 </h1>
-                <p className="mt-6 text-lg text-muted-foreground max-w-md">
+                <p className="mt-6 text-lg text-foreground max-w-md font-medium">
                   A central hub to organize all essential care information for your special-needs child, accessible exactly when you need it.
                 </p>
               </div>
@@ -35,7 +34,7 @@ const Index = () => {
                   </Button>
                 </Link>
               </div>
-              <div className="flex items-center gap-2 text-muted-foreground text-sm flex-wrap">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm flex-wrap font-medium">
                 <Check size={16} className="text-special-600" />
                 <span>Safe & private</span>
                 <span className="mx-2">•</span>
@@ -71,7 +70,7 @@ const Index = () => {
             <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl mb-4">
               Everything You Need In One Place
             </h2>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-lg text-foreground font-medium">
               Special Caring provides all the tools you need to manage care information for your special-needs child.
             </p>
           </div>
@@ -82,10 +81,10 @@ const Index = () => {
                 <FileText className="text-special-600 h-6 w-6" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Essential Information</h3>
-              <p className="text-muted-foreground mb-4">
+              <p className="text-foreground mb-4 font-medium">
                 Store personal details, emergency contacts, and identification information securely.
               </p>
-              <Link to="/register" className="text-special-600 hover:text-special-700 inline-flex items-center">
+              <Link to="/register" className="text-special-600 hover:text-special-700 inline-flex items-center font-medium">
                 Learn more
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Link>
@@ -96,10 +95,10 @@ const Index = () => {
                 <Heart className="text-special-600 h-6 w-6" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Medical Management</h3>
-              <p className="text-muted-foreground mb-4">
+              <p className="text-foreground mb-4 font-medium">
                 Track medications, medical contacts, and healthcare appointments for your child.
               </p>
-              <Link to="/register" className="text-special-600 hover:text-special-700 inline-flex items-center">
+              <Link to="/register" className="text-special-600 hover:text-special-700 inline-flex items-center font-medium">
                 Learn more
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Link>
@@ -110,10 +109,10 @@ const Index = () => {
                 <Baby className="text-special-600 h-6 w-6" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Special Needs Support</h3>
-              <p className="text-muted-foreground mb-4">
+              <p className="text-foreground mb-4 font-medium">
                 Log specific requirements, therapies, and accommodations for your child's special needs.
               </p>
-              <Link to="/register" className="text-special-600 hover:text-special-700 inline-flex items-center">
+              <Link to="/register" className="text-special-600 hover:text-special-700 inline-flex items-center font-medium">
                 Learn more
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Link>
@@ -124,10 +123,10 @@ const Index = () => {
                 <Calendar className="text-special-600 h-6 w-6" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Daily Logs</h3>
-              <p className="text-muted-foreground mb-4">
+              <p className="text-foreground mb-4 font-medium">
                 Record daily activities, behaviors, and important observations for continuity of care.
               </p>
-              <Link to="/register" className="text-special-600 hover:text-special-700 inline-flex items-center">
+              <Link to="/register" className="text-special-600 hover:text-special-700 inline-flex items-center font-medium">
                 Learn more
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Link>
@@ -138,10 +137,10 @@ const Index = () => {
                 <Users className="text-special-600 h-6 w-6" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Care Team Contacts</h3>
-              <p className="text-muted-foreground mb-4">
+              <p className="text-foreground mb-4 font-medium">
                 Manage information for all caregivers, therapists, and family members involved in care.
               </p>
-              <Link to="/register" className="text-special-600 hover:text-special-700 inline-flex items-center">
+              <Link to="/register" className="text-special-600 hover:text-special-700 inline-flex items-center font-medium">
                 Learn more
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Link>
@@ -152,10 +151,10 @@ const Index = () => {
                 <Star className="text-special-600 h-6 w-6" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Growth Milestones</h3>
-              <p className="text-muted-foreground mb-4">
+              <p className="text-foreground mb-4 font-medium">
                 Track developmental achievements and celebrate your child's unique progress journey.
               </p>
-              <Link to="/register" className="text-special-600 hover:text-special-700 inline-flex items-center">
+              <Link to="/register" className="text-special-600 hover:text-special-700 inline-flex items-center font-medium">
                 Learn more
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Link>
@@ -172,10 +171,10 @@ const Index = () => {
               <h2 className="text-3xl font-bold tracking-tight mb-4">
                 Ready to simplify your special caregiving journey?
               </h2>
-              <p className="text-special-100 text-lg">
+              <p className="text-white text-lg font-medium">
                 Join other special-needs families who have found relief through better care organization.
               </p>
-              <ul className="space-y-2">
+              <ul className="space-y-2 font-medium">
                 <li className="flex items-center gap-2">
                   <Check className="h-5 w-5 text-special-100" />
                   <span>Save time with easy information access</span>
@@ -191,7 +190,7 @@ const Index = () => {
               </ul>
               <div className="pt-4">
                 <Link to="/register">
-                  <Button className="bg-white text-special-600 hover:bg-special-50 rounded-full">
+                  <Button className="bg-white text-special-600 hover:bg-special-50 rounded-full font-semibold">
                     Get Started Free
                   </Button>
                 </Link>
@@ -200,14 +199,14 @@ const Index = () => {
             <div className="relative bg-special-700 rounded-3xl p-8 text-white hidden md:block">
               <div className="absolute inset-0 bg-gradient-to-br from-special-700 to-special-800 rounded-3xl"></div>
               <div className="relative z-10">
-                <blockquote className="text-lg italic mb-8">
+                <blockquote className="text-lg italic mb-8 font-medium">
                   "Special Caring has been a lifesaver for our family. Having all my son's information in one place has made it so much easier to coordinate with therapists and doctors."
                 </blockquote>
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-special-600 rounded-full"></div>
                   <div>
-                    <p className="font-medium">Jessica Thompson</p>
-                    <p className="text-sm text-special-200">Parent of special-needs child</p>
+                    <p className="font-semibold">Jessica Thompson</p>
+                    <p className="text-sm text-special-100 font-medium">Parent of special-needs child</p>
                   </div>
                 </div>
               </div>
