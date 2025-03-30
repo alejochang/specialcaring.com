@@ -1,0 +1,85 @@
+
+{
+  "home": {
+    "hero": {
+      "title": "Special Care Management For Special Kids",
+      "subtitle": "A central hub to organize all essential care information for your special-needs child, accessible exactly when you need it.",
+      "getStarted": "Get Started",
+      "signIn": "Sign In",
+      "features": {
+        "safe": "Safe & private",
+        "easyUpdate": "Easy to update",
+        "alwaysAccessible": "Always accessible"
+      }
+    },
+    "featuresSection": {
+      "title": "Everything You Need In One Place",
+      "subtitle": "Special Caring provides all the tools you need to manage care information for your special-needs child.",
+      "learnMore": "Learn more",
+      "features": {
+        "essentialInfo": {
+          "title": "Essential Information",
+          "description": "Store personal details, emergency contacts, and identification information securely."
+        },
+        "medicalManagement": {
+          "title": "Medical Management",
+          "description": "Track medications, medical contacts, and healthcare appointments for your child."
+        },
+        "specialNeeds": {
+          "title": "Special Needs Support",
+          "description": "Log specific requirements, therapies, and accommodations for your child's special needs."
+        },
+        "dailyLogs": {
+          "title": "Daily Logs",
+          "description": "Record daily activities, behaviors, and important observations for continuity of care."
+        },
+        "careTeam": {
+          "title": "Care Team Contacts",
+          "description": "Manage information for all caregivers, therapists, and family members involved in care."
+        },
+        "growthMilestones": {
+          "title": "Growth Milestones",
+          "description": "Track developmental achievements and celebrate your child's unique progress journey."
+        }
+      }
+    },
+    "ctaSection": {
+      "title": "Ready to simplify your special caregiving journey?",
+      "subtitle": "Join other special-needs families who have found relief through better care organization.",
+      "benefits": {
+        "saveTime": "Save time with easy information access",
+        "reduceStress": "Reduce stress with better organization",
+        "improveCare": "Improve care coordination with all team members"
+      },
+      "getStartedFree": "Get Started Free",
+      "testimonial": {
+        "quote": "\"Special Caring has been a lifesaver for our family. Having all my son's information in one place has made it so much easier to coordinate with therapists and doctors.\"",
+        "author": "Jessica Thompson",
+        "role": "Parent of special-needs child"
+      }
+    }
+  },
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "signIn": "Sign In",
+    "getStarted": "Get Started",
+    "signOut": "Sign Out"
+  },
+  "footer": {
+    "navigation": "Navigation",
+    "resources": "Resources",
+    "help": "Help & Support",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "copyright": "© {{year}} Special Caring. All rights reserved.",
+    "madeWith": "Made with love for special-needs families"
+  },
+  "language": {
+    "en": "English",
+    "fr-CA": "Français (Canada)",
+    "es": "Español"
+  }
+}

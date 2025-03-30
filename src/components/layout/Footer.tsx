@@ -1,9 +1,11 @@
 
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const { t } = useTranslation();
   
   return (
     <footer className="bg-background border-t border-border py-12">
@@ -21,47 +23,47 @@ const Footer = () => {
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Navigation</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('footer.navigation')}</h3>
             <ul className="space-y-3">
               <li>
                 <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Home
+                  {t('navigation.home')}
                 </Link>
               </li>
               <li>
                 <Link to="/dashboard" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Dashboard
+                  {t('navigation.dashboard')}
                 </Link>
               </li>
               <li>
                 <Link to="/login" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Sign In
+                  {t('navigation.signIn')}
                 </Link>
               </li>
               <li>
                 <Link to="/register" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Get Started
+                  {t('navigation.getStarted')}
                 </Link>
               </li>
             </ul>
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Resources</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('footer.resources')}</h3>
             <ul className="space-y-3">
               <li>
                 <Link to="/help" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Help & Support
+                  {t('footer.help')}
                 </Link>
               </li>
               <li>
                 <Link to="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Privacy Policy
+                  {t('footer.privacy')}
                 </Link>
               </li>
               <li>
                 <Link to="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Terms of Service
+                  {t('footer.terms')}
                 </Link>
               </li>
             </ul>
@@ -70,10 +72,10 @@ const Footer = () => {
         
         <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            &copy; {currentYear} Special Caring. All rights reserved.
+            {t('footer.copyright', { year: currentYear })}
           </p>
           <p className="text-sm text-muted-foreground flex items-center">
-            Made with <Heart size={14} className="mx-1 text-kids-500" /> for special-needs families
+            {t('footer.madeWith')} <Heart size={14} className="mx-1 text-kids-500" />
           </p>
         </div>
       </div>

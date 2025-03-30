@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, User, ChevronDown, LogOut, Settings } from "lucide-react";
@@ -12,6 +11,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,6 +20,7 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut, isLoading } = useAuth();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,7 +46,6 @@ const Navbar = () => {
     closeMenu();
   };
 
-  // Get the user's initials for the avatar fallback
   const getUserInitials = () => {
     if (!user || !user.user_metadata?.full_name) {
       return "U";
@@ -72,13 +73,12 @@ const Navbar = () => {
           <span className="text-3xl md:text-4xl font-light text-kids-600">Caring</span>
         </Link>
 
-        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
           <Link
             to="/"
             className={`nav-link ${isActive("/") ? "nav-link-active" : ""}`}
           >
-            Home
+            {t('navigation.home')}
           </Link>
           {!isLoading && user ? (
             <>
@@ -86,7 +86,7 @@ const Navbar = () => {
                 to="/dashboard"
                 className={`nav-link ${isActive("/dashboard") ? "nav-link-active" : ""}`}
               >
-                Dashboard
+                {t('navigation.dashboard')}
               </Link>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -106,19 +106,19 @@ const Navbar = () => {
                   <DropdownMenuItem asChild>
                     <Link to="/profile" className="w-full cursor-pointer flex items-center">
                       <User size={16} className="mr-2" />
-                      Profile
+                      {t('navigation.profile')}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/settings" className="w-full cursor-pointer flex items-center">
                       <Settings size={16} className="mr-2" />
-                      Settings
+                      {t('navigation.settings')}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer flex items-center">
                     <LogOut size={16} className="mr-2" />
-                    Sign Out
+                    {t('navigation.signOut')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -129,30 +129,31 @@ const Navbar = () => {
                 to="/login"
                 className="px-4 py-2 rounded-md text-special-600 font-medium transition-colors hover:text-special-700"
               >
-                Sign In
+                {t('navigation.signIn')}
               </Link>
               <Link to="/register">
                 <Button className="bg-special-600 hover:bg-special-700 rounded-full">
-                  Get Started
+                  {t('navigation.getStarted')}
                 </Button>
               </Link>
             </>
           )}
+          <LanguageSwitcher />
         </nav>
 
-        {/* Mobile Menu Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={toggleMenu}
-          aria-label="Toggle menu"
-        >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
-        </Button>
+        <div className="flex items-center gap-2 md:hidden">
+          <LanguageSwitcher />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleMenu}
+            aria-label="Toggle menu"
+          >
+            {isOpen ? <X size={24} /> : <Menu size={24} />}
+          </Button>
+        </div>
       </div>
 
-      {/* Mobile Navigation */}
       {isOpen && (
         <div className="fixed inset-0 z-40 bg-background pt-20 px-6 flex flex-col slide-up md:hidden">
           <div className="flex flex-col gap-6 text-lg">
@@ -161,7 +162,7 @@ const Navbar = () => {
               className="py-3 border-b border-border"
               onClick={closeMenu}
             >
-              Home
+              {t('navigation.home')}
             </Link>
             {!isLoading && user ? (
               <>
@@ -170,28 +171,28 @@ const Navbar = () => {
                   className="py-3 border-b border-border"
                   onClick={closeMenu}
                 >
-                  Dashboard
+                  {t('navigation.dashboard')}
                 </Link>
                 <Link
                   to="/profile"
                   className="py-3 border-b border-border"
                   onClick={closeMenu}
                 >
-                  Profile
+                  {t('navigation.profile')}
                 </Link>
                 <Link
                   to="/settings"
                   className="py-3 border-b border-border"
                   onClick={closeMenu}
                 >
-                  Settings
+                  {t('navigation.settings')}
                 </Link>
                 <button
                   onClick={handleSignOut}
                   className="py-3 border-b border-border flex items-center text-left"
                 >
                   <LogOut size={18} className="mr-2" />
-                  Sign Out
+                  {t('navigation.signOut')}
                 </button>
               </>
             ) : (
@@ -201,11 +202,11 @@ const Navbar = () => {
                   className="py-3 border-b border-border"
                   onClick={closeMenu}
                 >
-                  Sign In
+                  {t('navigation.signIn')}
                 </Link>
                 <Link to="/register" onClick={closeMenu}>
                   <Button className="w-full bg-special-600 hover:bg-special-700 mt-4 rounded-full">
-                    Get Started
+                    {t('navigation.getStarted')}
                   </Button>
                 </Link>
               </>

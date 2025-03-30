@@ -1,0 +1,85 @@
+
+{
+  "home": {
+    "hero": {
+      "title": "Gestión de cuidados especiales para niños especiales",
+      "subtitle": "Un centro para organizar toda la información esencial de cuidado para su niño con necesidades especiales, accesible exactamente cuando lo necesite.",
+      "getStarted": "Comenzar",
+      "signIn": "Iniciar sesión",
+      "features": {
+        "safe": "Seguro y privado",
+        "easyUpdate": "Fácil de actualizar",
+        "alwaysAccessible": "Siempre accesible"
+      }
+    },
+    "featuresSection": {
+      "title": "Todo lo que necesita en un solo lugar",
+      "subtitle": "Special Caring proporciona todas las herramientas que necesita para gestionar la información de cuidado de su niño con necesidades especiales.",
+      "learnMore": "Saber más",
+      "features": {
+        "essentialInfo": {
+          "title": "Información esencial",
+          "description": "Almacene de forma segura datos personales, contactos de emergencia e información de identificación."
+        },
+        "medicalManagement": {
+          "title": "Gestión médica",
+          "description": "Realice seguimiento de medicamentos, contactos médicos y citas de atención médica para su hijo."
+        },
+        "specialNeeds": {
+          "title": "Apoyo para necesidades especiales",
+          "description": "Registre requisitos específicos, terapias y adaptaciones para las necesidades especiales de su hijo."
+        },
+        "dailyLogs": {
+          "title": "Registros diarios",
+          "description": "Registre actividades diarias, comportamientos y observaciones importantes para la continuidad del cuidado."
+        },
+        "careTeam": {
+          "title": "Contactos del equipo de cuidado",
+          "description": "Gestione información de todos los cuidadores, terapeutas y familiares involucrados en el cuidado."
+        },
+        "growthMilestones": {
+          "title": "Hitos de crecimiento",
+          "description": "Realice seguimiento de los logros de desarrollo y celebre el camino de progreso único de su hijo."
+        }
+      }
+    },
+    "ctaSection": {
+      "title": "¿Listo para simplificar su camino de cuidado especial?",
+      "subtitle": "Únase a otras familias con necesidades especiales que han encontrado alivio a través de una mejor organización del cuidado.",
+      "benefits": {
+        "saveTime": "Ahorre tiempo con acceso fácil a la información",
+        "reduceStress": "Reduzca el estrés con mejor organización",
+        "improveCare": "Mejore la coordinación del cuidado con todos los miembros del equipo"
+      },
+      "getStartedFree": "Comenzar gratis",
+      "testimonial": {
+        "quote": "\"Special Caring ha sido una salvación para nuestra familia. Tener toda la información de mi hijo en un solo lugar ha facilitado mucho la coordinación con terapeutas y médicos.\"",
+        "author": "Jessica Thompson",
+        "role": "Madre de niño con necesidades especiales"
+      }
+    }
+  },
+  "navigation": {
+    "home": "Inicio",
+    "dashboard": "Panel",
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "signIn": "Iniciar sesión",
+    "getStarted": "Comenzar",
+    "signOut": "Cerrar sesión"
+  },
+  "footer": {
+    "navigation": "Navegación",
+    "resources": "Recursos",
+    "help": "Ayuda y soporte",
+    "privacy": "Política de privacidad",
+    "terms": "Términos de servicio",
+    "copyright": "© {{year}} Special Caring. Todos los derechos reservados.",
+    "madeWith": "Hecho con amor para familias con necesidades especiales"
+  },
+  "language": {
+    "en": "English",
+    "fr-CA": "Français (Canada)",
+    "es": "Español"
+  }
+}

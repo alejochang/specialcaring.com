@@ -4,8 +4,11 @@ import { ChevronRight, Heart, FileText, Calendar, Clock, Users, Check, Smile, St
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { useTranslation } from "react-i18next";
 
 const Index = () => {
+  const { t } = useTranslation();
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -17,33 +20,33 @@ const Index = () => {
             <div className="space-y-8 animate-fadeIn">
               <div>
                 <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-tight text-foreground max-w-lg">
-                  Special Care Management For Special Kids
+                  {t('home.hero.title')}
                 </h1>
                 <p className="mt-6 text-lg text-foreground max-w-md font-medium">
-                  A central hub to organize all essential care information for your special-needs child, accessible exactly when you need it.
+                  {t('home.hero.subtitle')}
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/register">
                   <Button size="lg" className="bg-special-600 hover:bg-special-700 shadow-lg rounded-full">
-                    Get Started
+                    {t('home.hero.getStarted')}
                   </Button>
                 </Link>
                 <Link to="/login">
                   <Button size="lg" variant="outline" className="rounded-full">
-                    Sign In
+                    {t('home.hero.signIn')}
                   </Button>
                 </Link>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground text-sm flex-wrap font-medium">
                 <Check size={16} className="text-special-600" />
-                <span>Safe & private</span>
+                <span>{t('home.hero.features.safe')}</span>
                 <span className="mx-2">•</span>
                 <Check size={16} className="text-special-600" />
-                <span>Easy to update</span>
+                <span>{t('home.hero.features.easyUpdate')}</span>
                 <span className="mx-2">•</span>
                 <Check size={16} className="text-special-600" />
-                <span>Always accessible</span>
+                <span>{t('home.hero.features.alwaysAccessible')}</span>
               </div>
             </div>
             <div className="hidden md:flex justify-end">
@@ -69,10 +72,10 @@ const Index = () => {
         <div className="container px-4 md:px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl mb-4">
-              Everything You Need In One Place
+              {t('home.featuresSection.title')}
             </h2>
             <p className="text-lg text-foreground font-medium">
-              Special Caring provides all the tools you need to manage care information for your special-needs child.
+              {t('home.featuresSection.subtitle')}
             </p>
           </div>
           
@@ -81,12 +84,12 @@ const Index = () => {
               <div className="mb-4 bg-special-50 w-12 h-12 rounded-full flex items-center justify-center">
                 <FileText className="text-special-600 h-6 w-6" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Essential Information</h3>
+              <h3 className="text-xl font-semibold mb-2">{t('home.featuresSection.features.essentialInfo.title')}</h3>
               <p className="text-foreground mb-4 font-medium">
-                Store personal details, emergency contacts, and identification information securely.
+                {t('home.featuresSection.features.essentialInfo.description')}
               </p>
               <Link to="/register" className="text-special-600 hover:text-special-700 inline-flex items-center font-medium">
-                Learn more
+                {t('home.featuresSection.learnMore')}
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Link>
             </div>
@@ -95,12 +98,12 @@ const Index = () => {
               <div className="mb-4 bg-special-50 w-12 h-12 rounded-full flex items-center justify-center">
                 <Heart className="text-special-600 h-6 w-6" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Medical Management</h3>
+              <h3 className="text-xl font-semibold mb-2">{t('home.featuresSection.features.medicalManagement.title')}</h3>
               <p className="text-foreground mb-4 font-medium">
-                Track medications, medical contacts, and healthcare appointments for your child.
+                {t('home.featuresSection.features.medicalManagement.description')}
               </p>
               <Link to="/register" className="text-special-600 hover:text-special-700 inline-flex items-center font-medium">
-                Learn more
+                {t('home.featuresSection.learnMore')}
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Link>
             </div>
@@ -109,12 +112,12 @@ const Index = () => {
               <div className="mb-4 bg-special-50 w-12 h-12 rounded-full flex items-center justify-center">
                 <Baby className="text-special-600 h-6 w-6" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Special Needs Support</h3>
+              <h3 className="text-xl font-semibold mb-2">{t('home.featuresSection.features.specialNeeds.title')}</h3>
               <p className="text-foreground mb-4 font-medium">
-                Log specific requirements, therapies, and accommodations for your child's special needs.
+                {t('home.featuresSection.features.specialNeeds.description')}
               </p>
               <Link to="/register" className="text-special-600 hover:text-special-700 inline-flex items-center font-medium">
-                Learn more
+                {t('home.featuresSection.learnMore')}
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Link>
             </div>
@@ -123,12 +126,12 @@ const Index = () => {
               <div className="mb-4 bg-special-50 w-12 h-12 rounded-full flex items-center justify-center">
                 <Calendar className="text-special-600 h-6 w-6" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Daily Logs</h3>
+              <h3 className="text-xl font-semibold mb-2">{t('home.featuresSection.features.dailyLogs.title')}</h3>
               <p className="text-foreground mb-4 font-medium">
-                Record daily activities, behaviors, and important observations for continuity of care.
+                {t('home.featuresSection.features.dailyLogs.description')}
               </p>
               <Link to="/register" className="text-special-600 hover:text-special-700 inline-flex items-center font-medium">
-                Learn more
+                {t('home.featuresSection.learnMore')}
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Link>
             </div>
@@ -137,12 +140,12 @@ const Index = () => {
               <div className="mb-4 bg-special-50 w-12 h-12 rounded-full flex items-center justify-center">
                 <Users className="text-special-600 h-6 w-6" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Care Team Contacts</h3>
+              <h3 className="text-xl font-semibold mb-2">{t('home.featuresSection.features.careTeam.title')}</h3>
               <p className="text-foreground mb-4 font-medium">
-                Manage information for all caregivers, therapists, and family members involved in care.
+                {t('home.featuresSection.features.careTeam.description')}
               </p>
               <Link to="/register" className="text-special-600 hover:text-special-700 inline-flex items-center font-medium">
-                Learn more
+                {t('home.featuresSection.learnMore')}
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Link>
             </div>
@@ -151,12 +154,12 @@ const Index = () => {
               <div className="mb-4 bg-special-50 w-12 h-12 rounded-full flex items-center justify-center">
                 <Star className="text-special-600 h-6 w-6" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Growth Milestones</h3>
+              <h3 className="text-xl font-semibold mb-2">{t('home.featuresSection.features.growthMilestones.title')}</h3>
               <p className="text-foreground mb-4 font-medium">
-                Track developmental achievements and celebrate your child's unique progress journey.
+                {t('home.featuresSection.features.growthMilestones.description')}
               </p>
               <Link to="/register" className="text-special-600 hover:text-special-700 inline-flex items-center font-medium">
-                Learn more
+                {t('home.featuresSection.learnMore')}
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Link>
             </div>
@@ -170,29 +173,29 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div className="text-white space-y-4">
               <h2 className="text-3xl font-bold tracking-tight mb-4">
-                Ready to simplify your special caregiving journey?
+                {t('home.ctaSection.title')}
               </h2>
               <p className="text-white text-lg font-medium">
-                Join other special-needs families who have found relief through better care organization.
+                {t('home.ctaSection.subtitle')}
               </p>
               <ul className="space-y-2 font-medium">
                 <li className="flex items-center gap-2">
                   <Check className="h-5 w-5 text-special-100" />
-                  <span>Save time with easy information access</span>
+                  <span>{t('home.ctaSection.benefits.saveTime')}</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-5 w-5 text-special-100" />
-                  <span>Reduce stress with better organization</span>
+                  <span>{t('home.ctaSection.benefits.reduceStress')}</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-5 w-5 text-special-100" />
-                  <span>Improve care coordination with all team members</span>
+                  <span>{t('home.ctaSection.benefits.improveCare')}</span>
                 </li>
               </ul>
               <div className="pt-4">
                 <Link to="/register">
                   <Button className="bg-white text-special-600 hover:bg-special-50 rounded-full font-semibold">
-                    Get Started Free
+                    {t('home.ctaSection.getStartedFree')}
                   </Button>
                 </Link>
               </div>
@@ -201,13 +204,13 @@ const Index = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-special-700 to-special-800 rounded-3xl"></div>
               <div className="relative z-10">
                 <blockquote className="text-lg italic mb-8 font-medium">
-                  "Special Caring has been a lifesaver for our family. Having all my son's information in one place has made it so much easier to coordinate with therapists and doctors."
+                  {t('home.ctaSection.testimonial.quote')}
                 </blockquote>
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-special-600 rounded-full"></div>
                   <div>
-                    <p className="font-semibold">Jessica Thompson</p>
-                    <p className="text-sm text-special-100 font-medium">Parent of special-needs child</p>
+                    <p className="font-semibold">{t('home.ctaSection.testimonial.author')}</p>
+                    <p className="text-sm text-special-100 font-medium">{t('home.ctaSection.testimonial.role')}</p>
                   </div>
                 </div>
               </div>

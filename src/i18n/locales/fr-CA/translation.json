@@ -1,0 +1,85 @@
+
+{
+  "home": {
+    "hero": {
+      "title": "Gestion de soins spéciaux pour enfants spéciaux",
+      "subtitle": "Une plateforme centrale pour organiser toutes les informations de soins essentielles pour votre enfant à besoins particuliers, accessibles quand vous en avez besoin.",
+      "getStarted": "Commencer",
+      "signIn": "Se connecter",
+      "features": {
+        "safe": "Sûr et privé",
+        "easyUpdate": "Facile à mettre à jour",
+        "alwaysAccessible": "Toujours accessible"
+      }
+    },
+    "featuresSection": {
+      "title": "Tout ce dont vous avez besoin en un seul endroit",
+      "subtitle": "Special Caring fournit tous les outils dont vous avez besoin pour gérer les informations de soins de votre enfant à besoins particuliers.",
+      "learnMore": "En savoir plus",
+      "features": {
+        "essentialInfo": {
+          "title": "Informations essentielles",
+          "description": "Stockez en toute sécurité les détails personnels, les contacts d'urgence et les informations d'identification."
+        },
+        "medicalManagement": {
+          "title": "Gestion médicale",
+          "description": "Suivez les médicaments, les contacts médicaux et les rendez-vous de santé pour votre enfant."
+        },
+        "specialNeeds": {
+          "title": "Soutien aux besoins spéciaux",
+          "description": "Enregistrez les exigences spécifiques, les thérapies et les adaptations pour les besoins particuliers de votre enfant."
+        },
+        "dailyLogs": {
+          "title": "Journaux quotidiens",
+          "description": "Enregistrez les activités quotidiennes, les comportements et les observations importantes pour la continuité des soins."
+        },
+        "careTeam": {
+          "title": "Contacts de l'équipe de soins",
+          "description": "Gérez les informations pour tous les soignants, thérapeutes et membres de la famille impliqués dans les soins."
+        },
+        "growthMilestones": {
+          "title": "Étapes de croissance",
+          "description": "Suivez les réalisations de développement et célébrez le parcours de progrès unique de votre enfant."
+        }
+      }
+    },
+    "ctaSection": {
+      "title": "Prêt à simplifier votre parcours de soins spéciaux?",
+      "subtitle": "Rejoignez d'autres familles avec des besoins particuliers qui ont trouvé du soulagement grâce à une meilleure organisation des soins.",
+      "benefits": {
+        "saveTime": "Gagnez du temps avec un accès facile à l'information",
+        "reduceStress": "Réduisez le stress avec une meilleure organisation",
+        "improveCare": "Améliorez la coordination des soins avec tous les membres de l'équipe"
+      },
+      "getStartedFree": "Commencer gratuitement",
+      "testimonial": {
+        "quote": "\"Special Caring a été une bouée de sauvetage pour notre famille. Avoir toutes les informations de mon fils en un seul endroit a rendu la coordination avec les thérapeutes et les médecins beaucoup plus facile.\"",
+        "author": "Jessica Thompson",
+        "role": "Parent d'un enfant à besoins particuliers"
+      }
+    }
+  },
+  "navigation": {
+    "home": "Accueil",
+    "dashboard": "Tableau de bord",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "signIn": "Se connecter",
+    "getStarted": "Commencer",
+    "signOut": "Se déconnecter"
+  },
+  "footer": {
+    "navigation": "Navigation",
+    "resources": "Ressources",
+    "help": "Aide et support",
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d'utilisation",
+    "copyright": "© {{year}} Special Caring. Tous droits réservés.",
+    "madeWith": "Fait avec amour pour les familles ayant des besoins particuliers"
+  },
+  "language": {
+    "en": "English",
+    "fr-CA": "Français (Canada)",
+    "es": "Español"
+  }
+}
