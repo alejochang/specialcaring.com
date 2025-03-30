@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { ChevronRight, Heart, FileText, Calendar, Clock, Users, Check, Smile, Star, Sun, Baby } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -51,9 +52,9 @@ const Index = () => {
                 <div className="absolute -right-6 -bottom-6 w-72 h-72 bg-special-200 rounded-full filter blur-3xl opacity-70 animate-pulse delay-700"></div>
                 <div className="relative glass-card rounded-3xl overflow-hidden shadow-xl z-10 border-2 border-special-200">
                   <img 
-                    src="https://images.unsplash.com/photo-1517021897933-0e0319cfbc28?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
-                    alt="Diverse group of children including a child in wheelchair"
-                    className="w-full h-full object-cover"
+                    src="/lovable-uploads/468cc94a-55d5-408f-91e5-0ee1d595a572.png" 
+                    alt="Mother hugging child in wheelchair with care information tablet"
+                    className="w-full h-full object-contain p-4"
                     loading="lazy"
                   />
                 </div>
