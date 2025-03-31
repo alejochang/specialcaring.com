@@ -15,7 +15,7 @@ const LanguageSwitcher = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const languages = [
-    { code: 'en', name: 'English' },
+    { code: 'en-CA', name: 'English (Canada)' },
     { code: 'fr-CA', name: 'Français (Canada)' },
     { code: 'es', name: 'Español' }
   ];
@@ -25,12 +25,18 @@ const LanguageSwitcher = () => {
     setIsOpen(false);
   };
 
+  // Helper function to get the current language name
+  const getCurrentLanguageName = () => {
+    const currentLang = languages.find(lang => lang.code === i18n.language);
+    return currentLang ? t(`language.${currentLang.code}`) : i18n.language;
+  };
+
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="px-2 flex gap-1">
           <Globe size={18} />
-          <span className="hidden sm:inline ml-1">{t(`language.${i18n.language}`) || i18n.language}</span>
+          <span className="hidden sm:inline ml-1">{getCurrentLanguageName()}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

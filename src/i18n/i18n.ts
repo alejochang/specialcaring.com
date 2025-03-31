@@ -10,13 +10,13 @@ import translationES from './locales/es/translation.json';
 
 // Resources object with translations
 const resources = {
-  en: {
+  'en-CA': {
     translation: translationEN
   },
   'fr-CA': {
     translation: translationFR
   },
-  es: {
+  'es': {
     translation: translationES
   }
 };
@@ -29,7 +29,7 @@ i18n
   // Initialize i18next
   .init({
     resources,
-    fallbackLng: 'en',
+    fallbackLng: 'en-CA',
     interpolation: {
       escapeValue: false, // React already escapes values
     },
