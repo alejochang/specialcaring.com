@@ -133,7 +133,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   className={cn(
                     "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
                     location.pathname === item.path
-                      ? "bg-caregiver-50 text-caregiver-600"
+                      ? "bg-special-50 text-special-600"
                       : "text-foreground/70 hover:bg-muted hover:text-foreground"
                   )}
                 >
@@ -174,7 +174,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     className={cn(
                       "flex items-center gap-3 px-3 py-3 rounded-md transition-colors",
                       location.pathname === item.path
-                        ? "bg-caregiver-50 text-caregiver-600"
+                        ? "bg-special-50 text-special-600"
                         : "text-foreground/70 hover:bg-muted hover:text-foreground"
                     )}
                     onClick={toggleMobileSidebar}
@@ -196,7 +196,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           isCollapsed ? "md:ml-20" : "md:ml-64"
         )}
       >
-        {children}
+        <div className="p-6">
+          {children}
+        </div>
       </main>
     </div>
   );
