@@ -110,8 +110,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <div className="flex items-center h-16 px-4 border-b border-border">
           {!isCollapsed && (
             <Link to="/dashboard" className="flex items-center gap-2 flex-grow">
-              <span className="text-xl font-bold text-caregiver-600">CG</span>
-              <span className="text-xl font-light">Organizer</span>
+              <span className="text-xl font-bold text-special-600">Special</span>
+              <span className="text-xl font-light">Caring</span>
             </Link>
           )}
           <Button
@@ -151,15 +151,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <Button variant="ghost" size="icon" onClick={toggleMobileSidebar}>
           <Menu size={24} />
         </Button>
-        <span className="ml-4 text-xl font-semibold">Caregiver Organizer</span>
+        <span className="ml-4 text-xl font-semibold">Special Caring</span>
       </div>
 
       {isMobileOpen && (
         <div className="fixed inset-0 z-50 bg-background md:hidden">
           <div className="flex justify-between items-center h-16 px-4 border-b border-border">
             <Link to="/dashboard" className="flex items-center gap-2">
-              <span className="text-xl font-bold text-caregiver-600">Caregiver</span>
-              <span className="text-xl font-light">Organizer</span>
+              <span className="text-xl font-bold text-special-600">Special</span>
+              <span className="text-xl font-light">Caring</span>
             </Link>
             <Button variant="ghost" size="icon" onClick={toggleMobileSidebar}>
               <X size={24} />
