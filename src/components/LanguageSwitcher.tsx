@@ -34,8 +34,8 @@ const LanguageSwitcher = () => {
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="px-2 flex gap-1">
-          <Globe size={18} />
+        <Button variant="ghost" size="sm" className="px-2 flex gap-1 h-9">
+          <Globe size={18} className="text-special-600" />
           <span className="hidden sm:inline ml-1">{getCurrentLanguageName()}</span>
         </Button>
       </DropdownMenuTrigger>

@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   ChevronLeft,
   ChevronRight,
@@ -19,9 +19,21 @@ import {
   FileCheck,
   Menu,
   X,
+  LogOut,
+  User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -94,9 +106,29 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const location = useLocation();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const toggleSidebar = () => setIsCollapsed(!isCollapsed);
   const toggleMobileSidebar = () => setIsMobileOpen(!isMobileOpen);
+  
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
+
+  const getUserInitials = () => {
+    if (!user || !user.user_metadata?.full_name) {
+      return "U";
+    }
+    const fullName = user.user_metadata.full_name as string;
+    return fullName
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2);
+  };
   
   return (
     <div className="min-h-screen bg-background flex">
@@ -152,6 +184,37 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <Menu size={24} />
         </Button>
         <span className="ml-4 text-xl font-semibold">Special Caring</span>
+        
+        <div className="ml-auto flex items-center gap-2">
+          <LanguageSwitcher />
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-9 px-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage 
+                    src={user?.user_metadata?.avatar_url as string} 
+                    alt={user?.user_metadata?.full_name as string || "User"} 
+                  />
+                  <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem asChild>
+                <Link to="/profile" className="w-full cursor-pointer flex items-center">
+                  <User size={16} className="mr-2" />
+                  Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer flex items-center">
+                <LogOut size={16} className="mr-2" />
+                Sign Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {isMobileOpen && (
@@ -192,10 +255,49 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       {/* Main Content */}
       <main
         className={cn(
-          "flex-1 transition-all duration-300 pt-16 md:pt-0",
+          "flex-1 transition-all duration-300",
           isCollapsed ? "md:ml-20" : "md:ml-64"
         )}
       >
+        {/* Desktop Header */}
+        <div className="hidden md:flex h-16 items-center justify-end px-6 border-b border-border bg-white">
+          <div className="flex items-center gap-4">
+            <Link to="/" className="flex items-center gap-2 text-special-600 hover:text-special-700">
+              <Home size={20} />
+              <span>Home</span>
+            </Link>
+            <LanguageSwitcher />
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-2">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage 
+                      src={user?.user_metadata?.avatar_url as string} 
+                      alt={user?.user_metadata?.full_name as string || "User"} 
+                    />
+                    <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                  </Avatar>
+                  <span className="ml-2">{(user?.user_metadata?.full_name as string) || user?.email}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem asChild>
+                  <Link to="/profile" className="w-full cursor-pointer flex items-center">
+                    <User size={16} className="mr-2" />
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer flex items-center">
+                  <LogOut size={16} className="mr-2" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+        
         <div className="p-6">
           {children}
         </div>
