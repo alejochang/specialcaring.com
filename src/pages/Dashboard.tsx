@@ -59,8 +59,8 @@ const DashboardOverview = () => {
         <Link to="/dashboard/key-information" className="block transition-transform hover:scale-105">
           <Card className="bg-white shadow-sm border border-border h-full">
             <CardHeader className="pb-2">
-              <div className="w-12 h-12 rounded-full bg-caregiver-50 flex items-center justify-center mb-1">
-                <User className="h-6 w-6 text-caregiver-600" />
+              <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center mb-1">
+                <User className="h-6 w-6 text-special-600" />
               </div>
               <CardTitle className="text-lg">Key Information</CardTitle>
               <CardDescription>
@@ -78,8 +78,8 @@ const DashboardOverview = () => {
         <Link to="/dashboard/emergency-cards" className="block transition-transform hover:scale-105">
           <Card className="bg-white shadow-sm border border-border h-full">
             <CardHeader className="pb-2">
-              <div className="w-12 h-12 rounded-full bg-caregiver-50 flex items-center justify-center mb-1">
-                <AlertTriangle className="h-6 w-6 text-caregiver-600" />
+              <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center mb-1">
+                <AlertTriangle className="h-6 w-6 text-special-600" />
               </div>
               <CardTitle className="text-lg">Emergency Cards</CardTitle>
               <CardDescription>
@@ -97,8 +97,8 @@ const DashboardOverview = () => {
         <Link to="/dashboard/medical-information" className="block transition-transform hover:scale-105">
           <Card className="bg-white shadow-sm border border-border h-full">
             <CardHeader className="pb-2">
-              <div className="w-12 h-12 rounded-full bg-caregiver-50 flex items-center justify-center mb-1">
-                <Heart className="h-6 w-6 text-caregiver-600" />
+              <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center mb-1">
+                <Heart className="h-6 w-6 text-special-600" />
               </div>
               <CardTitle className="text-lg">Medical Information</CardTitle>
               <CardDescription>
@@ -116,8 +116,8 @@ const DashboardOverview = () => {
         <Link to="/dashboard/medications" className="block transition-transform hover:scale-105">
           <Card className="bg-white shadow-sm border border-border h-full">
             <CardHeader className="pb-2">
-              <div className="w-12 h-12 rounded-full bg-caregiver-50 flex items-center justify-center mb-1">
-                <Pill className="h-6 w-6 text-caregiver-600" />
+              <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center mb-1">
+                <Pill className="h-6 w-6 text-special-600" />
               </div>
               <CardTitle className="text-lg">Medications</CardTitle>
               <CardDescription>
@@ -135,8 +135,8 @@ const DashboardOverview = () => {
         <Link to="/dashboard/medical-contacts" className="block transition-transform hover:scale-105">
           <Card className="bg-white shadow-sm border border-border h-full">
             <CardHeader className="pb-2">
-              <div className="w-12 h-12 rounded-full bg-caregiver-50 flex items-center justify-center mb-1">
-                <Phone className="h-6 w-6 text-caregiver-600" />
+              <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center mb-1">
+                <Phone className="h-6 w-6 text-special-600" />
               </div>
               <CardTitle className="text-lg">Medical Contacts</CardTitle>
               <CardDescription>
@@ -154,8 +154,8 @@ const DashboardOverview = () => {
         <Link to="/dashboard/daily-log" className="block transition-transform hover:scale-105">
           <Card className="bg-white shadow-sm border border-border h-full">
             <CardHeader className="pb-2">
-              <div className="w-12 h-12 rounded-full bg-caregiver-50 flex items-center justify-center mb-1">
-                <Calendar className="h-6 w-6 text-caregiver-600" />
+              <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center mb-1">
+                <Calendar className="h-6 w-6 text-special-600" />
               </div>
               <CardTitle className="text-lg">Daily Log</CardTitle>
               <CardDescription>
@@ -171,7 +171,7 @@ const DashboardOverview = () => {
         </Link>
       </div>
       
-      <div className="text-center p-6 bg-caregiver-50 rounded-xl">
+      <div className="text-center p-6 bg-special-50 rounded-xl">
         <h3 className="text-xl font-medium mb-2">Getting Started</h3>
         <p className="text-muted-foreground max-w-md mx-auto">
           Begin by adding your key information and emergency contacts. You can add more sections as needed.
