@@ -15,8 +15,8 @@ const LanguageSwitcher = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const languages = [
-    { code: 'en-CA', name: 'English (Canada)' },
-    { code: 'fr-CA', name: 'Français (Canada)' },
+    { code: 'en-CA', name: 'English' },
+    { code: 'fr-CA', name: 'Français' },
     { code: 'es', name: 'Español' }
   ];
 
@@ -28,7 +28,7 @@ const LanguageSwitcher = () => {
   // Helper function to get the current language name
   const getCurrentLanguageName = () => {
     const currentLang = languages.find(lang => lang.code === i18n.language);
-    return currentLang ? t(`language.${currentLang.code}`) : i18n.language;
+    return currentLang ? currentLang.name : 'English';
   };
 
   return (
@@ -46,7 +46,7 @@ const LanguageSwitcher = () => {
             onClick={() => changeLanguage(language.code)}
             className="cursor-pointer"
           >
-            {t(`language.${language.code}`)}
+            {language.name}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
