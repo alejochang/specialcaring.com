@@ -8,8 +8,9 @@ export interface MedicalContact {
   id: string;
   user_id: string;
   name: string;
-  specialty: string;
-  phone: string;
+  specialty?: string;
+  type: string;
+  phone_number: string;
   email?: string;
   address?: string;
   notes?: string;
