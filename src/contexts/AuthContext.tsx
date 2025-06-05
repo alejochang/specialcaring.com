@@ -137,10 +137,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log('Attempting Google OAuth sign in');
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`,
-        }
+        provider: "google"
       });
 
       if (error) throw error;
@@ -160,10 +157,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log('Attempting Twitter OAuth sign in');
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: "twitter",
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`,
-        }
+        provider: "twitter"
       });
 
       if (error) throw error;
@@ -183,10 +177,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log('Attempting Facebook OAuth sign in');
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: "facebook",
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`,
-        }
+        provider: "facebook"
       });
 
       if (error) throw error;
@@ -210,8 +201,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         options: {
           data: {
             full_name: name,
-          },
-          emailRedirectTo: `${window.location.origin}/dashboard`,
+          }
         },
       });
 
