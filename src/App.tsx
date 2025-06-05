@@ -25,6 +25,17 @@ const AuthNavigationHandler = ({ children }: { children: React.ReactNode }) => {
 
     console.log('AuthNavigationHandler - User:', user?.email || 'No user', 'Path:', location.pathname, 'Loading:', isLoading);
     
+    // Handle OAuth callback - if there's an access_token in the URL, we're coming back from OAuth
+    const urlParams = new URLSearchParams(location.search);
+    const accessToken = urlParams.get('access_token');
+    const fragment = location.hash;
+    
+    if (accessToken || fragment.includes('access_token')) {
+      console.log('OAuth callback detected, redirecting to dashboard');
+      navigate('/dashboard', { replace: true });
+      return;
+    }
+    
     // If user is authenticated and on public pages, redirect to dashboard
     if (user && (location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/')) {
       console.log('Redirecting authenticated user to dashboard from:', location.pathname);
@@ -38,7 +49,7 @@ const AuthNavigationHandler = ({ children }: { children: React.ReactNode }) => {
       navigate('/login', { replace: true });
       return;
     }
-  }, [user, isLoading, navigate, location.pathname]);
+  }, [user, isLoading, navigate, location.pathname, location.search, location.hash]);
 
   return <>{children}</>;
 };

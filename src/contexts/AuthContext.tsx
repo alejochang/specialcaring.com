@@ -27,17 +27,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     console.log('Setting up auth state listener...');
     
+    // Get the initial session first
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session?.user?.email || 'No user');
+      setSession(session);
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
+
     // Set up the auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('Auth state change event:', event, 'Session user:', session?.user?.email || 'No user');
         setSession(session);
         setUser(session?.user ?? null);
+        setIsLoading(false);
         
         if (event === 'SIGNED_IN') {
           console.log('User signed in:', session?.user?.email);
           toast({
-            title: "Welcome back!",
+            title: "Welcome!",
             description: "You have successfully signed in.",
           });
         }
@@ -53,14 +62,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
     );
-
-    // Get the initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session check:', session?.user?.email || 'No user');
-      setSession(session);
-      setUser(session?.user ?? null);
-      setIsLoading(false);
-    });
 
     return () => {
       subscription.unsubscribe();
