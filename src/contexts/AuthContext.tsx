@@ -33,6 +33,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (event === 'SIGNED_IN') {
           console.log('User signed in:', session?.user);
+          // Redirect to dashboard after successful sign in
+          window.location.href = '/dashboard';
         }
         
         if (event === 'SIGNED_OUT') {
@@ -40,6 +42,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Clear any cached data when user signs out
           setSession(null);
           setUser(null);
+          // Redirect to home page after sign out
+          window.location.href = '/';
         }
 
         if (event === 'TOKEN_REFRESHED') {
