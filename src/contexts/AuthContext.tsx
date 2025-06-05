@@ -1,6 +1,6 @@
-
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -23,6 +23,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Set up the auth state listener
@@ -33,8 +34,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (event === 'SIGNED_IN') {
           console.log('User signed in:', session?.user);
-          // Redirect to dashboard after successful sign in
-          window.location.href = '/dashboard';
+          // Use React Router navigation instead of window.location
+          navigate('/dashboard');
         }
         
         if (event === 'SIGNED_OUT') {
@@ -42,8 +43,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Clear any cached data when user signs out
           setSession(null);
           setUser(null);
-          // Redirect to home page after sign out
-          window.location.href = '/';
+          // Use React Router navigation instead of window.location
+          navigate('/');
         }
 
         if (event === 'TOKEN_REFRESHED') {
@@ -62,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   // Session validation effect
   useEffect(() => {
