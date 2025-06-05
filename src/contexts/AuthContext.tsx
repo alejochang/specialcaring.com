@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,10 +25,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log('Setting up auth state listener...');
+    
     // Set up the auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('Auth state change event:', event, 'Session user:', session?.user?.email);
+        console.log('Auth state change event:', event, 'Session user:', session?.user?.email || 'No user');
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -41,7 +44,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (event === 'SIGNED_OUT') {
           console.log('User signed out');
-          // Clear any cached data when user signs out
           setSession(null);
           setUser(null);
         }

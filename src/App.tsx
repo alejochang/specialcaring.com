@@ -21,20 +21,22 @@ const AuthNavigationHandler = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   useEffect(() => {
-    if (!isLoading) {
-      console.log('AuthNavigationHandler - User:', user?.email, 'Path:', location.pathname, 'Loading:', isLoading);
-      
-      // If user is authenticated and on public pages, redirect to dashboard
-      if (user && (location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/')) {
-        console.log('Redirecting authenticated user to dashboard from:', location.pathname);
-        navigate('/dashboard', { replace: true });
-      }
-      
-      // If user is not authenticated and on protected routes, redirect to home
-      if (!user && location.pathname.startsWith('/dashboard')) {
-        console.log('Redirecting unauthenticated user to home from:', location.pathname);
-        navigate('/', { replace: true });
-      }
+    if (isLoading) return; // Don't redirect while loading
+
+    console.log('AuthNavigationHandler - User:', user?.email || 'No user', 'Path:', location.pathname, 'Loading:', isLoading);
+    
+    // If user is authenticated and on public pages, redirect to dashboard
+    if (user && (location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/')) {
+      console.log('Redirecting authenticated user to dashboard from:', location.pathname);
+      navigate('/dashboard', { replace: true });
+      return;
+    }
+    
+    // If user is not authenticated and trying to access protected routes, redirect to login
+    if (!user && location.pathname.startsWith('/dashboard')) {
+      console.log('Redirecting unauthenticated user to login from:', location.pathname);
+      navigate('/login', { replace: true });
+      return;
     }
   }, [user, isLoading, navigate, location.pathname]);
 
@@ -73,7 +75,6 @@ const AppContent = () => {
               </ProtectedRoute>
             } 
           />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthNavigationHandler>
@@ -82,7 +83,6 @@ const AppContent = () => {
 };
 
 const App = () => {
-  // Create a client
   const [queryClient] = useState(() => new QueryClient());
 
   return (
