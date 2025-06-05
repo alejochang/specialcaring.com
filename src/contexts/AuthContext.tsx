@@ -37,6 +37,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (event === 'SIGNED_OUT') {
           console.log('User signed out');
+          // Clear any cached data when user signs out
+          setSession(null);
+          setUser(null);
+        }
+
+        if (event === 'TOKEN_REFRESHED') {
+          console.log('Token refreshed');
         }
       }
     );
@@ -52,6 +59,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       subscription.unsubscribe();
     };
   }, []);
+
+  // Session validation effect
+  useEffect(() => {
+    if (!session) return;
+
+    const validateSession = async () => {
+      try {
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        
+        if (error || !currentSession) {
+          toast({
+            title: "Session Expired",
+            description: "Your session has expired. Please sign in again.",
+            variant: "destructive",
+          });
+          await signOut();
+        }
+      } catch (error) {
+        console.error("Session validation error:", error);
+        await signOut();
+      }
+    };
+
+    // Validate session every 5 minutes
+    const interval = setInterval(validateSession, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [session, toast]);
 
   const signInWithEmail = async (email: string, password: string) => {
     try {
@@ -164,6 +199,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      
+      // Clear local state
+      setSession(null);
+      setUser(null);
     } catch (error: any) {
       toast({
         title: "Error signing out",
