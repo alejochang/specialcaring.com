@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   ChevronLeft,
@@ -21,6 +21,8 @@ import {
   X,
   LogOut,
   User,
+  Truck,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -66,6 +68,11 @@ const sidebarItems = [
     path: "/dashboard/medications",
   },
   {
+    title: "Suppliers & Providers",
+    icon: Truck,
+    path: "/dashboard/suppliers",
+  },
+  {
     title: "Medical Contacts & Log",
     icon: Phone,
     path: "/dashboard/medical-contacts",
@@ -106,8 +113,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const location = useLocation();
-  const { user, signOut } = useAuth();
+  const { user, signOut, isLoading } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isLoading && !user) {
+      navigate("/login");
+    }
+  }, [user, isLoading, navigate]);
 
   const toggleSidebar = () => setIsCollapsed(!isCollapsed);
   const toggleMobileSidebar = () => setIsMobileOpen(!isMobileOpen);
@@ -129,6 +143,20 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       .toUpperCase()
       .substring(0, 2);
   };
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-special-600" />
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated
+  if (!user) {
+    return null;
+  }
   
   return (
     <div className="min-h-screen bg-background flex">
