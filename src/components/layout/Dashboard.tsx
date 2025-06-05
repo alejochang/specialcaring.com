@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -21,6 +20,7 @@ import {
   X,
   LogOut,
   User,
+  Truck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -64,6 +64,11 @@ const sidebarItems = [
     title: "Medications",
     icon: Pill,
     path: "/dashboard/medications",
+  },
+  {
+    title: "Suppliers & Providers",
+    icon: Truck,
+    path: "/dashboard/suppliers",
   },
   {
     title: "Medical Contacts & Log",
