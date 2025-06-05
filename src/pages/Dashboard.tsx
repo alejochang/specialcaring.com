@@ -6,9 +6,8 @@ import KeyInformation from "@/components/sections/KeyInformation";
 import EmergencyCards from "@/components/sections/EmergencyCards";
 import MedicationsList from "@/components/sections/MedicationsList";
 import MedicalContacts from "@/components/sections/MedicalContacts";
-import SuppliersList from "@/components/sections/SuppliersList";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Calendar, AlertTriangle, Heart, Pill, Phone, Truck } from "lucide-react";
+import { User, Calendar, AlertTriangle, Heart, Pill, Phone } from "lucide-react";
 
 const Dashboard = () => {
   const { section } = useParams();
@@ -30,8 +29,6 @@ const Dashboard = () => {
         return <EmergencyCards />;
       case "medications":
         return <MedicationsList />;
-      case "suppliers":
-        return <SuppliersList />;
       case "medical-contacts":
         return <MedicalContacts />;
       default:
@@ -130,25 +127,6 @@ const DashboardOverview = () => {
             <CardContent>
               <p className="text-sm text-muted-foreground pb-4">
                 Manage all medications, including dosages, schedules, and special instructions.
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link to="/dashboard/suppliers" className="block transition-transform hover:scale-105">
-          <Card className="bg-white shadow-sm border border-border h-full">
-            <CardHeader className="pb-2">
-              <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center mb-1">
-                <Truck className="h-6 w-6 text-special-600" />
-              </div>
-              <CardTitle className="text-lg">Suppliers & Providers</CardTitle>
-              <CardDescription>
-                Where to buy medicines and supplies
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground pb-4">
-                Track all suppliers and providers for medicines, supplements, and caregiving supplies.
               </p>
             </CardContent>
           </Card>
