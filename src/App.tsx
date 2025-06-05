@@ -25,14 +25,16 @@ const AuthNavigationHandler = ({ children }: { children: React.ReactNode }) => {
 
     console.log('AuthNavigationHandler - User:', user?.email || 'No user', 'Path:', location.pathname, 'Loading:', isLoading);
     
-    // Handle OAuth callback - if there's an access_token in the URL, we're coming back from OAuth
+    // Check for OAuth callback parameters in URL
     const urlParams = new URLSearchParams(location.search);
-    const accessToken = urlParams.get('access_token');
-    const fragment = location.hash;
+    const fragment = new URLSearchParams(location.hash.substring(1));
+    const accessToken = urlParams.get('access_token') || fragment.get('access_token');
+    const refreshToken = urlParams.get('refresh_token') || fragment.get('refresh_token');
     
-    if (accessToken || fragment.includes('access_token')) {
-      console.log('OAuth callback detected, redirecting to dashboard');
-      navigate('/dashboard', { replace: true });
+    // If we have OAuth tokens in URL, we're returning from OAuth
+    if (accessToken || refreshToken) {
+      console.log('OAuth callback detected with tokens, waiting for auth state...');
+      // Don't redirect immediately, let the auth state change handle it
       return;
     }
     

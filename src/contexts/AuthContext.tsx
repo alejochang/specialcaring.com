@@ -27,18 +27,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     console.log('Setting up auth state listener...');
     
-    // Get the initial session first
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session check:', session?.user?.email || 'No user');
-      setSession(session);
-      setUser(session?.user ?? null);
-      setIsLoading(false);
-    });
-
-    // Set up the auth state listener
+    // Set up the auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log('Auth state change event:', event, 'Session user:', session?.user?.email || 'No user');
+        
+        // Update state immediately
         setSession(session);
         setUser(session?.user ?? null);
         setIsLoading(false);
@@ -63,6 +57,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
+    // THEN get the initial session
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        console.log('Initial session check:', session?.user?.email || 'No user', 'Error:', error);
+        
+        if (error) {
+          console.error('Error getting session:', error);
+        }
+        
+        setSession(session);
+        setUser(session?.user ?? null);
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
+
     return () => {
       subscription.unsubscribe();
     };
@@ -77,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { data: { session: currentSession }, error } = await supabase.auth.getSession();
         
         if (error || !currentSession) {
+          console.log('Session validation failed, signing out');
           toast({
             title: "Session Expired",
             description: "Your session has expired. Please sign in again.",
