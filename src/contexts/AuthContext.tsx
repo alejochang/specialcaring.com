@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,11 +27,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Set up the auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth state change event:', event, 'Session user:', session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         
         if (event === 'SIGNED_IN') {
-          console.log('User signed in:', session?.user);
+          console.log('User signed in:', session?.user?.email);
+          toast({
+            title: "Welcome back!",
+            description: "You have successfully signed in.",
+          });
         }
         
         if (event === 'SIGNED_OUT') {
@@ -43,13 +47,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         if (event === 'TOKEN_REFRESHED') {
-          console.log('Token refreshed');
+          console.log('Token refreshed for user:', session?.user?.email);
         }
       }
     );
 
     // Get the initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session?.user?.email || 'No user');
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
@@ -58,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [toast]);
 
   // Session validation effect
   useEffect(() => {
@@ -90,13 +95,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithEmail = async (email: string, password: string) => {
     try {
+      console.log('Attempting email sign in for:', email);
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
+      console.log('Email sign in successful for:', email);
     } catch (error: any) {
+      console.error('Email sign in error:', error);
       toast({
         title: "Error signing in",
         description: error.message || "An error occurred during sign in",
@@ -108,6 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
+      console.log('Attempting Google OAuth sign in');
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
@@ -116,7 +125,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (error) throw error;
+      console.log('Google OAuth initiated successfully');
     } catch (error: any) {
+      console.error('Google sign in error:', error);
       toast({
         title: "Error signing in with Google",
         description: error.message || "An error occurred",
@@ -128,6 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithTwitter = async () => {
     try {
+      console.log('Attempting Twitter OAuth sign in');
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "twitter",
         options: {
@@ -136,7 +148,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (error) throw error;
+      console.log('Twitter OAuth initiated successfully');
     } catch (error: any) {
+      console.error('Twitter sign in error:', error);
       toast({
         title: "Error signing in with Twitter",
         description: error.message || "An error occurred",
@@ -148,6 +162,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithFacebook = async () => {
     try {
+      console.log('Attempting Facebook OAuth sign in');
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "facebook",
         options: {
@@ -156,7 +171,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (error) throw error;
+      console.log('Facebook OAuth initiated successfully');
     } catch (error: any) {
+      console.error('Facebook sign in error:', error);
       toast({
         title: "Error signing in with Facebook",
         description: error.message || "An error occurred",

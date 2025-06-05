@@ -22,15 +22,18 @@ const AuthNavigationHandler = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (!isLoading) {
-      // If user just signed in and they're on login/register page, redirect to dashboard
+      console.log('AuthNavigationHandler - User:', user?.email, 'Path:', location.pathname, 'Loading:', isLoading);
+      
+      // If user is authenticated and on public pages, redirect to dashboard
       if (user && (location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/')) {
-        if (location.pathname !== '/') {
-          navigate('/dashboard');
-        }
+        console.log('Redirecting authenticated user to dashboard from:', location.pathname);
+        navigate('/dashboard', { replace: true });
       }
-      // If user signed out and they're on a protected route, redirect to home
+      
+      // If user is not authenticated and on protected routes, redirect to home
       if (!user && location.pathname.startsWith('/dashboard')) {
-        navigate('/');
+        console.log('Redirecting unauthenticated user to home from:', location.pathname);
+        navigate('/', { replace: true });
       }
     }
   }, [user, isLoading, navigate, location.pathname]);
