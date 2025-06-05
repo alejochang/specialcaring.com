@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -74,7 +73,14 @@ const SuppliersList = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setSuppliers(data || []);
+      
+      // Type-cast the data to ensure proper typing
+      const typedData: SupplierEntry[] = (data || []).map(item => ({
+        ...item,
+        category: item.category as SupplierCategory
+      }));
+      
+      setSuppliers(typedData);
     } catch (error) {
       console.error('Error fetching suppliers:', error);
       toast({
