@@ -8,8 +8,9 @@ import MedicationsList from "@/components/sections/MedicationsList";
 import MedicalContacts from "@/components/sections/MedicalContacts";
 import SuppliersList from "@/components/sections/SuppliersList";
 import HomeSafety from "@/components/sections/HomeSafety";
+import CommunityServices from "@/components/sections/CommunityServices";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Calendar, AlertTriangle, Heart, Pill, Phone, Truck, Shield } from "lucide-react";
+import { User, Calendar, AlertTriangle, Heart, Pill, Phone, Truck, Shield, Building } from "lucide-react";
 
 const Dashboard = () => {
   const { section } = useParams();
@@ -37,6 +38,8 @@ const Dashboard = () => {
         return <MedicalContacts />;
       case "home-safety":
         return <HomeSafety />;
+      case "community-services":
+        return <CommunityServices />;
       default:
         return <DashboardOverview />;
     }
@@ -190,6 +193,25 @@ const DashboardOverview = () => {
             <CardContent>
               <p className="text-sm text-muted-foreground pb-4">
                 Keep track of all healthcare providers, their contact information, and specialties.
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link to="/dashboard/community-services" className="block transition-transform hover:scale-105">
+          <Card className="bg-white shadow-sm border border-border h-full">
+            <CardHeader className="pb-2">
+              <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center mb-1">
+                <Building className="h-6 w-6 text-special-600" />
+              </div>
+              <CardTitle className="text-lg">Community Services</CardTitle>
+              <CardDescription>
+                Local resources and support services
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground pb-4">
+                Discover local resources, programs, and support services for special needs families.
               </p>
             </CardContent>
           </Card>

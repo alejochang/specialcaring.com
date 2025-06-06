@@ -272,6 +272,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Mock auth wrapper for signInWithEmail
+  const mockSignInWrapper = async (email: string, password: string): Promise<void> => {
+    const result = await mockAuth.signInWithMockCredentials(email, password);
+    // We don't need to return anything since the type expects void
+    return;
+  };
+
   // NOW we can conditionally return different provider values based on mock mode
   if (mockModeEnabled) {
     return (
@@ -280,7 +287,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           user: mockAuth.user,
           session: mockAuth.session,
           isLoading: mockAuth.isLoading,
-          signInWithEmail: mockAuth.signInWithMockCredentials,
+          signInWithEmail: mockSignInWrapper,
           signInWithGoogle: async () => { throw new Error("OAuth not available in mock mode"); },
           signInWithTwitter: async () => { throw new Error("OAuth not available in mock mode"); },
           signInWithFacebook: async () => { throw new Error("OAuth not available in mock mode"); },
