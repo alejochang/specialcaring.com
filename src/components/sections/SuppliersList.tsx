@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { Plus, Edit, Trash2, Phone, Globe, Package, Calendar } from "lucide-react";
@@ -67,7 +67,8 @@ const SuppliersList = () => {
 
   const fetchSuppliers = async () => {
     try {
-      const { data, error } = await supabase
+      // Use type assertion to work around missing types
+      const { data, error } = await (supabase as any)
         .from('suppliers')
         .select('*')
         .order('created_at', { ascending: false });
@@ -75,7 +76,7 @@ const SuppliersList = () => {
       if (error) throw error;
       
       // Type-cast the data to ensure proper typing
-      const typedData: SupplierEntry[] = (data || []).map(item => ({
+      const typedData: SupplierEntry[] = (data || []).map((item: any) => ({
         ...item,
         category: item.category as SupplierCategory
       }));
@@ -129,7 +130,7 @@ const SuppliersList = () => {
       };
 
       if (editingSupplier) {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('suppliers')
           .update(supplierData)
           .eq('id', editingSupplier.id);
@@ -140,7 +141,7 @@ const SuppliersList = () => {
           description: "Supplier updated successfully",
         });
       } else {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('suppliers')
           .insert([supplierData]);
 
@@ -187,7 +188,7 @@ const SuppliersList = () => {
     if (!confirm('Are you sure you want to delete this supplier?')) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('suppliers')
         .delete()
         .eq('id', id);
