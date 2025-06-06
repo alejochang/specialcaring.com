@@ -225,63 +225,6 @@ export type Database = {
         }
         Relationships: []
       }
-      suppliers: {
-        Row: {
-          address: string | null
-          brand_or_strength: string | null
-          category: string
-          contact_phone: string
-          created_at: string
-          dosage_or_size: string
-          id: string
-          inventory_threshold: number | null
-          item_name: string
-          last_order_date: string | null
-          notes: string | null
-          ordering_instructions: string | null
-          provider_name: string
-          updated_at: string
-          user_id: string
-          website: string | null
-        }
-        Insert: {
-          address?: string | null
-          brand_or_strength?: string | null
-          category: string
-          contact_phone: string
-          created_at?: string
-          dosage_or_size: string
-          id?: string
-          inventory_threshold?: number | null
-          item_name: string
-          last_order_date?: string | null
-          notes?: string | null
-          ordering_instructions?: string | null
-          provider_name: string
-          updated_at?: string
-          user_id: string
-          website?: string | null
-        }
-        Update: {
-          address?: string | null
-          brand_or_strength?: string | null
-          category?: string
-          contact_phone?: string
-          created_at?: string
-          dosage_or_size?: string
-          id?: string
-          inventory_threshold?: number | null
-          item_name?: string
-          last_order_date?: string | null
-          notes?: string | null
-          ordering_instructions?: string | null
-          provider_name?: string
-          updated_at?: string
-          user_id?: string
-          website?: string | null
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never

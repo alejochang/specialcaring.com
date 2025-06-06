@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useMockAuth } from "@/hooks/useMockAuth";
 
 type AuthContextType = {
   user: User | null;
@@ -14,6 +15,9 @@ type AuthContextType = {
   signInWithFacebook: () => Promise<void>;
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
+  isMockMode: boolean;
+  enableMockMode: () => void;
+  disableMockMode: () => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,17 +26,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [mockModeEnabled, setMockModeEnabled] = useState(false);
   const { toast } = useToast();
 
+  // Mock auth hook
+  const mockAuth = useMockAuth();
+
+  // Check for mock mode preference on mount
   useEffect(() => {
+    const mockMode = localStorage.getItem('mock-mode-enabled');
+    if (mockMode === 'true') {
+      setMockModeEnabled(true);
+    }
+  }, []);
+
+  // Real Supabase auth setup
+  useEffect(() => {
+    if (mockModeEnabled) {
+      setIsLoading(false);
+      return;
+    }
+
     console.log('Setting up auth state listener...');
     
-    // Set up the auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state change event:', event, 'Session user:', session?.user?.email || 'No user');
         
-        // Update state immediately
         setSession(session);
         setUser(session?.user ?? null);
         setIsLoading(false);
@@ -57,7 +77,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    // THEN get the initial session
     const initializeAuth = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -81,7 +100,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [toast]);
+  }, [toast, mockModeEnabled]);
+
+  // Mock mode functions
+  const enableMockMode = () => {
+    setMockModeEnabled(true);
+    localStorage.setItem('mock-mode-enabled', 'true');
+    // Clear real auth state
+    setUser(null);
+    setSession(null);
+  };
+
+  const disableMockMode = () => {
+    setMockModeEnabled(false);
+    localStorage.removeItem('mock-mode-enabled');
+    localStorage.removeItem('mock-session');
+    // Reset mock auth state
+    mockAuth.signOut();
+  };
+
+  // Use mock auth if enabled
+  if (mockModeEnabled) {
+    return (
+      <AuthContext.Provider
+        value={{
+          user: mockAuth.user,
+          session: mockAuth.session,
+          isLoading: mockAuth.isLoading,
+          signInWithEmail: mockAuth.signInWithMockCredentials,
+          signInWithGoogle: async () => { throw new Error("OAuth not available in mock mode"); },
+          signInWithTwitter: async () => { throw new Error("OAuth not available in mock mode"); },
+          signInWithFacebook: async () => { throw new Error("OAuth not available in mock mode"); },
+          signUp: async () => { throw new Error("Sign up not available in mock mode"); },
+          signOut: mockAuth.signOut,
+          isMockMode: true,
+          enableMockMode,
+          disableMockMode,
+        }}
+      >
+        {children}
+      </AuthContext.Provider>
+    );
+  }
 
   // Session validation effect
   useEffect(() => {
@@ -106,12 +166,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    // Validate session every 5 minutes
     const interval = setInterval(validateSession, 5 * 60 * 1000);
-
     return () => clearInterval(interval);
   }, [session, toast]);
 
+  // Real auth functions
   const signInWithEmail = async (email: string, password: string) => {
     try {
       console.log('Attempting email sign in for:', email);
@@ -226,7 +285,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
-      // Clear local state
       setSession(null);
       setUser(null);
     } catch (error: any) {
@@ -250,6 +308,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signInWithFacebook,
         signUp,
         signOut,
+        isMockMode: false,
+        enableMockMode,
+        disableMockMode,
       }}
     >
       {children}
