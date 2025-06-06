@@ -106,16 +106,16 @@ const KeyInformation = () => {
     };
     
     return {
-      fullName: dbData.full_name,
-      birthDate: dbData.birth_date,
+      fullName: dbData.full_name || "",
+      birthDate: dbData.birth_date || "",
       healthCardNumber: dbData.health_card_number || "",
-      address: dbData.address,
-      phoneNumber: dbData.phone_number,
+      address: dbData.address || "",
+      phoneNumber: dbData.phone_number || "",
       email: dbData.email || "",
       insuranceProvider: dbData.insurance_provider || "",
       insuranceNumber: dbData.insurance_number || "",
-      emergencyContact: dbData.emergency_contact,
-      emergencyPhone: dbData.emergency_phone,
+      emergencyContact: dbData.emergency_contact || "",
+      emergencyPhone: dbData.emergency_phone || "",
       medicalConditions: dbData.medical_conditions || "",
       allergies: dbData.allergies || "",
       likes: dbData.likes || "",

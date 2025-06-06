@@ -52,15 +52,21 @@ export type Database = {
         Row: {
           additional_notes: string | null
           address: string
+          allergies: string | null
           birth_date: string
           created_at: string
+          dislikes: string | null
+          do_nots: string | null
           email: string | null
           emergency_contact: string
           emergency_phone: string
           full_name: string
+          health_card_number: string | null
           id: string
           insurance_number: string | null
           insurance_provider: string | null
+          likes: string | null
+          medical_conditions: string | null
           phone_number: string
           ssn: string | null
           updated_at: string
@@ -69,15 +75,21 @@ export type Database = {
         Insert: {
           additional_notes?: string | null
           address: string
+          allergies?: string | null
           birth_date: string
           created_at?: string
+          dislikes?: string | null
+          do_nots?: string | null
           email?: string | null
           emergency_contact: string
           emergency_phone: string
           full_name: string
+          health_card_number?: string | null
           id?: string
           insurance_number?: string | null
           insurance_provider?: string | null
+          likes?: string | null
+          medical_conditions?: string | null
           phone_number: string
           ssn?: string | null
           updated_at?: string
@@ -86,15 +98,21 @@ export type Database = {
         Update: {
           additional_notes?: string | null
           address?: string
+          allergies?: string | null
           birth_date?: string
           created_at?: string
+          dislikes?: string | null
+          do_nots?: string | null
           email?: string | null
           emergency_contact?: string
           emergency_phone?: string
           full_name?: string
+          health_card_number?: string | null
           id?: string
           insurance_number?: string | null
           insurance_provider?: string | null
+          likes?: string | null
+          medical_conditions?: string | null
           phone_number?: string
           ssn?: string | null
           updated_at?: string
