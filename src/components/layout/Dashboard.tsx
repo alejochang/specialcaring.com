@@ -58,6 +58,11 @@ const sidebarItems = [
     path: "/dashboard/emergency-cards",
   },
   {
+    title: "Emergency Protocols",
+    icon: FileText,
+    path: "/dashboard/medical-emergency-protocols",
+  },
+  {
     title: "Medical Information",
     icon: Heart,
     path: "/dashboard/medical-information",
