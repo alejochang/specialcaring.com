@@ -7,8 +7,9 @@ import EmergencyCards from "@/components/sections/EmergencyCards";
 import MedicationsList from "@/components/sections/MedicationsList";
 import MedicalContacts from "@/components/sections/MedicalContacts";
 import SuppliersList from "@/components/sections/SuppliersList";
+import HomeSafety from "@/components/sections/HomeSafety";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Calendar, AlertTriangle, Heart, Pill, Phone, Truck } from "lucide-react";
+import { User, Calendar, AlertTriangle, Heart, Pill, Phone, Truck, Shield } from "lucide-react";
 
 const Dashboard = () => {
   const { section } = useParams();
@@ -34,6 +35,8 @@ const Dashboard = () => {
         return <SuppliersList />;
       case "medical-contacts":
         return <MedicalContacts />;
+      case "home-safety":
+        return <HomeSafety />;
       default:
         return <DashboardOverview />;
     }
@@ -130,6 +133,25 @@ const DashboardOverview = () => {
             <CardContent>
               <p className="text-sm text-muted-foreground pb-4">
                 Manage all medications, including dosages, schedules, and special instructions.
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link to="/dashboard/home-safety" className="block transition-transform hover:scale-105">
+          <Card className="bg-white shadow-sm border border-border h-full">
+            <CardHeader className="pb-2">
+              <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center mb-1">
+                <Shield className="h-6 w-6 text-special-600" />
+              </div>
+              <CardTitle className="text-lg">Home Safety</CardTitle>
+              <CardDescription>
+                Safety protocols and emergency procedures
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground pb-4">
+                Comprehensive safety planning, emergency preparedness, and home safety checklists.
               </p>
             </CardContent>
           </Card>
