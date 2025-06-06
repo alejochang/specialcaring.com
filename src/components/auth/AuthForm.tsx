@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { z } from "zod";
@@ -19,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Separator } from "@/components/ui/separator";
+import ReviewModeToggle from "@/components/auth/ReviewModeToggle";
 
 // Registration schema
 const registerSchema = z.object({
@@ -54,7 +54,10 @@ const AuthForm = ({ type }: AuthFormProps) => {
     signInWithGoogle, 
     signInWithTwitter, 
     signInWithFacebook, 
-    signUp
+    signUp,
+    startReviewMode,
+    exitReviewMode,
+    isReviewMode
   } = useAuth();
 
   const schema = type === "login" ? loginSchema : registerSchema;
@@ -108,6 +111,18 @@ const AuthForm = ({ type }: AuthFormProps) => {
     }
   };
 
+  const handleStartReview = async () => {
+    setLoading(true);
+    try {
+      await startReviewMode();
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Review mode error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
   return (
@@ -122,6 +137,13 @@ const AuthForm = ({ type }: AuthFormProps) => {
             : "Create your account to get started"}
         </p>
       </div>
+
+      {/* Review Mode Toggle */}
+      <ReviewModeToggle 
+        onStartReview={handleStartReview}
+        onExitReview={exitReviewMode}
+        isReviewMode={isReviewMode}
+      />
 
       {/* Social Login Buttons */}
       <div className="space-y-3 mb-6">

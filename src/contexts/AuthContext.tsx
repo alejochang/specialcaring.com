@@ -1,19 +1,22 @@
-
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useReviewMode } from "@/hooks/useReviewMode";
 
 type AuthContextType = {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
+  isReviewMode: boolean;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signInWithTwitter: () => Promise<void>;
   signInWithFacebook: () => Promise<void>;
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
+  startReviewMode: () => Promise<void>;
+  exitReviewMode: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,7 +25,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isReviewMode, setIsReviewMode] = useState(false);
   const { toast } = useToast();
+  const reviewMode = useReviewMode();
 
   // Real Supabase auth setup
   useEffect(() => {
@@ -32,11 +37,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async (event, session) => {
         console.log('Auth state change event:', event, 'Session user:', session?.user?.email || 'No user');
         
-        setSession(session);
-        setUser(session?.user ?? null);
+        // Only update if not in review mode
+        if (!isReviewMode) {
+          setSession(session);
+          setUser(session?.user ?? null);
+        }
         setIsLoading(false);
         
-        if (event === 'SIGNED_IN') {
+        if (event === 'SIGNED_IN' && !isReviewMode) {
           console.log('User signed in:', session?.user?.email);
           toast({
             title: "Welcome!",
@@ -44,13 +52,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           });
         }
         
-        if (event === 'SIGNED_OUT') {
+        if (event === 'SIGNED_OUT' && !isReviewMode) {
           console.log('User signed out');
           setSession(null);
           setUser(null);
         }
 
-        if (event === 'TOKEN_REFRESHED') {
+        if (event === 'TOKEN_REFRESHED' && !isReviewMode) {
           console.log('Token refreshed for user:', session?.user?.email);
         }
       }
@@ -58,6 +66,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const initializeAuth = async () => {
       try {
+        // Check for review mode first
+        const reviewSession = localStorage.getItem('review-session');
+        if (reviewSession) {
+          const parsed = JSON.parse(reviewSession);
+          setSession(parsed);
+          setUser(parsed.user);
+          setIsReviewMode(true);
+          setIsLoading(false);
+          return;
+        }
+
         const { data: { session }, error } = await supabase.auth.getSession();
         console.log('Initial session check:', session?.user?.email || 'No user', 'Error:', error);
         
@@ -79,11 +98,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [toast]);
+  }, [toast, isReviewMode]);
 
-  // Session validation effect
+  // Session validation effect (only for real auth)
   useEffect(() => {
-    if (!session) return;
+    if (!session || isReviewMode) return;
 
     const validateSession = async () => {
       try {
@@ -106,7 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const interval = setInterval(validateSession, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [session, toast]);
+  }, [session, toast, isReviewMode]);
 
   // Real auth functions
   const signInWithEmail = async (email: string, password: string) => {
@@ -220,6 +239,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
+      if (isReviewMode) {
+        await exitReviewMode();
+        return;
+      }
+
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
@@ -234,18 +258,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const startReviewMode = async () => {
+    try {
+      await reviewMode.startReviewMode();
+      setSession(reviewMode.session);
+      setUser(reviewMode.user);
+      setIsReviewMode(true);
+    } catch (error) {
+      console.error('Error starting review mode:', error);
+    }
+  };
+
+  const exitReviewMode = async () => {
+    try {
+      await reviewMode.exitReviewMode();
+      setSession(null);
+      setUser(null);
+      setIsReviewMode(false);
+    } catch (error) {
+      console.error('Error exiting review mode:', error);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
         user,
         session,
         isLoading,
+        isReviewMode,
         signInWithEmail,
         signInWithGoogle,
         signInWithTwitter,
         signInWithFacebook,
         signUp,
         signOut,
+        startReviewMode,
+        exitReviewMode,
       }}
     >
       {children}
