@@ -9,6 +9,7 @@ import MedicalContacts from "@/components/sections/MedicalContacts";
 import SuppliersList from "@/components/sections/SuppliersList";
 import HomeSafety from "@/components/sections/HomeSafety";
 import CommunityServices from "@/components/sections/CommunityServices";
+import DailyLog from "@/components/sections/DailyLog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Calendar, AlertTriangle, Heart, Pill, Phone, Truck, Shield, Building } from "lucide-react";
 
@@ -40,6 +41,8 @@ const Dashboard = () => {
         return <HomeSafety />;
       case "community-services":
         return <CommunityServices />;
+      case "daily-log":
+        return <DailyLog />;
       default:
         return <DashboardOverview />;
     }
