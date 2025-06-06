@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import DashboardLayout from "@/components/layout/Dashboard";
@@ -74,16 +75,16 @@ const DashboardOverview = () => {
           <Card className="bg-white shadow-sm border border-border h-full">
             <CardHeader className="pb-2">
               <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center mb-1">
-                <User className="h-6 w-6 text-special-600" />
+                <Heart className="h-6 w-6 text-special-600" />
               </div>
-              <CardTitle className="text-lg">Key Information</CardTitle>
+              <CardTitle className="text-lg">Child Profile</CardTitle>
               <CardDescription>
-                Personal and identification details
+                Complete snapshot of your child
               </CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground pb-4">
-                Store essential personal information, contact details, and important identification numbers.
+                Essential information, medical details, preferences, and everything about your special child.
               </p>
             </CardContent>
           </Card>
@@ -131,7 +132,7 @@ const DashboardOverview = () => {
           <Card className="bg-white shadow-sm border border-border h-full">
             <CardHeader className="pb-2">
               <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center mb-1">
-                <Heart className="h-6 w-6 text-special-600" />
+                <User className="h-6 w-6 text-special-600" />
               </div>
               <CardTitle className="text-lg">Medical Information</CardTitle>
               <CardDescription>
@@ -264,7 +265,7 @@ const DashboardOverview = () => {
       <div className="text-center p-6 bg-special-50 rounded-xl">
         <h3 className="text-xl font-medium mb-2">Getting Started</h3>
         <p className="text-muted-foreground max-w-md mx-auto">
-          Begin by adding your key information and emergency contacts. You can add more sections as needed.
+          Begin by creating your child's profile with all their essential information and preferences.
         </p>
       </div>
     </div>
