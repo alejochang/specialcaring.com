@@ -3,7 +3,6 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useMockAuth } from "@/hooks/useMockAuth";
 
 type AuthContextType = {
   user: User | null;
@@ -15,9 +14,6 @@ type AuthContextType = {
   signInWithFacebook: () => Promise<void>;
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
-  isMockMode: boolean;
-  enableMockMode: () => void;
-  disableMockMode: () => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,27 +22,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [mockModeEnabled, setMockModeEnabled] = useState(false);
   const { toast } = useToast();
 
-  // Mock auth hook - ALWAYS call this hook
-  const mockAuth = useMockAuth();
-
-  // Check for mock mode preference on mount - ALWAYS call this hook
+  // Real Supabase auth setup
   useEffect(() => {
-    const mockMode = localStorage.getItem('mock-mode-enabled');
-    if (mockMode === 'true') {
-      setMockModeEnabled(true);
-    }
-  }, []);
-
-  // Real Supabase auth setup - ALWAYS call this hook
-  useEffect(() => {
-    if (mockModeEnabled) {
-      setIsLoading(false);
-      return;
-    }
-
     console.log('Setting up auth state listener...');
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -100,11 +79,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [toast, mockModeEnabled]);
+  }, [toast]);
 
-  // Session validation effect - ALWAYS call this hook
+  // Session validation effect
   useEffect(() => {
-    if (!session || mockModeEnabled) return;
+    if (!session) return;
 
     const validateSession = async () => {
       try {
@@ -127,24 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const interval = setInterval(validateSession, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [session, toast, mockModeEnabled]);
-
-  // Mock mode functions
-  const enableMockMode = () => {
-    setMockModeEnabled(true);
-    localStorage.setItem('mock-mode-enabled', 'true');
-    // Clear real auth state
-    setUser(null);
-    setSession(null);
-  };
-
-  const disableMockMode = () => {
-    setMockModeEnabled(false);
-    localStorage.removeItem('mock-mode-enabled');
-    localStorage.removeItem('mock-session');
-    // Reset mock auth state
-    mockAuth.signOut();
-  };
+  }, [session, toast]);
 
   // Real auth functions
   const signInWithEmail = async (email: string, password: string) => {
@@ -272,37 +234,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Mock auth wrapper for signInWithEmail
-  const mockSignInWrapper = async (email: string, password: string): Promise<void> => {
-    const result = await mockAuth.signInWithMockCredentials(email, password);
-    // We don't need to return anything since the type expects void
-    return;
-  };
-
-  // NOW we can conditionally return different provider values based on mock mode
-  if (mockModeEnabled) {
-    return (
-      <AuthContext.Provider
-        value={{
-          user: mockAuth.user,
-          session: mockAuth.session,
-          isLoading: mockAuth.isLoading,
-          signInWithEmail: mockSignInWrapper,
-          signInWithGoogle: async () => { throw new Error("OAuth not available in mock mode"); },
-          signInWithTwitter: async () => { throw new Error("OAuth not available in mock mode"); },
-          signInWithFacebook: async () => { throw new Error("OAuth not available in mock mode"); },
-          signUp: async () => { throw new Error("Sign up not available in mock mode"); },
-          signOut: mockAuth.signOut,
-          isMockMode: true,
-          enableMockMode,
-          disableMockMode,
-        }}
-      >
-        {children}
-      </AuthContext.Provider>
-    );
-  }
-
   return (
     <AuthContext.Provider
       value={{
@@ -315,9 +246,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signInWithFacebook,
         signUp,
         signOut,
-        isMockMode: false,
-        enableMockMode,
-        disableMockMode,
       }}
     >
       {children}
