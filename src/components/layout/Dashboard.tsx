@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -48,7 +47,7 @@ const sidebarItems = [
     path: "/dashboard",
   },
   {
-    title: "Key Information",
+    title: "Child Profile",
     icon: FileText,
     path: "/dashboard/key-information",
   },
