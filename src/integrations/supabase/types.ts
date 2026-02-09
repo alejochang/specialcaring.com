@@ -14,7 +14,246 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      key_information: {
+        Row: {
+          additional_notes: string | null
+          address: string
+          allergies: string | null
+          birth_date: string
+          created_at: string
+          dislikes: string | null
+          do_nots: string | null
+          email: string | null
+          emergency_contact: string
+          emergency_phone: string
+          full_name: string
+          health_card_number: string | null
+          id: string
+          insurance_number: string | null
+          insurance_provider: string | null
+          likes: string | null
+          medical_conditions: string | null
+          phone_number: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          additional_notes?: string | null
+          address?: string
+          allergies?: string | null
+          birth_date?: string
+          created_at?: string
+          dislikes?: string | null
+          do_nots?: string | null
+          email?: string | null
+          emergency_contact?: string
+          emergency_phone?: string
+          full_name?: string
+          health_card_number?: string | null
+          id?: string
+          insurance_number?: string | null
+          insurance_provider?: string | null
+          likes?: string | null
+          medical_conditions?: string | null
+          phone_number?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          additional_notes?: string | null
+          address?: string
+          allergies?: string | null
+          birth_date?: string
+          created_at?: string
+          dislikes?: string | null
+          do_nots?: string | null
+          email?: string | null
+          emergency_contact?: string
+          emergency_phone?: string
+          full_name?: string
+          health_card_number?: string | null
+          id?: string
+          insurance_number?: string | null
+          insurance_provider?: string | null
+          likes?: string | null
+          medical_conditions?: string | null
+          phone_number?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      medical_contacts: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_primary: boolean
+          name: string
+          notes: string | null
+          phone_number: string
+          specialty: string | null
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean
+          name: string
+          notes?: string | null
+          phone_number?: string
+          specialty?: string | null
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_primary?: boolean
+          name?: string
+          notes?: string | null
+          phone_number?: string
+          specialty?: string | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      medications: {
+        Row: {
+          created_at: string
+          dosage: string
+          end_date: string | null
+          frequency: string
+          id: string
+          instructions: string | null
+          name: string
+          prescriber: string | null
+          purpose: string | null
+          start_date: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dosage?: string
+          end_date?: string | null
+          frequency?: string
+          id?: string
+          instructions?: string | null
+          name: string
+          prescriber?: string | null
+          purpose?: string | null
+          start_date?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dosage?: string
+          end_date?: string | null
+          frequency?: string
+          id?: string
+          instructions?: string | null
+          name?: string
+          prescriber?: string | null
+          purpose?: string | null
+          start_date?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      suppliers: {
+        Row: {
+          address: string | null
+          brand_or_strength: string | null
+          category: string
+          contact_phone: string
+          created_at: string
+          dosage_or_size: string
+          id: string
+          inventory_threshold: number | null
+          item_name: string
+          last_order_date: string | null
+          notes: string | null
+          ordering_instructions: string | null
+          provider_name: string
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          brand_or_strength?: string | null
+          category?: string
+          contact_phone?: string
+          created_at?: string
+          dosage_or_size?: string
+          id?: string
+          inventory_threshold?: number | null
+          item_name: string
+          last_order_date?: string | null
+          notes?: string | null
+          ordering_instructions?: string | null
+          provider_name?: string
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          brand_or_strength?: string | null
+          category?: string
+          contact_phone?: string
+          created_at?: string
+          dosage_or_size?: string
+          id?: string
+          inventory_threshold?: number | null
+          item_name?: string
+          last_order_date?: string | null
+          notes?: string | null
+          ordering_instructions?: string | null
+          provider_name?: string
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
