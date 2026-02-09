@@ -14,6 +14,150 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_log_entries: {
+        Row: {
+          category: string
+          created_at: string
+          date: string
+          description: string | null
+          id: string
+          mood: string
+          priority: string
+          tags: string[] | null
+          time: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          date: string
+          description?: string | null
+          id?: string
+          mood?: string
+          priority?: string
+          tags?: string[] | null
+          time: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          date?: string
+          description?: string | null
+          id?: string
+          mood?: string
+          priority?: string
+          tags?: string[] | null
+          time?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      emergency_cards: {
+        Row: {
+          back_image: string | null
+          created_at: string
+          expiry_date: string | null
+          front_image: string | null
+          id: string
+          id_number: string
+          id_type: string
+          issue_date: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          back_image?: string | null
+          created_at?: string
+          expiry_date?: string | null
+          front_image?: string | null
+          id?: string
+          id_number?: string
+          id_type?: string
+          issue_date?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          back_image?: string | null
+          created_at?: string
+          expiry_date?: string | null
+          front_image?: string | null
+          id?: string
+          id_number?: string
+          id_type?: string
+          issue_date?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      emergency_protocols: {
+        Row: {
+          additional_notes: string | null
+          created_at: string
+          emergency_contacts: string
+          id: string
+          immediate_steps: string
+          severity: string
+          title: string
+          updated_at: string
+          user_id: string
+          when_to_call_911: string | null
+        }
+        Insert: {
+          additional_notes?: string | null
+          created_at?: string
+          emergency_contacts?: string
+          id?: string
+          immediate_steps?: string
+          severity?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          when_to_call_911?: string | null
+        }
+        Update: {
+          additional_notes?: string | null
+          created_at?: string
+          emergency_contacts?: string
+          id?: string
+          immediate_steps?: string
+          severity?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          when_to_call_911?: string | null
+        }
+        Relationships: []
+      }
+      home_safety_checks: {
+        Row: {
+          check_id: string
+          completed_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          check_id: string
+          completed_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          check_id?: string
+          completed_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       key_information: {
         Row: {
           additional_notes: string | null
@@ -194,6 +338,27 @@ export type Database = {
           full_name?: string | null
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      saved_community_services: {
+        Row: {
+          id: string
+          saved_at: string
+          service_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          saved_at?: string
+          service_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          saved_at?: string
+          service_id?: string
+          user_id?: string
         }
         Relationships: []
       }

@@ -1,33 +1,58 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  Building, 
-  Users, 
-  GraduationCap, 
-  Heart, 
-  Phone, 
-  MapPin, 
-  Clock, 
-  ExternalLink, 
-  Bookmark,
-  BookmarkCheck,
-  Star,
-  Calendar
+  Building, Users, GraduationCap, Heart, Phone, MapPin, Clock, ExternalLink, 
+  Bookmark, BookmarkCheck, Star, Calendar, Loader2
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 const CommunityServices = () => {
   const [savedServices, setSavedServices] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  const toggleSaved = (serviceId: string) => {
-    setSavedServices(prev => 
-      prev.includes(serviceId) 
-        ? prev.filter(id => id !== serviceId)
-        : [...prev, serviceId]
-    );
+  useEffect(() => {
+    if (user) fetchSaved();
+  }, [user]);
+
+  const fetchSaved = async () => {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase.from('saved_community_services').select('service_id');
+      if (error) throw error;
+      setSavedServices((data || []).map((d: any) => d.service_id));
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const toggleSaved = async (serviceId: string) => {
+    if (!user) return;
+    const isSaved = savedServices.includes(serviceId);
+    
+    // Optimistic update
+    setSavedServices(prev => isSaved ? prev.filter(id => id !== serviceId) : [...prev, serviceId]);
+
+    try {
+      if (isSaved) {
+        const { error } = await supabase.from('saved_community_services').delete().eq('service_id', serviceId).eq('user_id', user.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('saved_community_services').insert([{ user_id: user.id, service_id: serviceId }]);
+        if (error) throw error;
+      }
+    } catch (error: any) {
+      setSavedServices(prev => isSaved ? [...prev, serviceId] : prev.filter(id => id !== serviceId));
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
   };
 
   const educationServices = [
@@ -255,6 +280,10 @@ const CommunityServices = () => {
       </Card>
     );
   };
+
+  if (isLoading) {
+    return <div className="flex justify-center items-center py-12"><Loader2 className="h-8 w-8 animate-spin text-special-600" /></div>;
+  }
 
   return (
     <div className="space-y-6">
