@@ -1,39 +1,68 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
-  Shield, 
-  Home, 
-  Phone, 
-  AlertTriangle, 
-  Eye, 
-  Lock, 
-  Thermometer, 
-  Lightbulb, 
-  Camera,
-  Heart,
-  Zap,
-  Car,
-  Baby,
-  FireExtinguisher,
-  Bell,
-  Wrench,
-  CheckCircle
+  Shield, Home, Phone, AlertTriangle, Eye, Lock, Thermometer, Lightbulb, Camera,
+  Heart, Zap, Car, Baby, FireExtinguisher, Bell, Wrench, CheckCircle, Loader2
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 const HomeSafety = () => {
   const [completedChecks, setCompletedChecks] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  const toggleCheck = (checkId: string) => {
-    setCompletedChecks(prev => 
-      prev.includes(checkId) 
-        ? prev.filter(id => id !== checkId)
-        : [...prev, checkId]
-    );
+  useEffect(() => {
+    if (user) fetchChecks();
+  }, [user]);
+
+  const fetchChecks = async () => {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase
+        .from('home_safety_checks')
+        .select('check_id');
+      if (error) throw error;
+      setCompletedChecks((data || []).map((d: any) => d.check_id));
+    } catch (error: any) {
+      toast({ title: "Error loading safety checks", description: error.message, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const toggleCheck = async (checkId: string) => {
+    if (!user) return;
+    const isCompleted = completedChecks.includes(checkId);
+    
+    // Optimistic update
+    setCompletedChecks(prev => isCompleted ? prev.filter(id => id !== checkId) : [...prev, checkId]);
+
+    try {
+      if (isCompleted) {
+        const { error } = await supabase
+          .from('home_safety_checks')
+          .delete()
+          .eq('check_id', checkId)
+          .eq('user_id', user.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('home_safety_checks')
+          .insert([{ user_id: user.id, check_id: checkId }]);
+        if (error) throw error;
+      }
+    } catch (error: any) {
+      // Revert optimistic update
+      setCompletedChecks(prev => isCompleted ? [...prev, checkId] : prev.filter(id => id !== checkId));
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
   };
 
   const safetyAreas = [
@@ -109,7 +138,7 @@ const HomeSafety = () => {
     { id: "caregiver-schedule", text: "Clear supervision schedule maintained" }
   ];
 
-  const ChecklistSection = ({ title, items, iconColor }: { title: string, items: any[], iconColor: string }) => (
+  const ChecklistSection = ({ title, items }: { title: string, items: any[] }) => (
     <div className="space-y-3">
       <h4 className="font-medium text-lg mb-4">{title}</h4>
       {items.map((item) => (
@@ -117,9 +146,7 @@ const HomeSafety = () => {
           <button
             onClick={() => toggleCheck(item.id)}
             className={`flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-              completedChecks.includes(item.id)
-                ? 'bg-green-500 border-green-500 text-white'
-                : 'border-gray-300 hover:border-green-400'
+              completedChecks.includes(item.id) ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 hover:border-green-400'
             }`}
           >
             {completedChecks.includes(item.id) && <CheckCircle className="h-3 w-3" />}
@@ -132,77 +159,12 @@ const HomeSafety = () => {
     </div>
   );
 
-  const EmergencyContactsCard = () => (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <Phone className="h-5 w-5 text-special-600" />
-          <CardTitle>Emergency Contacts</CardTitle>
-        </div>
-        <CardDescription>Quick access to important numbers</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="p-3 bg-red-50 rounded-lg">
-            <div className="font-medium text-red-800">911</div>
-            <div className="text-sm text-red-600">Emergency Services</div>
-          </div>
-          <div className="p-3 bg-blue-50 rounded-lg">
-            <div className="font-medium text-blue-800">Poison Control</div>
-            <div className="text-sm text-blue-600">1-800-222-1222</div>
-          </div>
-          <div className="p-3 bg-green-50 rounded-lg">
-            <div className="font-medium text-green-800">Primary Doctor</div>
-            <div className="text-sm text-green-600">Add your doctor's number</div>
-          </div>
-          <div className="p-3 bg-purple-50 rounded-lg">
-            <div className="font-medium text-purple-800">Specialist</div>
-            <div className="text-sm text-purple-600">Add specialist's number</div>
-          </div>
-        </div>
-        <Button variant="outline" className="w-full">
-          <Phone className="h-4 w-4 mr-2" />
-          Manage Emergency Contacts
-        </Button>
-      </CardContent>
-    </Card>
-  );
+  const totalItems = emergencyChecklist.length + medicalSafety.length + physicalEnvironment.length + monitoringSystems.length;
+  const completionPercentage = Math.round((completedChecks.length / totalItems) * 100);
 
-  const SafetyTipsCard = () => (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <Lightbulb className="h-5 w-5 text-yellow-600" />
-          <CardTitle>Safety Tips</CardTitle>
-        </div>
-        <CardDescription>Important reminders for daily safety</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <Alert>
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            Always supervise medication administration and document times
-          </AlertDescription>
-        </Alert>
-        <Alert>
-          <Shield className="h-4 w-4" />
-          <AlertDescription>
-            Check that all safety devices are functioning weekly
-          </AlertDescription>
-        </Alert>
-        <Alert>
-          <Eye className="h-4 w-4" />
-          <AlertDescription>
-            Maintain constant appropriate supervision based on individual needs
-          </AlertDescription>
-        </Alert>
-      </CardContent>
-    </Card>
-  );
-
-  const completionPercentage = Math.round(
-    (completedChecks.length / (emergencyChecklist.length + medicalSafety.length + physicalEnvironment.length + monitoringSystems.length)) * 100
-  );
+  if (isLoading) {
+    return <div className="flex justify-center items-center py-12"><Loader2 className="h-8 w-8 animate-spin text-special-600" /></div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -217,7 +179,7 @@ const HomeSafety = () => {
             <span className="text-sm">Safety Checklist: {completionPercentage}% Complete</span>
           </div>
           <Badge variant="outline">
-            {completedChecks.length} of {emergencyChecklist.length + medicalSafety.length + physicalEnvironment.length + monitoringSystems.length} items completed
+            {completedChecks.length} of {totalItems} items completed
           </Badge>
         </div>
       </div>
@@ -242,14 +204,13 @@ const HomeSafety = () => {
                     <CardTitle>Emergency Preparedness</CardTitle>
                   </div>
                   <CardDescription>
-                    Ensure you're prepared for emergency situations with proper planning and equipment
+                    Ensure you're prepared for emergency situations
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ChecklistSection 
                     title="Emergency Readiness Checklist" 
                     items={emergencyChecklist} 
-                    iconColor="text-red-600" 
                   />
                 </CardContent>
               </Card>
@@ -263,14 +224,13 @@ const HomeSafety = () => {
                     <CardTitle>Medical Safety</CardTitle>
                   </div>
                   <CardDescription>
-                    Maintain safe storage and handling of medications and medical equipment
+                    Maintain safe storage and handling of medications
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ChecklistSection 
                     title="Medical Safety Checklist" 
                     items={medicalSafety} 
-                    iconColor="text-pink-600" 
                   />
                 </CardContent>
               </Card>
@@ -284,14 +244,13 @@ const HomeSafety = () => {
                     <CardTitle>Physical Environment</CardTitle>
                   </div>
                   <CardDescription>
-                    Create a safe physical environment adapted to individual needs
+                    Create a safe physical environment
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ChecklistSection 
                     title="Physical Safety Checklist" 
                     items={physicalEnvironment} 
-                    iconColor="text-blue-600" 
                   />
                 </CardContent>
               </Card>
@@ -305,14 +264,13 @@ const HomeSafety = () => {
                     <CardTitle>Monitoring & Supervision</CardTitle>
                   </div>
                   <CardDescription>
-                    Implement appropriate monitoring systems for safety and security
+                    Implement appropriate monitoring systems
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ChecklistSection 
                     title="Monitoring Systems Checklist" 
                     items={monitoringSystems} 
-                    iconColor="text-green-600" 
                   />
                 </CardContent>
               </Card>
@@ -321,8 +279,69 @@ const HomeSafety = () => {
         </div>
 
         <div className="space-y-6">
-          <EmergencyContactsCard />
-          <SafetyTipsCard />
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Phone className="h-5 w-5 text-special-600" />
+                <CardTitle>Emergency Contacts</CardTitle>
+              </div>
+              <CardDescription>Quick access to important numbers</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 bg-red-50 rounded-lg">
+                  <div className="font-medium text-red-800">911</div>
+                  <div className="text-sm text-red-600">Emergency Services</div>
+                </div>
+                <div className="p-3 bg-blue-50 rounded-lg">
+                  <div className="font-medium text-blue-800">Poison Control</div>
+                  <div className="text-sm text-blue-600">1-800-222-1222</div>
+                </div>
+                <div className="p-3 bg-green-50 rounded-lg">
+                  <div className="font-medium text-green-800">Primary Doctor</div>
+                  <div className="text-sm text-green-600">Add your doctor's number</div>
+                </div>
+                <div className="p-3 bg-purple-50 rounded-lg">
+                  <div className="font-medium text-purple-800">Specialist</div>
+                  <div className="text-sm text-purple-600">Add specialist's number</div>
+                </div>
+              </div>
+              <Button variant="outline" className="w-full">
+                <Phone className="h-4 w-4 mr-2" />
+                Manage Emergency Contacts
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Lightbulb className="h-5 w-5 text-yellow-600" />
+                <CardTitle>Safety Tips</CardTitle>
+              </div>
+              <CardDescription>Important reminders for daily safety</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Alert>
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  Always supervise medication administration and document times
+                </AlertDescription>
+              </Alert>
+              <Alert>
+                <Shield className="h-4 w-4" />
+                <AlertDescription>
+                  Check that all safety devices are functioning weekly
+                </AlertDescription>
+              </Alert>
+              <Alert>
+                <Eye className="h-4 w-4" />
+                <AlertDescription>
+                  Maintain constant appropriate supervision based on individual needs
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
           
           <Card>
             <CardHeader>

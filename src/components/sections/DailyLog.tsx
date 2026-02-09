@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,9 +21,14 @@ import {
   Activity,
   BookOpen,
   Users,
-  Edit
+  Edit,
+  Loader2,
+  Trash2
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, subDays, isAfter } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface LogEntry {
   id: string;
@@ -55,32 +60,11 @@ const moodIcons = {
 };
 
 const DailyLog = () => {
-  const [entries, setEntries] = useState<LogEntry[]>([
-    {
-      id: '1',
-      date: format(new Date(), 'yyyy-MM-dd'),
-      time: '09:30',
-      category: 'milestone',
-      mood: 'happy',
-      title: 'First words in therapy session',
-      description: 'Emma said "mama" clearly during speech therapy. The therapist was very pleased with her progress.',
-      tags: ['speech', 'progress', 'therapy'],
-      priority: 'high'
-    },
-    {
-      id: '2',
-      date: format(new Date(), 'yyyy-MM-dd'),
-      time: '14:15',
-      category: 'behavior',
-      mood: 'neutral',
-      title: 'Mild meltdown during lunch',
-      description: 'Had difficulty with food texture. Used calming techniques and she settled after 10 minutes.',
-      tags: ['sensory', 'food', 'coping'],
-      priority: 'medium'
-    }
-  ]);
-
+  const [entries, setEntries] = useState<LogEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [showNewEntry, setShowNewEntry] = useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [newEntry, setNewEntry] = useState({
     category: '',
     mood: 'neutral' as 'happy' | 'neutral' | 'sad',
@@ -90,24 +74,87 @@ const DailyLog = () => {
     priority: 'medium' as 'low' | 'medium' | 'high'
   });
 
-  const handleAddEntry = () => {
-    if (newEntry.title.trim() && newEntry.category) {
-      const entry: LogEntry = {
-        id: Date.now().toString(),
-        date: format(new Date(), 'yyyy-MM-dd'),
-        time: format(new Date(), 'HH:mm'),
-        ...newEntry
-      };
-      setEntries([entry, ...entries]);
-      setNewEntry({
-        category: '',
-        mood: 'neutral',
-        title: '',
-        description: '',
-        tags: [],
-        priority: 'medium'
-      });
+  useEffect(() => {
+    if (user) fetchEntries();
+  }, [user]);
+
+  const fetchEntries = async () => {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase
+        .from('daily_log_entries')
+        .select('*')
+        .order('date', { ascending: false })
+        .order('time', { ascending: false });
+      if (error) throw error;
+      setEntries((data || []).map((d: any) => ({
+        id: d.id,
+        date: d.date,
+        time: d.time,
+        category: d.category,
+        mood: d.mood as 'happy' | 'neutral' | 'sad',
+        title: d.title,
+        description: d.description || '',
+        tags: d.tags || [],
+        priority: d.priority as 'low' | 'medium' | 'high',
+      })));
+    } catch (error: any) {
+      toast({ title: "Error loading entries", description: error.message, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddEntry = async () => {
+    if (!newEntry.title.trim() || !newEntry.category || !user) return;
+    
+    const entryData = {
+      user_id: user.id,
+      date: format(new Date(), 'yyyy-MM-dd'),
+      time: format(new Date(), 'HH:mm'),
+      category: newEntry.category,
+      mood: newEntry.mood,
+      title: newEntry.title,
+      description: newEntry.description,
+      tags: newEntry.tags,
+      priority: newEntry.priority,
+    };
+
+    try {
+      const { data, error } = await supabase
+        .from('daily_log_entries')
+        .insert([entryData])
+        .select()
+        .single();
+      if (error) throw error;
+
+      setEntries(prev => [{
+        id: data.id,
+        date: data.date,
+        time: data.time,
+        category: data.category,
+        mood: data.mood as any,
+        title: data.title,
+        description: data.description || '',
+        tags: data.tags || [],
+        priority: data.priority as any,
+      }, ...prev]);
+      setNewEntry({ category: '', mood: 'neutral', title: '', description: '', tags: [], priority: 'medium' });
       setShowNewEntry(false);
+      toast({ title: "Entry added", description: "Daily log entry saved." });
+    } catch (error: any) {
+      toast({ title: "Error saving entry", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const handleDeleteEntry = async (id: string) => {
+    try {
+      const { error } = await supabase.from('daily_log_entries').delete().eq('id', id);
+      if (error) throw error;
+      setEntries(prev => prev.filter(e => e.id !== id));
+      toast({ title: "Entry deleted" });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     }
   };
 
@@ -124,7 +171,10 @@ const DailyLog = () => {
     }
   };
 
-  const todayEntries = entries.filter(entry => entry.date === format(new Date(), 'yyyy-MM-dd'));
+  const todayStr = format(new Date(), 'yyyy-MM-dd');
+  const todayEntries = entries.filter(entry => entry.date === todayStr);
+  const weekEntries = entries.filter(entry => isAfter(new Date(entry.date), subDays(new Date(), 7)));
+
   const overallMood = todayEntries.length > 0 
     ? todayEntries.reduce((acc, entry) => {
         if (entry.mood === 'happy') return acc + 1;
@@ -132,6 +182,80 @@ const DailyLog = () => {
         return acc;
       }, 0) > 0 ? 'positive' : todayEntries.some(e => e.mood === 'sad') ? 'challenging' : 'stable'
     : 'no-entries';
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-special-600" />
+      </div>
+    );
+  }
+
+  const renderEntries = (entriesToRender: LogEntry[]) => (
+    entriesToRender.length === 0 ? (
+      <Card>
+        <CardContent className="text-center py-8">
+          <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-muted-foreground">No entries found.</p>
+          <Button className="mt-4" onClick={() => setShowNewEntry(true)}>
+            Create an entry
+          </Button>
+        </CardContent>
+      </Card>
+    ) : (
+      entriesToRender.map((entry) => {
+        const categoryInfo = getCategoryInfo(entry.category);
+        const CategoryIcon = categoryInfo.icon;
+        const moodInfo = moodIcons[entry.mood];
+        const MoodIcon = moodInfo.icon;
+
+        return (
+          <Card key={entry.id} className="hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${categoryInfo.color}`}>
+                    <CategoryIcon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">{entry.title}</h3>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span>{entry.date} {entry.time}</span>
+                      <span>•</span>
+                      <span>{categoryInfo.label}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <MoodIcon className={`h-5 w-5 ${moodInfo.color}`} />
+                  <Badge className={getPriorityColor(entry.priority)}>
+                    {entry.priority}
+                  </Badge>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDeleteEntry(entry.id)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              
+              {entry.description && (
+                <p className="text-muted-foreground mb-3">{entry.description}</p>
+              )}
+              
+              {entry.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {entry.tags.map((tag, index) => (
+                    <Badge key={index} variant="outline" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })
+    )
+  );
 
   return (
     <div className="space-y-6">
@@ -302,82 +426,15 @@ const DailyLog = () => {
         </TabsList>
 
         <TabsContent value="today" className="space-y-4">
-          {todayEntries.length === 0 ? (
-            <Card>
-              <CardContent className="text-center py-8">
-                <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-muted-foreground">No entries for today yet.</p>
-                <Button className="mt-4" onClick={() => setShowNewEntry(true)}>
-                  Create your first entry
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            todayEntries.map((entry) => {
-              const categoryInfo = getCategoryInfo(entry.category);
-              const CategoryIcon = categoryInfo.icon;
-              const moodInfo = moodIcons[entry.mood];
-              const MoodIcon = moodInfo.icon;
-
-              return (
-                <Card key={entry.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg ${categoryInfo.color}`}>
-                          <CategoryIcon className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold">{entry.title}</h3>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <span>{entry.time}</span>
-                            <span>•</span>
-                            <span>{categoryInfo.label}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <MoodIcon className={`h-5 w-5 ${moodInfo.color}`} />
-                        <Badge className={getPriorityColor(entry.priority)}>
-                          {entry.priority}
-                        </Badge>
-                      </div>
-                    </div>
-                    
-                    {entry.description && (
-                      <p className="text-muted-foreground mb-3">{entry.description}</p>
-                    )}
-                    
-                    {entry.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {entry.tags.map((tag, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })
-          )}
+          {renderEntries(todayEntries)}
         </TabsContent>
 
-        <TabsContent value="week">
-          <Card>
-            <CardContent className="text-center py-8">
-              <p className="text-muted-foreground">Week view coming soon...</p>
-            </CardContent>
-          </Card>
+        <TabsContent value="week" className="space-y-4">
+          {renderEntries(weekEntries)}
         </TabsContent>
 
-        <TabsContent value="all">
-          <Card>
-            <CardContent className="text-center py-8">
-              <p className="text-muted-foreground">All entries view coming soon...</p>
-            </CardContent>
-          </Card>
+        <TabsContent value="all" className="space-y-4">
+          {renderEntries(entries)}
         </TabsContent>
       </Tabs>
     </div>
