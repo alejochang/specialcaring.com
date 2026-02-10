@@ -10,24 +10,27 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChild } from "@/contexts/ChildContext";
 import { useToast } from "@/hooks/use-toast";
 
 const HomeSafety = () => {
   const [completedChecks, setCompletedChecks] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
+  const { activeChild } = useChild();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (user) fetchChecks();
-  }, [user]);
+    if (user && activeChild) fetchChecks();
+  }, [user, activeChild?.id]);
 
   const fetchChecks = async () => {
-    if (!user) return;
+    if (!user || !activeChild) return;
     try {
       const { data, error } = await supabase
         .from('home_safety_checks')
-        .select('check_id');
+        .select('check_id')
+        .eq('child_id', activeChild.id);
       if (error) throw error;
       setCompletedChecks((data || []).map((d: any) => d.check_id));
     } catch (error: any) {
@@ -53,9 +56,10 @@ const HomeSafety = () => {
           .eq('user_id', user.id);
         if (error) throw error;
       } else {
+        if (!activeChild) return;
         const { error } = await supabase
           .from('home_safety_checks')
-          .insert([{ user_id: user.id, check_id: checkId }]);
+          .insert([{ user_id: user.id, child_id: activeChild.id, check_id: checkId }]);
         if (error) throw error;
       }
     } catch (error: any) {

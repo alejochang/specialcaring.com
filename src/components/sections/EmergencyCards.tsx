@@ -21,6 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChild } from "@/contexts/ChildContext";
 
 const formSchema = z.object({
   frontImage: z.string().optional(),
@@ -50,6 +51,7 @@ const EmergencyCards = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { activeChild } = useChild();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -64,15 +66,16 @@ const EmergencyCards = () => {
   });
 
   useEffect(() => {
-    if (user) fetchCard();
-  }, [user]);
+    if (user && activeChild) fetchCard();
+  }, [user, activeChild?.id]);
 
   const fetchCard = async () => {
-    if (!user) return;
+    if (!user || !activeChild) return;
     try {
       const { data, error } = await supabase
         .from('emergency_cards')
         .select('*')
+        .eq('child_id', activeChild.id)
         .maybeSingle();
       if (error) throw error;
       if (data) {
@@ -99,8 +102,10 @@ const EmergencyCards = () => {
   const onSubmit = async (values: FormValues) => {
     if (!user) return;
     try {
+      if (!activeChild) return;
       const dbData = {
         user_id: user.id,
+        child_id: activeChild.id,
         front_image: values.frontImage || '',
         back_image: values.backImage || '',
         id_type: values.idType,

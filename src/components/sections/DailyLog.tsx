@@ -28,6 +28,7 @@ import {
 import { format, subDays, isAfter } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChild } from "@/contexts/ChildContext";
 import { useToast } from "@/hooks/use-toast";
 
 interface LogEntry {
@@ -64,6 +65,7 @@ const DailyLog = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showNewEntry, setShowNewEntry] = useState(false);
   const { user } = useAuth();
+  const { activeChild } = useChild();
   const { toast } = useToast();
   const [newEntry, setNewEntry] = useState({
     category: '',
@@ -75,15 +77,16 @@ const DailyLog = () => {
   });
 
   useEffect(() => {
-    if (user) fetchEntries();
-  }, [user]);
+    if (user && activeChild) fetchEntries();
+  }, [user, activeChild?.id]);
 
   const fetchEntries = async () => {
-    if (!user) return;
+    if (!user || !activeChild) return;
     try {
       const { data, error } = await supabase
         .from('daily_log_entries')
         .select('*')
+        .eq('child_id', activeChild.id)
         .order('date', { ascending: false })
         .order('time', { ascending: false });
       if (error) throw error;
@@ -106,10 +109,11 @@ const DailyLog = () => {
   };
 
   const handleAddEntry = async () => {
-    if (!newEntry.title.trim() || !newEntry.category || !user) return;
+    if (!newEntry.title.trim() || !newEntry.category || !user || !activeChild) return;
     
     const entryData = {
       user_id: user.id,
+      child_id: activeChild.id,
       date: format(new Date(), 'yyyy-MM-dd'),
       time: format(new Date(), 'HH:mm'),
       category: newEntry.category,

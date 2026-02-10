@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { ChildProvider } from "@/contexts/ChildContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
@@ -47,6 +48,7 @@ const AuthNavigationHandler = ({ children }: { children: React.ReactNode }) => {
 const AppContent = () => {
   return (
     <AuthProvider>
+      <ChildProvider>
       <AuthNavigationHandler>
         <Routes>
           <Route path="/" element={<Index />} />
@@ -87,6 +89,7 @@ const AppContent = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthNavigationHandler>
+      </ChildProvider>
     </AuthProvider>
   );
 };
