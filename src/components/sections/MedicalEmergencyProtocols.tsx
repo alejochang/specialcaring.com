@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChild } from "@/contexts/ChildContext";
 
 const protocolSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -40,6 +41,7 @@ const MedicalEmergencyProtocols = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { activeChild } = useChild();
 
   const form = useForm<ProtocolValues>({
     resolver: zodResolver(protocolSchema),
@@ -47,15 +49,16 @@ const MedicalEmergencyProtocols = () => {
   });
 
   useEffect(() => {
-    if (user) fetchProtocols();
-  }, [user]);
+    if (user && activeChild) fetchProtocols();
+  }, [user, activeChild?.id]);
 
   const fetchProtocols = async () => {
-    if (!user) return;
+    if (!user || !activeChild) return;
     try {
       const { data, error } = await supabase
         .from('emergency_protocols')
         .select('*')
+        .eq('child_id', activeChild.id)
         .order('created_at', { ascending: false });
       if (error) throw error;
       setProtocols((data || []).map((d: any) => ({
@@ -77,8 +80,10 @@ const MedicalEmergencyProtocols = () => {
   const onSubmit = async (values: ProtocolValues) => {
     if (!user) return;
     try {
+      if (!activeChild) return;
       const dbData = {
         user_id: user.id,
+        child_id: activeChild.id,
         title: values.title,
         severity: values.severity,
         emergency_contacts: values.emergencyContacts,

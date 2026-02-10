@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChild } from "@/contexts/ChildContext";
 
 const formSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
@@ -48,41 +49,42 @@ const KeyInformation = () => {
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { activeChild } = useChild();
   const queryClient = useQueryClient();
 
   const { data: keyInfo, isLoading } = useQuery({
-    queryKey: ['keyInformation', user?.id],
+    queryKey: ['keyInformation', activeChild?.id],
     queryFn: async () => {
-      if (!user) throw new Error("No user found");
+      if (!user || !activeChild) throw new Error("No user or child found");
       
       const { data, error } = await supabase
         .from('key_information')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('child_id', activeChild.id)
         .maybeSingle();
         
       if (error) throw error;
       return data;
     },
-    enabled: !!user,
+    enabled: !!user && !!activeChild,
   });
 
   // Fetch medications for display
   const { data: medications = [] } = useQuery({
-    queryKey: ['medications', user?.id],
+    queryKey: ['medications', activeChild?.id],
     queryFn: async () => {
-      if (!user) throw new Error("No user found");
+      if (!user || !activeChild) throw new Error("No user or child found");
       
       const { data, error } = await supabase
         .from('medications')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('child_id', activeChild.id)
         .order('created_at', { ascending: false });
         
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user,
+    enabled: !!user && !!activeChild,
   });
 
   const dbToFormValues = (dbData: any): FormValues => {
@@ -125,9 +127,10 @@ const KeyInformation = () => {
     };
   };
 
-  const formToDbValues = (formData: FormValues, userId: string) => {
+  const formToDbValues = (formData: FormValues, userId: string, childId: string) => {
     return {
       user_id: userId,
+      child_id: childId,
       full_name: formData.fullName,
       birth_date: formData.birthDate,
       health_card_number: formData.healthCardNumber,
@@ -161,9 +164,9 @@ const KeyInformation = () => {
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
-      if (!user) throw new Error("No user found");
+      if (!user || !activeChild) throw new Error("No user or child found");
       
-      const formattedData = formToDbValues(values, user.id);
+      const formattedData = formToDbValues(values, user.id, activeChild.id);
       
       if (keyInfo) {
         const { error } = await supabase
@@ -181,7 +184,7 @@ const KeyInformation = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['keyInformation', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['keyInformation', activeChild?.id] });
       setIsEditing(false);
       
       toast({

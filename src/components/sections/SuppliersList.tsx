@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChild } from "@/contexts/ChildContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ const SuppliersList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const { user } = useAuth();
+  const { activeChild } = useChild();
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -60,17 +62,18 @@ const SuppliersList = () => {
   });
 
   useEffect(() => {
-    if (user) {
+    if (user && activeChild) {
       fetchSuppliers();
     }
-  }, [user]);
+  }, [user, activeChild?.id]);
 
   const fetchSuppliers = async () => {
+    if (!activeChild) return;
     try {
-      // Use type assertion to work around missing types
       const { data, error } = await (supabase as any)
         .from('suppliers')
         .select('*')
+        .eq('child_id', activeChild.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -117,9 +120,11 @@ const SuppliersList = () => {
     if (!user) return;
 
     try {
+      if (!activeChild) return;
       const supplierData = {
         ...formData,
         user_id: user.id,
+        child_id: activeChild.id,
         inventory_threshold: formData.inventory_threshold ? parseInt(formData.inventory_threshold) : null,
         brand_or_strength: formData.brand_or_strength || null,
         address: formData.address || null,

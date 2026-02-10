@@ -14,9 +14,37 @@ export type Database = {
   }
   public: {
     Tables: {
+      children: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_log_entries: {
         Row: {
           category: string
+          child_id: string
           created_at: string
           date: string
           description: string | null
@@ -31,6 +59,7 @@ export type Database = {
         }
         Insert: {
           category: string
+          child_id: string
           created_at?: string
           date: string
           description?: string | null
@@ -45,6 +74,7 @@ export type Database = {
         }
         Update: {
           category?: string
+          child_id?: string
           created_at?: string
           date?: string
           description?: string | null
@@ -57,11 +87,20 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "daily_log_entries_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       emergency_cards: {
         Row: {
           back_image: string | null
+          child_id: string
           created_at: string
           expiry_date: string | null
           front_image: string | null
@@ -74,6 +113,7 @@ export type Database = {
         }
         Insert: {
           back_image?: string | null
+          child_id: string
           created_at?: string
           expiry_date?: string | null
           front_image?: string | null
@@ -86,6 +126,7 @@ export type Database = {
         }
         Update: {
           back_image?: string | null
+          child_id?: string
           created_at?: string
           expiry_date?: string | null
           front_image?: string | null
@@ -96,11 +137,20 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "emergency_cards_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       emergency_protocols: {
         Row: {
           additional_notes: string | null
+          child_id: string
           created_at: string
           emergency_contacts: string
           id: string
@@ -113,6 +163,7 @@ export type Database = {
         }
         Insert: {
           additional_notes?: string | null
+          child_id: string
           created_at?: string
           emergency_contacts?: string
           id?: string
@@ -125,6 +176,7 @@ export type Database = {
         }
         Update: {
           additional_notes?: string | null
+          child_id?: string
           created_at?: string
           emergency_contacts?: string
           id?: string
@@ -135,28 +187,47 @@ export type Database = {
           user_id?: string
           when_to_call_911?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "emergency_protocols_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       home_safety_checks: {
         Row: {
           check_id: string
+          child_id: string
           completed_at: string
           id: string
           user_id: string
         }
         Insert: {
           check_id: string
+          child_id: string
           completed_at?: string
           id?: string
           user_id: string
         }
         Update: {
           check_id?: string
+          child_id?: string
           completed_at?: string
           id?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "home_safety_checks_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       key_information: {
         Row: {
@@ -164,6 +235,7 @@ export type Database = {
           address: string
           allergies: string | null
           birth_date: string
+          child_id: string
           created_at: string
           dislikes: string | null
           do_nots: string | null
@@ -186,6 +258,7 @@ export type Database = {
           address?: string
           allergies?: string | null
           birth_date?: string
+          child_id: string
           created_at?: string
           dislikes?: string | null
           do_nots?: string | null
@@ -208,6 +281,7 @@ export type Database = {
           address?: string
           allergies?: string | null
           birth_date?: string
+          child_id?: string
           created_at?: string
           dislikes?: string | null
           do_nots?: string | null
@@ -225,11 +299,20 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "key_information_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       medical_contacts: {
         Row: {
           address: string | null
+          child_id: string
           created_at: string
           email: string | null
           id: string
@@ -244,6 +327,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          child_id: string
           created_at?: string
           email?: string | null
           id?: string
@@ -258,6 +342,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          child_id?: string
           created_at?: string
           email?: string | null
           id?: string
@@ -270,10 +355,19 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "medical_contacts_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       medications: {
         Row: {
+          child_id: string
           created_at: string
           dosage: string
           end_date: string | null
@@ -288,6 +382,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          child_id: string
           created_at?: string
           dosage?: string
           end_date?: string | null
@@ -302,6 +397,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          child_id?: string
           created_at?: string
           dosage?: string
           end_date?: string | null
@@ -315,7 +411,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "medications_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -343,30 +447,42 @@ export type Database = {
       }
       saved_community_services: {
         Row: {
+          child_id: string
           id: string
           saved_at: string
           service_id: string
           user_id: string
         }
         Insert: {
+          child_id: string
           id?: string
           saved_at?: string
           service_id: string
           user_id: string
         }
         Update: {
+          child_id?: string
           id?: string
           saved_at?: string
           service_id?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "saved_community_services_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       suppliers: {
         Row: {
           address: string | null
           brand_or_strength: string | null
           category: string
+          child_id: string
           contact_phone: string
           created_at: string
           dosage_or_size: string
@@ -385,6 +501,7 @@ export type Database = {
           address?: string | null
           brand_or_strength?: string | null
           category?: string
+          child_id: string
           contact_phone?: string
           created_at?: string
           dosage_or_size?: string
@@ -403,6 +520,7 @@ export type Database = {
           address?: string | null
           brand_or_strength?: string | null
           category?: string
+          child_id?: string
           contact_phone?: string
           created_at?: string
           dosage_or_size?: string
@@ -417,7 +535,15 @@ export type Database = {
           user_id?: string
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "suppliers_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

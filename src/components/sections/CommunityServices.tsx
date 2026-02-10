@@ -9,22 +9,24 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChild } from "@/contexts/ChildContext";
 import { useToast } from "@/hooks/use-toast";
 
 const CommunityServices = () => {
   const [savedServices, setSavedServices] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
+  const { activeChild } = useChild();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (user) fetchSaved();
-  }, [user]);
+    if (user && activeChild) fetchSaved();
+  }, [user, activeChild?.id]);
 
   const fetchSaved = async () => {
-    if (!user) return;
+    if (!user || !activeChild) return;
     try {
-      const { data, error } = await supabase.from('saved_community_services').select('service_id');
+      const { data, error } = await supabase.from('saved_community_services').select('service_id').eq('child_id', activeChild.id);
       if (error) throw error;
       setSavedServices((data || []).map((d: any) => d.service_id));
     } catch (error: any) {
@@ -46,7 +48,8 @@ const CommunityServices = () => {
         const { error } = await supabase.from('saved_community_services').delete().eq('service_id', serviceId).eq('user_id', user.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('saved_community_services').insert([{ user_id: user.id, service_id: serviceId }]);
+        if (!activeChild) return;
+        const { error } = await supabase.from('saved_community_services').insert([{ user_id: user.id, child_id: activeChild.id, service_id: serviceId }]);
         if (error) throw error;
       }
     } catch (error: any) {

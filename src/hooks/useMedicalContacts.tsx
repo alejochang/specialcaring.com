@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChild } from "@/contexts/ChildContext";
 import { useToast } from "@/hooks/use-toast";
 
 export interface MedicalContact {
@@ -23,15 +24,17 @@ export const useMedicalContacts = () => {
   const [contacts, setContacts] = useState<MedicalContact[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
+  const { activeChild } = useChild();
   const { toast } = useToast();
 
   const fetchContacts = async () => {
-    if (!user) return;
+    if (!user || !activeChild) return;
     
     try {
       const { data, error } = await supabase
         .from('medical_contacts')
         .select('*')
+        .eq('child_id', activeChild.id)
         .order('is_primary', { ascending: false })
         .order('name', { ascending: true });
 
@@ -49,12 +52,12 @@ export const useMedicalContacts = () => {
   };
 
   const addContact = async (contact: Omit<MedicalContact, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
-    if (!user) return;
+    if (!user || !activeChild) return;
 
     try {
       const { data, error } = await supabase
         .from('medical_contacts')
-        .insert([{ ...contact, user_id: user.id }])
+        .insert([{ ...contact, user_id: user.id, child_id: activeChild.id }])
         .select()
         .single();
 
@@ -124,7 +127,7 @@ export const useMedicalContacts = () => {
 
   useEffect(() => {
     fetchContacts();
-  }, [user]);
+  }, [user, activeChild?.id]);
 
   return {
     contacts,

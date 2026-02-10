@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChild } from "@/contexts/ChildContext";
 import { useToast } from "@/hooks/use-toast";
 
 export interface Medication {
@@ -22,15 +23,17 @@ export const useMedications = () => {
   const [medications, setMedications] = useState<Medication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
+  const { activeChild } = useChild();
   const { toast } = useToast();
 
   const fetchMedications = async () => {
-    if (!user) return;
+    if (!user || !activeChild) return;
     
     try {
       const { data, error } = await supabase
         .from('medications')
         .select('*')
+        .eq('child_id', activeChild.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -47,12 +50,12 @@ export const useMedications = () => {
   };
 
   const addMedication = async (medication: Omit<Medication, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
-    if (!user) return;
+    if (!user || !activeChild) return;
 
     try {
       const { data, error } = await supabase
         .from('medications')
-        .insert([{ ...medication, user_id: user.id }])
+        .insert([{ ...medication, user_id: user.id, child_id: activeChild.id }])
         .select()
         .single();
 
@@ -122,7 +125,7 @@ export const useMedications = () => {
 
   useEffect(() => {
     fetchMedications();
-  }, [user]);
+  }, [user, activeChild?.id]);
 
   return {
     medications,
