@@ -1,0 +1,1 @@
+UPDATE public.user_roles SET role = 'admin', is_approved = true WHERE user_id = '7d18d00a-3597-4ef5-b975-59cc591cc4fe';
