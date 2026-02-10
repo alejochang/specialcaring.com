@@ -14,6 +14,7 @@ import MedicalEmergencyProtocols from "@/components/sections/MedicalEmergencyPro
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Calendar, AlertTriangle, Heart, Pill, Phone, Truck, Shield, Building, FileText } from "lucide-react";
 import ChildSelector from "@/components/ChildSelector";
+import CareTeamManager from "@/components/CareTeamManager";
 import { useChild } from "@/contexts/ChildContext";
 
 const Dashboard = () => {
@@ -57,7 +58,14 @@ const Dashboard = () => {
     <DashboardLayout>
       <div className="container py-8 px-4 md:px-6 animate-fadeIn">
         <ChildSelector />
-        {renderContent()}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-3">
+            {renderContent()}
+          </div>
+          <div className="lg:col-span-1">
+            <CareTeamManager />
+          </div>
+        </div>
       </div>
     </DashboardLayout>
   );

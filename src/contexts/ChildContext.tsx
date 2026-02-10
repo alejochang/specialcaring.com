@@ -13,15 +13,22 @@ export interface Child {
   updated_at: string;
 }
 
+export type ChildAccessRole = "owner" | "caregiver" | "viewer";
+
+export interface ChildWithAccess extends Child {
+  accessRole: ChildAccessRole;
+}
+
 interface ChildContextType {
-  children: Child[];
-  activeChild: Child | null;
+  children: ChildWithAccess[];
+  activeChild: ChildWithAccess | null;
   setActiveChildId: (id: string) => void;
   isLoading: boolean;
   addChild: (name: string) => Promise<void>;
   updateChild: (id: string, name: string) => Promise<void>;
   deleteChild: (id: string) => Promise<void>;
   refetch: () => Promise<void>;
+  isOwner: (childId?: string) => boolean;
 }
 
 const ChildContext = createContext<ChildContextType | undefined>(undefined);
@@ -35,7 +42,7 @@ export const useChild = () => {
 };
 
 export const ChildProvider = ({ children: childrenProp }: { children: ReactNode }) => {
-  const [childList, setChildList] = useState<Child[]>([]);
+  const [childList, setChildList] = useState<ChildWithAccess[]>([]);
   const [activeChildId, setActiveChildIdState] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
@@ -50,18 +57,39 @@ export const ChildProvider = ({ children: childrenProp }: { children: ReactNode 
     }
 
     try {
-      const { data, error } = await supabase
+      // Fetch children the user has access to via child_access
+      const { data: accessData, error: accessError } = await supabase
+        .from('child_access')
+        .select('child_id, role')
+        .eq('user_id', user.id);
+
+      if (accessError) throw accessError;
+
+      if (!accessData || accessData.length === 0) {
+        setChildList([]);
+        setActiveChildIdState(null);
+        setIsLoading(false);
+        return;
+      }
+
+      const childIds = accessData.map(a => a.child_id);
+      const accessMap = new Map(accessData.map(a => [a.child_id, a.role as ChildAccessRole]));
+
+      const { data: childrenData, error: childrenError } = await supabase
         .from('children')
         .select('*')
-        .eq('user_id', user.id)
+        .in('id', childIds)
         .order('created_at', { ascending: true });
 
-      if (error) throw error;
+      if (childrenError) throw childrenError;
 
-      const kids = (data || []) as Child[];
+      const kids: ChildWithAccess[] = (childrenData || []).map(c => ({
+        ...c,
+        accessRole: accessMap.get(c.id) || 'viewer',
+      }));
+
       setChildList(kids);
 
-      // Restore active child from localStorage or pick first
       const storedId = localStorage.getItem(`activeChildId_${user.id}`);
       const validStored = kids.find(k => k.id === storedId);
       if (validStored) {
@@ -100,9 +128,9 @@ export const ChildProvider = ({ children: childrenProp }: { children: ReactNode 
 
       if (error) throw error;
 
-      const newChild = data as Child;
-      setChildList(prev => [...prev, newChild]);
-      setActiveChildId(newChild.id);
+      // The trigger auto-creates owner access; refetch to get full data
+      await fetchChildren();
+      setActiveChildId(data.id);
       toast({ title: "Child added", description: `${name} has been added.` });
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -145,6 +173,13 @@ export const ChildProvider = ({ children: childrenProp }: { children: ReactNode 
     }
   };
 
+  const isOwner = (childId?: string) => {
+    const id = childId || activeChildId;
+    if (!id) return false;
+    const child = childList.find(c => c.id === id);
+    return child?.accessRole === 'owner';
+  };
+
   const activeChild = childList.find(c => c.id === activeChildId) || null;
 
   return (
@@ -157,6 +192,7 @@ export const ChildProvider = ({ children: childrenProp }: { children: ReactNode 
       updateChild,
       deleteChild,
       refetch: fetchChildren,
+      isOwner,
     }}>
       {childrenProp}
     </ChildContext.Provider>

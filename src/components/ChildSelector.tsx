@@ -5,15 +5,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Heart, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Heart, Loader2, Ticket } from "lucide-react";
+import RedeemInvite from "@/components/RedeemInvite";
 
 const ChildSelector = () => {
-  const { children, activeChild, setActiveChildId, addChild, updateChild, deleteChild, isLoading } = useChild();
+  const { children, activeChild, setActiveChildId, addChild, updateChild, deleteChild, isLoading, isOwner } = useChild();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isRedeemOpen, setIsRedeemOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [editName, setEditName] = useState("");
   const [editId, setEditId] = useState("");
@@ -63,15 +66,32 @@ const ChildSelector = () => {
     "from-amber-400 to-amber-600",
   ];
 
+  const roleBadge = (role: string) => {
+    if (role === 'owner') return null; // Don't show badge for owned children
+    return (
+      <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+        {role === 'caregiver' ? 'Shared' : 'View only'}
+      </Badge>
+    );
+  };
+
+  // Count owned children for the limit
+  const ownedCount = children.filter(c => c.accessRole === 'owner').length;
+
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-muted-foreground">Select Child</h2>
-        {children.length < 10 && (
-          <Button variant="outline" size="sm" onClick={() => setIsAddOpen(true)} className="gap-1">
-            <Plus className="h-4 w-4" /> Add Child
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => setIsRedeemOpen(true)} className="gap-1">
+            <Ticket className="h-4 w-4" /> Join
           </Button>
-        )}
+          {ownedCount < 10 && (
+            <Button variant="outline" size="sm" onClick={() => setIsAddOpen(true)} className="gap-1">
+              <Plus className="h-4 w-4" /> Add Child
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="flex gap-4 overflow-x-auto pb-2">
@@ -92,7 +112,8 @@ const ChildSelector = () => {
                 </AvatarFallback>
               </Avatar>
               <span className="font-medium text-sm text-center truncate w-full">{child.name}</span>
-              {activeChild?.id === child.id && (
+              {roleBadge(child.accessRole)}
+              {activeChild?.id === child.id && isOwner(child.id) && (
                 <div className="flex gap-1">
                   <Button
                     variant="ghost"
@@ -107,7 +128,7 @@ const ChildSelector = () => {
                   >
                     <Pencil className="h-3 w-3" />
                   </Button>
-                  {children.length > 1 && (
+                  {children.filter(c => c.accessRole === 'owner').length > 1 && (
                     <Button
                       variant="ghost"
                       size="icon"
@@ -131,14 +152,22 @@ const ChildSelector = () => {
           <Card className="min-w-[200px]">
             <CardContent className="p-6 flex flex-col items-center gap-3">
               <Heart className="h-8 w-8 text-special-400" />
-              <p className="text-sm text-muted-foreground text-center">Add your first child to get started</p>
-              <Button size="sm" onClick={() => setIsAddOpen(true)}>
-                <Plus className="h-4 w-4 mr-1" /> Add Child
-              </Button>
+              <p className="text-sm text-muted-foreground text-center">Add your first child or join with an invite code</p>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => setIsRedeemOpen(true)}>
+                  <Ticket className="h-4 w-4 mr-1" /> Join
+                </Button>
+                <Button size="sm" onClick={() => setIsAddOpen(true)}>
+                  <Plus className="h-4 w-4 mr-1" /> Add Child
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}
       </div>
+
+      {/* Redeem Invite */}
+      <RedeemInvite open={isRedeemOpen} onOpenChange={setIsRedeemOpen} />
 
       {/* Add Dialog */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>

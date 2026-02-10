@@ -14,6 +14,82 @@ export type Database = {
   }
   public: {
     Tables: {
+      child_access: {
+        Row: {
+          child_id: string
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["child_access_role"]
+          user_id: string
+        }
+        Insert: {
+          child_id: string
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["child_access_role"]
+          user_id: string
+        }
+        Update: {
+          child_id?: string
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["child_access_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "child_access_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      child_invites: {
+        Row: {
+          child_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          invite_code: string
+          invited_by: string
+          invited_email: string | null
+          role: Database["public"]["Enums"]["child_access_role"]
+          status: string
+        }
+        Insert: {
+          child_id: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invite_code?: string
+          invited_by: string
+          invited_email?: string | null
+          role?: Database["public"]["Enums"]["child_access_role"]
+          status?: string
+        }
+        Update: {
+          child_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invite_code?: string
+          invited_by?: string
+          invited_email?: string | null
+          role?: Database["public"]["Enums"]["child_access_role"]
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "child_invites_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       children: {
         Row: {
           avatar_url: string | null
@@ -574,6 +650,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_child_access: {
+        Args: { _child_id: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -581,9 +661,18 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_child_owner: {
+        Args: { _child_id: string; _user_id: string }
+        Returns: boolean
+      }
+      redeem_invite: {
+        Args: { _invite_code: string; _user_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "caregiver" | "viewer"
+      child_access_role: "owner" | "caregiver" | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -712,6 +801,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "caregiver", "viewer"],
+      child_access_role: ["owner", "caregiver", "viewer"],
     },
   },
 } as const
