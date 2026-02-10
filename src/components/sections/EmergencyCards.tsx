@@ -4,6 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Save, PlusCircle, Pencil, Camera, Upload, Trash2, Loader2 } from "lucide-react";
+import ExportEmailButtons from "@/components/shared/ExportEmailButtons";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -145,14 +146,22 @@ const EmergencyCards = () => {
           </p>
         </div>
         {savedData && !isEditing ? (
-          <Button 
-            onClick={() => setIsEditing(true)}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            <Pencil size={16} />
-            Edit Cards
-          </Button>
+          <div className="flex items-center gap-2">
+            <ExportEmailButtons
+              exportFunctionName="export-emergency-cards"
+              emailFunctionName="send-emergency-cards"
+              exportFilename="emergency-card.html"
+              label="Emergency Card"
+            />
+            <Button 
+              onClick={() => setIsEditing(true)}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Pencil size={16} />
+              Edit Cards
+            </Button>
+          </div>
         ) : null}
       </div>
 
