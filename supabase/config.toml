@@ -1,1 +1,13 @@
 project_id = "ogkieklnxxmvjgikyzog"
+
+[functions.export-emergency-cards]
+verify_jwt = false
+
+[functions.export-medications]
+verify_jwt = false
+
+[functions.send-emergency-cards]
+verify_jwt = false
+
+[functions.send-medications]
+verify_jwt = false

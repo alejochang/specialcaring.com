@@ -13,6 +13,7 @@ import {
   Calendar as CalendarIcon,
   Pill
 } from "lucide-react";
+import ExportEmailButtons from "@/components/shared/ExportEmailButtons";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -146,16 +147,17 @@ const MedicationsList = () => {
           </div>
         </div>
         
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button 
-              className="bg-special-600 hover:bg-special-700 text-white px-6 py-3 text-base font-medium rounded-lg shadow-sm transition-all hover:shadow-md"
-              onClick={resetForm}
-            >
-              <Plus className="h-5 w-5 mr-2" />
-              Add New Medication
-            </Button>
-          </DialogTrigger>
+        <div className="flex items-center gap-3 flex-wrap">
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button 
+                className="bg-special-600 hover:bg-special-700 text-white px-6 py-3 text-base font-medium rounded-lg shadow-sm transition-all hover:shadow-md"
+                onClick={resetForm}
+              >
+                <Plus className="h-5 w-5 mr-2" />
+                Add New Medication
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader className="pb-6">
               <DialogTitle className="text-2xl font-semibold">
@@ -428,6 +430,15 @@ const MedicationsList = () => {
             </Form>
           </DialogContent>
         </Dialog>
+          {medications.length > 0 && (
+            <ExportEmailButtons
+              exportFunctionName="export-medications"
+              emailFunctionName="send-medications"
+              exportFilename="medications-list.html"
+              label="Medications List"
+            />
+          )}
+        </div>
       </div>
 
       {medications.length > 0 ? (
