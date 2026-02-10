@@ -273,6 +273,204 @@ export type Database = {
           },
         ]
       }
+      employment_agreements: {
+        Row: {
+          additional_terms: string | null
+          caregiver_name: string
+          child_id: string
+          confidentiality_terms: string | null
+          created_at: string
+          duties: string | null
+          emergency_procedures: string | null
+          end_date: string | null
+          hourly_rate: string | null
+          id: string
+          payment_frequency: string | null
+          position_title: string
+          start_date: string | null
+          status: string
+          termination_terms: string | null
+          updated_at: string
+          user_id: string
+          work_schedule: string | null
+        }
+        Insert: {
+          additional_terms?: string | null
+          caregiver_name?: string
+          child_id: string
+          confidentiality_terms?: string | null
+          created_at?: string
+          duties?: string | null
+          emergency_procedures?: string | null
+          end_date?: string | null
+          hourly_rate?: string | null
+          id?: string
+          payment_frequency?: string | null
+          position_title?: string
+          start_date?: string | null
+          status?: string
+          termination_terms?: string | null
+          updated_at?: string
+          user_id: string
+          work_schedule?: string | null
+        }
+        Update: {
+          additional_terms?: string | null
+          caregiver_name?: string
+          child_id?: string
+          confidentiality_terms?: string | null
+          created_at?: string
+          duties?: string | null
+          emergency_procedures?: string | null
+          end_date?: string | null
+          hourly_rate?: string | null
+          id?: string
+          payment_frequency?: string | null
+          position_title?: string
+          start_date?: string | null
+          status?: string
+          termination_terms?: string | null
+          updated_at?: string
+          user_id?: string
+          work_schedule?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employment_agreements_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      end_of_life_wishes: {
+        Row: {
+          additional_notes: string | null
+          child_id: string
+          created_at: string
+          funeral_preferences: string | null
+          id: string
+          legal_guardian: string | null
+          medical_directives: string | null
+          organ_donation: string | null
+          power_of_attorney: string | null
+          preferred_hospital: string | null
+          preferred_physician: string | null
+          religious_cultural_wishes: string | null
+          special_instructions: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          additional_notes?: string | null
+          child_id: string
+          created_at?: string
+          funeral_preferences?: string | null
+          id?: string
+          legal_guardian?: string | null
+          medical_directives?: string | null
+          organ_donation?: string | null
+          power_of_attorney?: string | null
+          preferred_hospital?: string | null
+          preferred_physician?: string | null
+          religious_cultural_wishes?: string | null
+          special_instructions?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          additional_notes?: string | null
+          child_id?: string
+          created_at?: string
+          funeral_preferences?: string | null
+          id?: string
+          legal_guardian?: string | null
+          medical_directives?: string | null
+          organ_donation?: string | null
+          power_of_attorney?: string | null
+          preferred_hospital?: string | null
+          preferred_physician?: string | null
+          religious_cultural_wishes?: string | null
+          special_instructions?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "end_of_life_wishes_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_legal_docs: {
+        Row: {
+          account_number: string | null
+          child_id: string
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          description: string | null
+          doc_type: string
+          expiry_date: string | null
+          id: string
+          institution: string | null
+          notes: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_number?: string | null
+          child_id: string
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          doc_type?: string
+          expiry_date?: string | null
+          id?: string
+          institution?: string | null
+          notes?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_number?: string | null
+          child_id?: string
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          doc_type?: string
+          expiry_date?: string | null
+          id?: string
+          institution?: string | null
+          notes?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_legal_docs_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       home_safety_checks: {
         Row: {
           check_id: string
@@ -451,8 +649,11 @@ export type Database = {
           id: string
           instructions: string | null
           name: string
+          pharmacy: string | null
           prescriber: string | null
           purpose: string | null
+          refill_date: string | null
+          side_effects: string | null
           start_date: string | null
           updated_at: string
           user_id: string
@@ -466,8 +667,11 @@ export type Database = {
           id?: string
           instructions?: string | null
           name: string
+          pharmacy?: string | null
           prescriber?: string | null
           purpose?: string | null
+          refill_date?: string | null
+          side_effects?: string | null
           start_date?: string | null
           updated_at?: string
           user_id: string
@@ -481,8 +685,11 @@ export type Database = {
           id?: string
           instructions?: string | null
           name?: string
+          pharmacy?: string | null
           prescriber?: string | null
           purpose?: string | null
+          refill_date?: string | null
+          side_effects?: string | null
           start_date?: string | null
           updated_at?: string
           user_id?: string

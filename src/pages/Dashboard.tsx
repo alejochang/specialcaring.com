@@ -11,6 +11,9 @@ import HomeSafety from "@/components/sections/HomeSafety";
 import CommunityServices from "@/components/sections/CommunityServices";
 import DailyLog from "@/components/sections/DailyLog";
 import MedicalEmergencyProtocols from "@/components/sections/MedicalEmergencyProtocols";
+import EmploymentAgreement from "@/components/sections/EmploymentAgreement";
+import FinancialLegal from "@/components/sections/FinancialLegal";
+import EndOfLifeWishes from "@/components/sections/EndOfLifeWishes";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Calendar, AlertTriangle, Heart, Pill, Phone, Truck, Shield, Building, FileText } from "lucide-react";
 import ChildSelector from "@/components/ChildSelector";
@@ -49,6 +52,14 @@ const Dashboard = () => {
         return <CommunityServices />;
       case "daily-log":
         return <DailyLog />;
+      case "medical-information":
+        return <KeyInformation />;
+      case "employment":
+        return <EmploymentAgreement />;
+      case "financial-legal":
+        return <FinancialLegal />;
+      case "end-of-life":
+        return <EndOfLifeWishes />;
       default:
         return <DashboardOverview />;
     }
