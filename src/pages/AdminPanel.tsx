@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, Shield, CheckCircle, XCircle, UserCheck, Users, Clock } from "lucide-react";
+import { Loader2, Shield, CheckCircle, XCircle, UserCheck, Users, Clock, Trash2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole, AppRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import DashboardLayout from "@/components/layout/Dashboard";
 
 interface UserWithRole {
@@ -99,6 +100,34 @@ const AdminPanel = () => {
           ? "User can now access the platform."
           : "User access has been revoked.",
       });
+      fetchUsers();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const deleteUser = async (userId: string, userName: string) => {
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) throw new Error("Not authenticated");
+
+      const res = await fetch(
+        "https://ogkieklnxxmvjgikyzog.supabase.co/functions/v1/delete-user",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ user_id: userId }),
+        }
+      );
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Failed to delete user");
+
+      toast({ title: "User Deleted", description: `${userName} has been permanently removed.` });
       fetchUsers();
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -260,6 +289,27 @@ const AdminPanel = () => {
                                   <SelectItem value="viewer">Viewer</SelectItem>
                                 </SelectContent>
                               </Select>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button size="sm" variant="outline" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete User</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to permanently delete <strong>{u.full_name}</strong>? This action cannot be undone and will remove all their data.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={() => deleteUser(u.user_id, u.full_name || "User")}>
+                                      Delete
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -357,6 +407,27 @@ const AdminPanel = () => {
                                     <SelectItem value="viewer">Viewer</SelectItem>
                                   </SelectContent>
                                 </Select>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button size="sm" variant="outline" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Delete User</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Are you sure you want to permanently delete <strong>{u.full_name}</strong>? This action cannot be undone and will remove all their data.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={() => deleteUser(u.user_id, u.full_name || "User")}>
+                                        Delete
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
                               </div>
                             ) : (
                               <span className="text-sm text-muted-foreground">—</span>
