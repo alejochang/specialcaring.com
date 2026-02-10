@@ -26,6 +26,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/hooks/useUserRole";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import {
   DropdownMenu,
@@ -40,11 +41,24 @@ interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
-const sidebarItems = [
+type SidebarItem = {
+  title: string;
+  icon: any;
+  path: string;
+  roles?: ("admin" | "caregiver" | "viewer")[];
+};
+
+const sidebarItems: SidebarItem[] = [
   {
     title: "Dashboard",
     icon: Home,
     path: "/dashboard",
+  },
+  {
+    title: "Admin Panel",
+    icon: Shield,
+    path: "/dashboard/admin",
+    roles: ["admin"],
   },
   {
     title: "Child Profile",
@@ -75,6 +89,7 @@ const sidebarItems = [
     title: "Suppliers & Providers",
     icon: Truck,
     path: "/dashboard/suppliers",
+    roles: ["admin", "caregiver"],
   },
   {
     title: "Medical Contacts & Log",
@@ -95,21 +110,25 @@ const sidebarItems = [
     title: "Employment Agreement",
     icon: Briefcase,
     path: "/dashboard/employment",
+    roles: ["admin", "caregiver"],
   },
   {
     title: "Daily Log",
     icon: ClipboardList,
     path: "/dashboard/daily-log",
+    roles: ["admin", "caregiver"],
   },
   {
     title: "Financial & Legal",
     icon: DollarSign,
     path: "/dashboard/financial-legal",
+    roles: ["admin", "caregiver"],
   },
   {
     title: "End-of-Life Wishes",
     icon: FileCheck,
     path: "/dashboard/end-of-life",
+    roles: ["admin", "caregiver"],
   },
 ];
 
@@ -118,7 +137,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const location = useLocation();
   const { user, signOut, isLoading } = useAuth();
+  const { role } = useUserRole();
   const navigate = useNavigate();
+
+  const filteredSidebarItems = sidebarItems.filter(
+    (item) => !item.roles || (role && item.roles.includes(role))
+  );
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -190,7 +214,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
         <nav className="flex-1 overflow-y-auto py-4">
           <ul className="space-y-1 px-2">
-            {sidebarItems.map((item) => (
+            {filteredSidebarItems.map((item) => (
               <li key={item.path}>
                 <Link
                   to={item.path}
@@ -262,7 +286,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </div>
           <nav className="p-4">
             <ul className="space-y-2">
-              {sidebarItems.map((item) => (
+              {filteredSidebarItems.map((item) => (
                 <li key={item.path}>
                   <Link
                     to={item.path}
