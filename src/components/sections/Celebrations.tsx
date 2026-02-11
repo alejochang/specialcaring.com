@@ -121,7 +121,7 @@ const Celebrations = () => {
     title: '',
     description: '',
     category_id: '',
-    stage: 'emerging' as const,
+    stage: 'emerging' as 'emerging' | 'growing' | 'blooming' | 'shining',
     started_at: format(new Date(), 'yyyy-MM-dd'),
   });
 
@@ -137,7 +137,7 @@ const Celebrations = () => {
     if (!activeChild) return;
 
     try {
-      const { error } = await supabase.rpc('seed_celebration_categories', {
+      const { error } = await (supabase.rpc as any)('seed_celebration_categories', {
         p_child_id: activeChild.id
       });
       if (error) throw error;
@@ -151,8 +151,8 @@ const Celebrations = () => {
     if (!user || !activeChild) return;
 
     try {
-      const { data, error } = await supabase
-        .from('celebration_categories')
+      const { data, error } = await (supabase
+        .from('celebration_categories') as any)
         .select('*')
         .eq('child_id', activeChild.id)
         .order('sort_order');
@@ -163,15 +163,15 @@ const Celebrations = () => {
       if (!data || data.length === 0) {
         await seedCategories();
         // Fetch again after seeding
-        const { data: seededData, error: seededError } = await supabase
-          .from('celebration_categories')
+        const { data: seededData, error: seededError } = await (supabase
+          .from('celebration_categories') as any)
           .select('*')
           .eq('child_id', activeChild.id)
           .order('sort_order');
         if (seededError) throw seededError;
         setCategories(seededData || []);
       } else {
-        setCategories(data);
+        setCategories(data as Category[]);
       }
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -184,8 +184,8 @@ const Celebrations = () => {
 
     try {
       // Fetch journeys
-      const { data: journeysData, error: journeysError } = await supabase
-        .from('journeys')
+      const { data: journeysData, error: journeysError } = await (supabase
+        .from('journeys') as any)
         .select('*')
         .eq('child_id', activeChild.id)
         .order('updated_at', { ascending: false });
@@ -193,22 +193,22 @@ const Celebrations = () => {
       if (journeysError) throw journeysError;
 
       // Fetch all moments for these journeys
-      const journeyIds = journeysData?.map(j => j.id) || [];
+      const journeyIds = (journeysData as any[])?.map((j: any) => j.id) || [];
       let momentsData: Moment[] = [];
 
       if (journeyIds.length > 0) {
-        const { data: moments, error: momentsError } = await supabase
-          .from('journey_moments')
+        const { data: moments, error: momentsError } = await (supabase
+          .from('journey_moments') as any)
           .select('*')
           .in('journey_id', journeyIds)
           .order('moment_date', { ascending: false });
 
         if (momentsError) throw momentsError;
-        momentsData = moments || [];
+        momentsData = (moments as Moment[]) || [];
       }
 
       // Combine journeys with their moments and categories
-      const journeysWithData = journeysData?.map(journey => ({
+      const journeysWithData = (journeysData as any[])?.map((journey: any) => ({
         ...journey,
         moments: momentsData.filter(m => m.journey_id === journey.id),
         category: categories.find(c => c.id === journey.category_id),
@@ -266,15 +266,15 @@ const Celebrations = () => {
       };
 
       if (editingJourney) {
-        const { error } = await supabase
-          .from('journeys')
+        const { error } = await (supabase
+          .from('journeys') as any)
           .update(journeyData)
           .eq('id', editingJourney.id);
         if (error) throw error;
         toast({ title: "Journey updated! 🌟" });
       } else {
-        const { error } = await supabase
-          .from('journeys')
+        const { error } = await (supabase
+          .from('journeys') as any)
           .insert([journeyData]);
         if (error) throw error;
         toast({ title: "New journey started! 🎉", description: "Every step forward is a celebration!" });
@@ -301,8 +301,8 @@ const Celebrations = () => {
     if (!user || !activeChild || !selectedJourneyForMoment || !momentForm.title.trim()) return;
 
     try {
-      const { error } = await supabase
-        .from('journey_moments')
+      const { error } = await (supabase
+        .from('journey_moments') as any)
         .insert([{
           journey_id: selectedJourneyForMoment.id,
           child_id: activeChild.id,
@@ -341,8 +341,8 @@ const Celebrations = () => {
     if (!confirm('Delete this journey and all its moments?')) return;
 
     try {
-      const { error } = await supabase
-        .from('journeys')
+      const { error } = await (supabase
+        .from('journeys') as any)
         .delete()
         .eq('id', journey.id);
       if (error) throw error;
@@ -357,8 +357,8 @@ const Celebrations = () => {
   // Update Journey Stage
   const handleStageUpdate = async (journey: Journey, newStage: string) => {
     try {
-      const { error } = await supabase
-        .from('journeys')
+      const { error } = await (supabase
+        .from('journeys') as any)
         .update({ stage: newStage })
         .eq('id', journey.id);
       if (error) throw error;
@@ -555,7 +555,7 @@ const Celebrations = () => {
                             title: journey.title,
                             description: journey.description || '',
                             category_id: journey.category_id || '',
-                            stage: journey.stage,
+                            stage: journey.stage as 'emerging' | 'growing' | 'blooming' | 'shining',
                             started_at: journey.started_at,
                           });
                           setIsJourneyDialogOpen(true);
