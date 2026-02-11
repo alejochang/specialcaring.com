@@ -67,7 +67,11 @@ const MedicationsList = () => {
   });
 
   useEffect(() => {
-    if (user && activeChild) fetchMedications();
+    if (user && activeChild) {
+      fetchMedications();
+    } else if (!activeChild) {
+      setIsLoading(false);
+    }
   }, [user, activeChild?.id]);
 
   const fetchMedications = async () => {

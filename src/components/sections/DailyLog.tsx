@@ -77,7 +77,11 @@ const DailyLog = () => {
   });
 
   useEffect(() => {
-    if (user && activeChild) fetchEntries();
+    if (user && activeChild) {
+      fetchEntries();
+    } else if (!activeChild) {
+      setIsLoading(false);
+    }
   }, [user, activeChild?.id]);
 
   const fetchEntries = async () => {

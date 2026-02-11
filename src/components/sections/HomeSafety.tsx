@@ -21,7 +21,11 @@ const HomeSafety = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (user && activeChild) fetchChecks();
+    if (user && activeChild) {
+      fetchChecks();
+    } else if (!activeChild) {
+      setIsLoading(false);
+    }
   }, [user, activeChild?.id]);
 
   const fetchChecks = async () => {

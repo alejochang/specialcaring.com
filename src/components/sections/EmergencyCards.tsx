@@ -66,7 +66,11 @@ const EmergencyCards = () => {
   });
 
   useEffect(() => {
-    if (user && activeChild) fetchCard();
+    if (user && activeChild) {
+      fetchCard();
+    } else if (!activeChild) {
+      setIsLoading(false);
+    }
   }, [user, activeChild?.id]);
 
   const fetchCard = async () => {

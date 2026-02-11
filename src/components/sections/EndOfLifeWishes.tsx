@@ -43,7 +43,11 @@ const EndOfLifeWishes = () => {
   const [form, setForm] = useState(emptyForm);
 
   useEffect(() => {
-    if (user && activeChild) fetchData();
+    if (user && activeChild) {
+      fetchData();
+    } else if (!activeChild) {
+      setIsLoading(false);
+    }
   }, [user, activeChild?.id]);
 
   const fetchData = async () => {

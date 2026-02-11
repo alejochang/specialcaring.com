@@ -59,7 +59,11 @@ const MedicalContacts = () => {
   });
 
   useEffect(() => {
-    if (user && activeChild) fetchContacts();
+    if (user && activeChild) {
+      fetchContacts();
+    } else if (!activeChild) {
+      setIsLoading(false);
+    }
   }, [user, activeChild?.id]);
 
   const fetchContacts = async () => {
