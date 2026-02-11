@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      celebration_categories: {
+        Row: {
+          child_id: string
+          color: string
+          created_at: string
+          icon: string
+          id: string
+          is_default: boolean | null
+          name: string
+          sort_order: number | null
+        }
+        Insert: {
+          child_id: string
+          color?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          is_default?: boolean | null
+          name: string
+          sort_order?: number | null
+        }
+        Update: {
+          child_id?: string
+          color?: string
+          created_at?: string
+          icon?: string
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "celebration_categories_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       child_access: {
         Row: {
           child_id: string
@@ -229,6 +270,7 @@ export type Database = {
           front_image: string | null
           id: string
           id_number: string
+          id_number_encrypted: string | null
           id_type: string
           issue_date: string | null
           updated_at: string
@@ -242,6 +284,7 @@ export type Database = {
           front_image?: string | null
           id?: string
           id_number?: string
+          id_number_encrypted?: string | null
           id_type?: string
           issue_date?: string | null
           updated_at?: string
@@ -255,6 +298,7 @@ export type Database = {
           front_image?: string | null
           id?: string
           id_number?: string
+          id_number_encrypted?: string | null
           id_type?: string
           issue_date?: string | null
           updated_at?: string
@@ -391,6 +435,27 @@ export type Database = {
           },
         ]
       }
+      encryption_keys: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          rotated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          rotated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          rotated_at?: string | null
+        }
+        Relationships: []
+      }
       end_of_life_wishes: {
         Row: {
           additional_notes: string | null
@@ -456,6 +521,7 @@ export type Database = {
       financial_legal_docs: {
         Row: {
           account_number: string | null
+          account_number_encrypted: string | null
           child_id: string
           contact_email: string | null
           contact_name: string | null
@@ -474,6 +540,7 @@ export type Database = {
         }
         Insert: {
           account_number?: string | null
+          account_number_encrypted?: string | null
           child_id: string
           contact_email?: string | null
           contact_name?: string | null
@@ -492,6 +559,7 @@ export type Database = {
         }
         Update: {
           account_number?: string | null
+          account_number_encrypted?: string | null
           child_id?: string
           contact_email?: string | null
           contact_name?: string | null
@@ -550,6 +618,111 @@ export type Database = {
           },
         ]
       }
+      journey_moments: {
+        Row: {
+          child_id: string
+          created_at: string
+          how_we_celebrated: string | null
+          id: string
+          journey_id: string
+          moment_date: string
+          notes: string | null
+          photo_url: string | null
+          title: string
+        }
+        Insert: {
+          child_id: string
+          created_at?: string
+          how_we_celebrated?: string | null
+          id?: string
+          journey_id: string
+          moment_date?: string
+          notes?: string | null
+          photo_url?: string | null
+          title: string
+        }
+        Update: {
+          child_id?: string
+          created_at?: string
+          how_we_celebrated?: string | null
+          id?: string
+          journey_id?: string
+          moment_date?: string
+          notes?: string | null
+          photo_url?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journey_moments_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journey_moments_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "journeys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journeys: {
+        Row: {
+          category_id: string | null
+          child_id: string
+          created_at: string
+          description: string | null
+          id: string
+          is_starred: boolean | null
+          stage: string | null
+          started_at: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          child_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_starred?: boolean | null
+          stage?: string | null
+          started_at?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          child_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_starred?: boolean | null
+          stage?: string | null
+          started_at?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journeys_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "celebration_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journeys_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       key_information: {
         Row: {
           additional_notes: string | null
@@ -565,8 +738,10 @@ export type Database = {
           emergency_phone: string
           full_name: string
           health_card_number: string | null
+          health_card_number_encrypted: string | null
           id: string
           insurance_number: string | null
+          insurance_number_encrypted: string | null
           insurance_provider: string | null
           likes: string | null
           medical_conditions: string | null
@@ -588,8 +763,10 @@ export type Database = {
           emergency_phone?: string
           full_name?: string
           health_card_number?: string | null
+          health_card_number_encrypted?: string | null
           id?: string
           insurance_number?: string | null
+          insurance_number_encrypted?: string | null
           insurance_provider?: string | null
           likes?: string | null
           medical_conditions?: string | null
@@ -611,8 +788,10 @@ export type Database = {
           emergency_phone?: string
           full_name?: string
           health_card_number?: string | null
+          health_card_number_encrypted?: string | null
           id?: string
           insurance_number?: string | null
+          insurance_number_encrypted?: string | null
           insurance_provider?: string | null
           likes?: string | null
           medical_conditions?: string | null
@@ -876,6 +1055,45 @@ export type Database = {
           },
         ]
       }
+      security_audit_log: {
+        Row: {
+          accessed_at: string | null
+          action: string
+          child_id: string | null
+          details: Json | null
+          id: string
+          ip_address: unknown
+          record_id: string | null
+          table_name: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          accessed_at?: string | null
+          action: string
+          child_id?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: unknown
+          record_id?: string | null
+          table_name: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          accessed_at?: string | null
+          action?: string
+          child_id?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: unknown
+          record_id?: string | null
+          table_name?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       suppliers: {
         Row: {
           address: string | null
@@ -970,9 +1188,234 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      emergency_cards_secure: {
+        Row: {
+          back_image: string | null
+          child_id: string | null
+          created_at: string | null
+          expiry_date: string | null
+          front_image: string | null
+          id: string | null
+          id_number: string | null
+          id_type: string | null
+          issue_date: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          back_image?: string | null
+          child_id?: string | null
+          created_at?: string | null
+          expiry_date?: string | null
+          front_image?: string | null
+          id?: string | null
+          id_number?: never
+          id_type?: string | null
+          issue_date?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          back_image?: string | null
+          child_id?: string | null
+          created_at?: string | null
+          expiry_date?: string | null
+          front_image?: string | null
+          id?: string | null
+          id_number?: never
+          id_type?: string | null
+          issue_date?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emergency_cards_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_legal_docs_secure: {
+        Row: {
+          account_number: string | null
+          child_id: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string | null
+          description: string | null
+          doc_type: string | null
+          expiry_date: string | null
+          id: string | null
+          institution: string | null
+          notes: string | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          account_number?: never
+          child_id?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          description?: string | null
+          doc_type?: string | null
+          expiry_date?: string | null
+          id?: string | null
+          institution?: string | null
+          notes?: string | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          account_number?: never
+          child_id?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          description?: string | null
+          doc_type?: string | null
+          expiry_date?: string | null
+          id?: string | null
+          institution?: string | null
+          notes?: string | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_legal_docs_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      key_information_secure: {
+        Row: {
+          additional_notes: string | null
+          address: string | null
+          allergies: string | null
+          birth_date: string | null
+          child_id: string | null
+          created_at: string | null
+          dislikes: string | null
+          do_nots: string | null
+          email: string | null
+          emergency_contact: string | null
+          emergency_phone: string | null
+          full_name: string | null
+          health_card_number: string | null
+          id: string | null
+          insurance_number: string | null
+          insurance_provider: string | null
+          likes: string | null
+          medical_conditions: string | null
+          phone_number: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          additional_notes?: string | null
+          address?: string | null
+          allergies?: string | null
+          birth_date?: string | null
+          child_id?: string | null
+          created_at?: string | null
+          dislikes?: string | null
+          do_nots?: string | null
+          email?: string | null
+          emergency_contact?: string | null
+          emergency_phone?: string | null
+          full_name?: string | null
+          health_card_number?: never
+          id?: string | null
+          insurance_number?: never
+          insurance_provider?: string | null
+          likes?: string | null
+          medical_conditions?: string | null
+          phone_number?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          additional_notes?: string | null
+          address?: string | null
+          allergies?: string | null
+          birth_date?: string | null
+          child_id?: string | null
+          created_at?: string | null
+          dislikes?: string | null
+          do_nots?: string | null
+          email?: string | null
+          emergency_contact?: string | null
+          emergency_phone?: string | null
+          full_name?: string | null
+          health_card_number?: never
+          id?: string | null
+          insurance_number?: never
+          insurance_provider?: string | null
+          likes?: string | null
+          medical_conditions?: string | null
+          phone_number?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "key_information_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      decrypt_sensitive: { Args: { cipher_text: string }; Returns: string }
+      encrypt_sensitive: { Args: { plain_text: string }; Returns: string }
+      get_audit_logs: {
+        Args: {
+          p_child_id?: string
+          p_days_back?: number
+          p_limit?: number
+          p_table_name?: string
+        }
+        Returns: {
+          accessed_at: string
+          action: string
+          child_id: string
+          details: Json
+          id: string
+          record_id: string
+          table_name: string
+          user_id: string
+        }[]
+      }
+      get_audit_summary: {
+        Args: { p_days_back?: number }
+        Returns: {
+          deletes: number
+          inserts: number
+          table_name: string
+          total_actions: number
+          unique_users: number
+          updates: number
+        }[]
+      }
       has_child_access: {
         Args: { _child_id: string; _user_id: string }
         Returns: boolean
@@ -991,6 +1434,17 @@ export type Database = {
       redeem_invite: {
         Args: { _invite_code: string; _user_id: string }
         Returns: Json
+      }
+      seed_celebration_categories: {
+        Args: { p_child_id: string }
+        Returns: undefined
+      }
+      verify_audit_triggers: {
+        Args: never
+        Returns: {
+          has_audit_trigger: boolean
+          table_name: string
+        }[]
       }
     }
     Enums: {
