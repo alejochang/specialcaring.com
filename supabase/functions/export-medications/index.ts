@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkRateLimit, getClientIdentifier, rateLimitHeaders } from "../_shared/rateLimiter.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -6,20 +7,47 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const RATE_LIMIT_MAX = 10; // Max requests per window
+const RATE_LIMIT_WINDOW = 60000; // 1 minute
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Get Supabase credentials from environment
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error("Missing Supabase environment configuration");
+    }
+
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("Missing authorization header");
 
-    const supabase = createClient(
-      "https://ogkieklnxxmvjgikyzog.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9na2lla2xueHhtdmpnaWt5em9nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2NTE0OTcsImV4cCI6MjA4NjIyNzQ5N30.t_QNH0OWpAG5mMFL8MVxbychwoYJljKTobE3lsMi8YU",
-      { global: { headers: { Authorization: authHeader } } }
-    );
+    // Apply rate limiting
+    const clientId = getClientIdentifier(req);
+    const rateLimitResult = checkRateLimit(clientId, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW);
+
+    if (!rateLimitResult.allowed) {
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            ...rateLimitHeaders(rateLimitResult, RATE_LIMIT_MAX),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
 
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) throw new Error("Unauthorized");
@@ -64,7 +92,7 @@ Deno.serve(async (req) => {
 </style>
 </head>
 <body>
-  <h1>💊 Medications List</h1>
+  <h1>Medications List</h1>
   <p style="color: #6b7280;">
     ${keyInfo?.full_name ? `For: ${keyInfo.full_name} — ` : ""}Generated on ${new Date().toLocaleDateString("en-CA")}
   </p>
@@ -110,7 +138,11 @@ Deno.serve(async (req) => {
 </html>`;
 
     return new Response(JSON.stringify({ html, filename: "medications-list.html" }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: {
+        ...corsHeaders,
+        ...rateLimitHeaders(rateLimitResult, RATE_LIMIT_MAX),
+        "Content-Type": "application/json",
+      },
     });
   } catch (error: any) {
     return new Response(JSON.stringify({ error: error.message }), {
