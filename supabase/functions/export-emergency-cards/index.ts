@@ -52,15 +52,15 @@ Deno.serve(async (req) => {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) throw new Error("Unauthorized");
 
-    // Fetch emergency card data
+    // Fetch emergency card data (use secure view for decryption)
     const { data: cards, error: cardsError } = await supabase
-      .from("emergency_cards")
+      .from("emergency_cards_secure")
       .select("*");
     if (cardsError) throw cardsError;
 
-    // Fetch key information
+    // Fetch key information (use secure view for decryption)
     const { data: keyInfo, error: keyInfoError } = await supabase
-      .from("key_information")
+      .from("key_information_secure")
       .select("*")
       .maybeSingle();
     if (keyInfoError) throw keyInfoError;

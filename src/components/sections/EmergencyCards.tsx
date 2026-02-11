@@ -76,8 +76,9 @@ const EmergencyCards = () => {
   const fetchCard = async () => {
     if (!user || !activeChild) return;
     try {
+      // Use secure view for reading (auto-decrypts sensitive fields)
       const { data, error } = await supabase
-        .from('emergency_cards')
+        .from('emergency_cards_secure')
         .select('*')
         .eq('child_id', activeChild.id)
         .maybeSingle();

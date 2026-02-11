@@ -57,8 +57,9 @@ const KeyInformation = () => {
     queryFn: async () => {
       if (!user || !activeChild) throw new Error("No user or child found");
       
+      // Use secure view for reading (auto-decrypts sensitive fields)
       const { data, error } = await supabase
-        .from('key_information')
+        .from('key_information_secure')
         .select('*')
         .eq('child_id', activeChild.id)
         .maybeSingle();

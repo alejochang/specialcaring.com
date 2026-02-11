@@ -58,8 +58,9 @@ Deno.serve(async (req) => {
       .order("name");
     if (medsError) throw medsError;
 
+    // Use secure view for consistent RLS enforcement
     const { data: keyInfo } = await supabase
-      .from("key_information")
+      .from("key_information_secure")
       .select("full_name")
       .maybeSingle();
 

@@ -66,8 +66,9 @@ const FinancialLegal = () => {
   const fetchDocs = async () => {
     if (!user || !activeChild) return;
     try {
+      // Use secure view for reading (auto-decrypts sensitive fields)
       const { data, error } = await supabase
-        .from('financial_legal_docs')
+        .from('financial_legal_docs_secure')
         .select('*')
         .eq('child_id', activeChild.id)
         .order('created_at', { ascending: false });
