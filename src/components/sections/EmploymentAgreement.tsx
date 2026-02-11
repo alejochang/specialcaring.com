@@ -49,7 +49,11 @@ const EmploymentAgreement = () => {
   const [form, setForm] = useState(emptyForm);
 
   useEffect(() => {
-    if (user && activeChild) fetchAgreements();
+    if (user && activeChild) {
+      fetchAgreements();
+    } else if (!activeChild) {
+      setIsLoading(false);
+    }
   }, [user, activeChild?.id]);
 
   const fetchAgreements = async () => {

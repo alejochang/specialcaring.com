@@ -49,7 +49,11 @@ const MedicalEmergencyProtocols = () => {
   });
 
   useEffect(() => {
-    if (user && activeChild) fetchProtocols();
+    if (user && activeChild) {
+      fetchProtocols();
+    } else if (!activeChild) {
+      setIsLoading(false);
+    }
   }, [user, activeChild?.id]);
 
   const fetchProtocols = async () => {

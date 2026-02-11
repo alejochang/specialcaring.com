@@ -20,7 +20,11 @@ const CommunityServices = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (user && activeChild) fetchSaved();
+    if (user && activeChild) {
+      fetchSaved();
+    } else if (!activeChild) {
+      setIsLoading(false);
+    }
   }, [user, activeChild?.id]);
 
   const fetchSaved = async () => {

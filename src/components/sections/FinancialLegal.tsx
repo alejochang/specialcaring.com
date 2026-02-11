@@ -56,7 +56,11 @@ const FinancialLegal = () => {
   const [form, setForm] = useState(emptyForm);
 
   useEffect(() => {
-    if (user && activeChild) fetchDocs();
+    if (user && activeChild) {
+      fetchDocs();
+    } else if (!activeChild) {
+      setIsLoading(false);
+    }
   }, [user, activeChild?.id]);
 
   const fetchDocs = async () => {

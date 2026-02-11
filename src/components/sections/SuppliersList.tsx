@@ -64,6 +64,8 @@ const SuppliersList = () => {
   useEffect(() => {
     if (user && activeChild) {
       fetchSuppliers();
+    } else if (!activeChild) {
+      setIsLoading(false);
     }
   }, [user, activeChild?.id]);
 
