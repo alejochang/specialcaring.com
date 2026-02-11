@@ -1416,10 +1416,9 @@ export type Database = {
           updates: number
         }[]
       }
-      has_child_access: {
-        Args: { _child_id: string; _user_id: string }
-        Returns: boolean
-      }
+      has_child_access:
+        | { Args: { _child_id: string; _user_id: string }; Returns: boolean }
+        | { Args: { p_child_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
