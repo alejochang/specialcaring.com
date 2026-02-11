@@ -16,6 +16,7 @@ import {
   ClipboardList,
   DollarSign,
   FileCheck,
+  FolderOpen,
   Menu,
   X,
   LogOut,
@@ -128,6 +129,12 @@ const sidebarItems: SidebarItem[] = [
     title: "End-of-Life Wishes",
     icon: FileCheck,
     path: "/dashboard/end-of-life",
+    roles: ["admin", "caregiver"],
+  },
+  {
+    title: "Documents",
+    icon: FolderOpen,
+    path: "/dashboard/documents",
     roles: ["admin", "caregiver"],
   },
 ];
