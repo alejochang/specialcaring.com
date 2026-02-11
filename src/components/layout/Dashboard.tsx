@@ -23,6 +23,7 @@ import {
   User,
   Truck,
   Loader2,
+  PartyPopper,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -118,6 +119,11 @@ const sidebarItems: SidebarItem[] = [
     icon: ClipboardList,
     path: "/dashboard/daily-log",
     roles: ["admin", "caregiver"],
+  },
+  {
+    title: "Celebrations",
+    icon: PartyPopper,
+    path: "/dashboard/celebrations",
   },
   {
     title: "Financial & Legal",

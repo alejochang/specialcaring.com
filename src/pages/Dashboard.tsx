@@ -15,8 +15,9 @@ import EmploymentAgreement from "@/components/sections/EmploymentAgreement";
 import FinancialLegal from "@/components/sections/FinancialLegal";
 import EndOfLifeWishes from "@/components/sections/EndOfLifeWishes";
 import DocumentsSection from "@/components/sections/DocumentsSection";
+import Celebrations from "@/components/sections/Celebrations";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Calendar, AlertTriangle, Heart, Pill, Phone, Truck, Shield, Building, FileText } from "lucide-react";
+import { User, Calendar, AlertTriangle, Heart, Pill, Phone, Truck, Shield, Building, FileText, PartyPopper } from "lucide-react";
 import ChildSelector from "@/components/ChildSelector";
 import CareTeamManager from "@/components/CareTeamManager";
 import { useChild } from "@/contexts/ChildContext";
@@ -63,6 +64,8 @@ const Dashboard = () => {
         return <EndOfLifeWishes />;
       case "documents":
         return <DocumentsSection />;
+      case "celebrations":
+        return <Celebrations />;
       default:
         return <DashboardOverview />;
     }
@@ -281,6 +284,25 @@ const DashboardOverview = () => {
             <CardContent>
               <p className="text-sm text-muted-foreground pb-4">
                 Track daily care activities, observations, and important events for better care coordination.
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link to="/dashboard/celebrations" className="block transition-transform hover:scale-105">
+          <Card className="bg-white shadow-sm border border-border h-full bg-gradient-to-br from-yellow-50 to-pink-50">
+            <CardHeader className="pb-2">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-100 to-pink-100 flex items-center justify-center mb-1">
+                <PartyPopper className="h-6 w-6 text-yellow-600" />
+              </div>
+              <CardTitle className="text-lg">Celebrations</CardTitle>
+              <CardDescription>
+                Track achievements & milestones
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground pb-4">
+                Celebrate your child's unique journey with custom milestones - every achievement matters!
               </p>
             </CardContent>
           </Card>

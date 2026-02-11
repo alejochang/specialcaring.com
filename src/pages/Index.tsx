@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { ChevronRight, Heart, FileText, Calendar, Clock, Users, Check, Smile, Star, Sun, Baby } from "lucide-react";
+import { ChevronRight, Heart, FileText, Calendar, Clock, Users, Check, Smile, Star, Sun, Baby, PartyPopper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -151,12 +151,12 @@ const Index = () => {
             </div>
             
             <div className="kid-card">
-              <div className="mb-4 bg-special-50 w-12 h-12 rounded-full flex items-center justify-center">
-                <Star className="text-special-600 h-6 w-6" />
+              <div className="mb-4 bg-gradient-to-br from-yellow-100 to-pink-100 w-12 h-12 rounded-full flex items-center justify-center">
+                <PartyPopper className="text-yellow-600 h-6 w-6" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">{t('home.featuresSection.features.growthMilestones.title')}</h3>
+              <h3 className="text-xl font-semibold mb-2">{t('home.featuresSection.features.celebrations.title')}</h3>
               <p className="text-foreground mb-4 font-medium">
-                {t('home.featuresSection.features.growthMilestones.description')}
+                {t('home.featuresSection.features.celebrations.description')}
               </p>
               <Link to="/register" className="text-special-600 hover:text-special-700 inline-flex items-center font-medium">
                 {t('home.featuresSection.learnMore')}
@@ -198,21 +198,6 @@ const Index = () => {
                     {t('home.ctaSection.getStartedFree')}
                   </Button>
                 </Link>
-              </div>
-            </div>
-            <div className="relative bg-special-700 rounded-3xl p-8 text-white hidden md:block">
-              <div className="absolute inset-0 bg-gradient-to-br from-special-700 to-special-800 rounded-3xl"></div>
-              <div className="relative z-10">
-                <blockquote className="text-lg italic mb-8 font-medium">
-                  {t('home.ctaSection.testimonial.quote')}
-                </blockquote>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-special-600 rounded-full"></div>
-                  <div>
-                    <p className="font-semibold">{t('home.ctaSection.testimonial.author')}</p>
-                    <p className="text-sm text-special-100 font-medium">{t('home.ctaSection.testimonial.role')}</p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>

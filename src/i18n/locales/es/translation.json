@@ -37,9 +37,9 @@
           "title": "Contactos del equipo de cuidado",
           "description": "Gestione información de todos los cuidadores, terapeutas y familiares involucrados en el cuidado."
         },
-        "growthMilestones": {
-          "title": "Hitos de crecimiento",
-          "description": "Realice seguimiento de los logros de desarrollo y celebre el camino de progreso único de su hijo."
+        "celebrations": {
+          "title": "Celebraciones",
+          "description": "Siga los logros únicos de su hijo - cada hito es un viaje que vale la pena celebrar."
         }
       }
     },
@@ -51,12 +51,7 @@
         "reduceStress": "Reduzca el estrés con mejor organización",
         "improveCare": "Mejore la coordinación del cuidado con todos los miembros del equipo"
       },
-      "getStartedFree": "Comenzar gratis",
-      "testimonial": {
-        "quote": "\"Special Caring ha sido una salvación para nuestra familia. Tener toda la información de mi hijo en un solo lugar ha facilitado mucho la coordinación con terapeutas y médicos.\"",
-        "author": "Jessica Thompson",
-        "role": "Madre de niño con necesidades especiales"
-      }
+      "getStartedFree": "Comenzar gratis"
     }
   },
   "navigation": {

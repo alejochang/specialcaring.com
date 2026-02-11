@@ -37,9 +37,9 @@
           "title": "Care Team Contacts",
           "description": "Manage information for all caregivers, therapists, and family members involved in care."
         },
-        "growthMilestones": {
-          "title": "Growth Milestones",
-          "description": "Track developmental achievements and celebrate your child's unique progress journey."
+        "celebrations": {
+          "title": "Celebrations",
+          "description": "Track your child's unique achievements - every milestone is a journey worth celebrating."
         }
       }
     },
@@ -51,12 +51,7 @@
         "reduceStress": "Reduce stress with better organization",
         "improveCare": "Improve care coordination with all team members"
       },
-      "getStartedFree": "Get Started Free",
-      "testimonial": {
-        "quote": "\"Special Caring has been a lifesaver for our family. Having all my son's information in one place has made it so much easier to coordinate with therapists and doctors.\"",
-        "author": "Jessica Thompson",
-        "role": "Parent of special-needs child"
-      }
+      "getStartedFree": "Get Started Free"
     }
   },
   "navigation": {

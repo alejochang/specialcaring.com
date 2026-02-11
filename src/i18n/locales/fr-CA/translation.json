@@ -37,9 +37,9 @@
           "title": "Contacts de l'équipe de soins",
           "description": "Gérez les informations pour tous les soignants, thérapeutes et membres de la famille impliqués dans les soins."
         },
-        "growthMilestones": {
-          "title": "Étapes de croissance",
-          "description": "Suivez les réalisations de développement et célébrez le parcours de progrès unique de votre enfant."
+        "celebrations": {
+          "title": "Célébrations",
+          "description": "Suivez les réalisations uniques de votre enfant - chaque étape est un parcours qui mérite d'être célébré."
         }
       }
     },
@@ -51,12 +51,7 @@
         "reduceStress": "Réduisez le stress avec une meilleure organisation",
         "improveCare": "Améliorez la coordination des soins avec tous les membres de l'équipe"
       },
-      "getStartedFree": "Commencer gratuitement",
-      "testimonial": {
-        "quote": "\"Special Caring a été une bouée de sauvetage pour notre famille. Avoir toutes les informations de mon fils en un seul endroit a rendu la coordination avec les thérapeutes et les médecins beaucoup plus facile.\"",
-        "author": "Jessica Thompson",
-        "role": "Parent d'un enfant à besoins particuliers"
-      }
+      "getStartedFree": "Commencer gratuitement"
     }
   },
   "navigation": {
