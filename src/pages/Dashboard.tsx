@@ -14,6 +14,7 @@ import MedicalEmergencyProtocols from "@/components/sections/MedicalEmergencyPro
 import EmploymentAgreement from "@/components/sections/EmploymentAgreement";
 import FinancialLegal from "@/components/sections/FinancialLegal";
 import EndOfLifeWishes from "@/components/sections/EndOfLifeWishes";
+import DocumentsSection from "@/components/sections/DocumentsSection";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Calendar, AlertTriangle, Heart, Pill, Phone, Truck, Shield, Building, FileText } from "lucide-react";
 import ChildSelector from "@/components/ChildSelector";
@@ -60,6 +61,8 @@ const Dashboard = () => {
         return <FinancialLegal />;
       case "end-of-life":
         return <EndOfLifeWishes />;
+      case "documents":
+        return <DocumentsSection />;
       default:
         return <DashboardOverview />;
     }
