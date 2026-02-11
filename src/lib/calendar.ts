@@ -1,4 +1,4 @@
-import ical, { ICalCalendar, ICalEventRepeatingFreq } from 'ical-generator';
+import ical, { ICalCalendar, ICalAlarmType, ICalEventRepeatingFreq } from 'ical-generator';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
@@ -136,7 +136,7 @@ export async function generateMedicationCalendar(childId: string): Promise<strin
         end: createDateTime(today, '09:15'),
         alarms: [
           {
-            type: 'display',
+            type: ICalAlarmType.display,
             trigger: -5 * 60, // 5 minutes before
             description: `Time for ${med.name}`,
           },
@@ -160,7 +160,7 @@ export async function generateMedicationCalendar(childId: string): Promise<strin
           repeating: rrule,
           alarms: [
             {
-              type: 'display',
+              type: ICalAlarmType.display,
               trigger: -5 * 60, // 5 minutes before
               description: `Time for ${med.name}`,
             },
@@ -177,14 +177,8 @@ export async function generateMedicationCalendar(childId: string): Promise<strin
  * Generate appointments calendar
  */
 export async function generateAppointmentCalendar(childId: string): Promise<string> {
-  const { data: contacts, error } = await supabase
-    .from('medical_contacts')
-    .select('*')
-    .eq('child_id', childId)
-    .not('next_appointment', 'is', null);
-
-  if (error) throw error;
-
+  // Note: medical_contacts table doesn't have next_appointment column
+  // This function returns an empty calendar for now
   const { data: childInfo } = await supabase
     .from('key_information')
     .select('full_name')
@@ -198,37 +192,10 @@ export async function generateAppointmentCalendar(childId: string): Promise<stri
     prodId: '//Special Caring//Appointments Calendar//EN',
   });
 
-  for (const contact of contacts || []) {
-    if (!contact.next_appointment) continue;
-
-    const appointmentDate = new Date(contact.next_appointment);
-    const endDate = new Date(appointmentDate);
-    endDate.setHours(endDate.getHours() + 1); // Assume 1 hour appointments
-
-    calendar.createEvent({
-      summary: `${contact.specialty || 'Medical'} - ${contact.name}`,
-      description: `Appointment with ${contact.name}${
-        contact.specialty ? ` (${contact.specialty})` : ''
-      }`,
-      start: appointmentDate,
-      end: endDate,
-      location: contact.address || undefined,
-      alarms: [
-        {
-          type: 'display',
-          trigger: -24 * 60 * 60, // 1 day before
-          description: `Appointment reminder: ${contact.name}`,
-        },
-        {
-          type: 'display',
-          trigger: -60 * 60, // 1 hour before
-          description: `Appointment in 1 hour: ${contact.name}`,
-        },
-      ],
-    });
-  }
-
   return calendar.toString();
+}
+
+/**
 }
 
 /**

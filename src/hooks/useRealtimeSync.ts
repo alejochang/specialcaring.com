@@ -54,7 +54,7 @@ export function useRealtimeSync({
       const { table, eventType, new: newRecord, old: oldRecord } = payload;
 
       // Only process if it's for our child
-      const record = newRecord || oldRecord;
+      const record = (newRecord || oldRecord) as Record<string, any>;
       if (record?.child_id !== childId) return;
 
       // Invalidate relevant queries

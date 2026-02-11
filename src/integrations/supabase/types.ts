@@ -173,6 +173,53 @@ export type Database = {
           },
         ]
       }
+      documents: {
+        Row: {
+          category: string | null
+          child_id: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          path: string
+          size: number
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          child_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          path: string
+          size: number
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          child_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          path?: string
+          size?: number
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       emergency_cards: {
         Row: {
           back_image: string | null
@@ -704,6 +751,45 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          appointment_reminders: boolean
+          care_team_updates: boolean
+          created_at: string
+          daily_log_reminders: boolean
+          emergency_alerts: boolean
+          medication_reminders: boolean
+          quiet_hours_end: string | null
+          quiet_hours_start: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          appointment_reminders?: boolean
+          care_team_updates?: boolean
+          created_at?: string
+          daily_log_reminders?: boolean
+          emergency_alerts?: boolean
+          medication_reminders?: boolean
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          appointment_reminders?: boolean
+          care_team_updates?: boolean
+          created_at?: string
+          daily_log_reminders?: boolean
+          emergency_alerts?: boolean
+          medication_reminders?: boolean
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -725,6 +811,36 @@ export type Database = {
           full_name?: string | null
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
