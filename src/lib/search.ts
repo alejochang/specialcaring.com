@@ -135,7 +135,7 @@ export async function searchAll(
   // Search contacts
   for (const contact of contacts || []) {
     const searchText = `${contact.name} ${contact.specialty || ''} ${
-      contact.clinic || ''
+      contact.address || ''
     }`;
     const score = calculateScore(searchText, lowerQuery);
 
@@ -145,7 +145,7 @@ export async function searchAll(
         type: 'contact',
         title: contact.name,
         subtitle: contact.specialty,
-        description: contact.clinic,
+        description: contact.address,
         url: TYPE_ROUTES.contact,
         icon: TYPE_ICONS.contact,
         score,
@@ -176,7 +176,7 @@ export async function searchAll(
 
   // Search daily logs
   for (const log of logs || []) {
-    const searchText = `${log.notes || ''} ${log.activities || ''}`;
+    const searchText = `${log.title || ''} ${log.description || ''}`;
     const score = calculateScore(searchText, lowerQuery);
 
     if (score > 0) {
@@ -185,7 +185,7 @@ export async function searchAll(
         type: 'log',
         title: `Log - ${new Date(log.date).toLocaleDateString()}`,
         subtitle: log.mood,
-        description: log.notes?.substring(0, 100),
+        description: log.description?.substring(0, 100),
         url: TYPE_ROUTES.log,
         icon: TYPE_ICONS.log,
         score,
@@ -195,18 +195,16 @@ export async function searchAll(
 
   // Search suppliers
   for (const supplier of suppliers || []) {
-    const searchText = `${supplier.name} ${supplier.category || ''} ${
-      supplier.products || ''
-    }`;
+    const searchText = `${supplier.provider_name} ${supplier.item_name} ${supplier.category || ''}`;
     const score = calculateScore(searchText, lowerQuery);
 
     if (score > 0) {
       results.push({
         id: supplier.id,
         type: 'supplier',
-        title: supplier.name,
+        title: supplier.provider_name,
         subtitle: supplier.category,
-        description: supplier.products,
+        description: supplier.item_name,
         url: TYPE_ROUTES.supplier,
         icon: TYPE_ICONS.supplier,
         score,

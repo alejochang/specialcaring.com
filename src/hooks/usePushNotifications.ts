@@ -84,7 +84,7 @@ export function usePushNotifications(): UsePushNotificationsResult {
     const checkSubscription = async () => {
       try {
         const registration = await navigator.serviceWorker.ready;
-        const existingSub = await registration.pushManager.getSubscription();
+        const existingSub = await (registration as any).pushManager.getSubscription();
         setSubscription(existingSub);
       } catch (err) {
         console.error('Error checking push subscription:', err);
@@ -139,7 +139,7 @@ export function usePushNotifications(): UsePushNotificationsResult {
       const registration = await navigator.serviceWorker.ready;
 
       // Subscribe to push
-      const pushSubscription = await registration.pushManager.subscribe({
+      const pushSubscription = await (registration as any).pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       });
@@ -153,7 +153,7 @@ export function usePushNotifications(): UsePushNotificationsResult {
       }
 
       // Save to Supabase
-      const { error: dbError } = await supabase.from('push_subscriptions').upsert({
+      const { error: dbError } = await (supabase.from('push_subscriptions') as any).upsert({
         user_id: user.id,
         endpoint: pushSubscription.endpoint,
         p256dh: arrayBufferToBase64(p256dh),
@@ -195,8 +195,8 @@ export function usePushNotifications(): UsePushNotificationsResult {
 
       // Remove from Supabase
       if (user) {
-        await supabase
-          .from('push_subscriptions')
+        await (supabase
+          .from('push_subscriptions') as any)
           .delete()
           .eq('user_id', user.id)
           .eq('endpoint', subscription.endpoint);

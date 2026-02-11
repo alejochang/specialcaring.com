@@ -53,14 +53,14 @@ export function DocumentUpload({
   const { data: documents, isLoading: documentsLoading } = useQuery({
     queryKey: ['documents', childId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('documents')
+      const { data, error } = await (supabase
+        .from('documents') as any)
         .select('*')
         .eq('child_id', childId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as Document[];
+      return (data || []) as Document[];
     },
     enabled: !!user && !!childId,
   });
@@ -95,7 +95,7 @@ export function DocumentUpload({
       if (uploadError) throw uploadError;
 
       // Save metadata to database
-      const { error: dbError } = await supabase.from('documents').insert({
+      const { error: dbError } = await (supabase.from('documents') as any).insert({
         child_id: childId,
         name: file.name,
         path,
@@ -140,8 +140,8 @@ export function DocumentUpload({
       if (storageError) throw storageError;
 
       // Delete from database
-      const { error: dbError } = await supabase
-        .from('documents')
+      const { error: dbError } = await (supabase
+        .from('documents') as any)
         .delete()
         .eq('id', doc.id);
 

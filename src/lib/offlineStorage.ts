@@ -105,6 +105,7 @@ interface SpecialCaringDB extends DBSchema {
 
 const DB_NAME = 'special-caring-offline';
 const DB_VERSION = 1;
+type StoreNames = 'children' | 'dailyLogs' | 'keyInformation' | 'medications' | 'pendingSync';
 
 let dbPromise: Promise<IDBPDatabase<SpecialCaringDB>> | null = null;
 
@@ -157,7 +158,7 @@ export async function getDB(): Promise<IDBPDatabase<SpecialCaringDB>> {
 /**
  * Save data to offline storage
  */
-export async function saveOffline<T extends keyof SpecialCaringDB>(
+export async function saveOffline<T extends StoreNames>(
   storeName: T,
   data: SpecialCaringDB[T]['value']
 ): Promise<void> {
@@ -168,7 +169,7 @@ export async function saveOffline<T extends keyof SpecialCaringDB>(
 /**
  * Save multiple items to offline storage
  */
-export async function saveOfflineBatch<T extends keyof SpecialCaringDB>(
+export async function saveOfflineBatch<T extends StoreNames>(
   storeName: T,
   items: SpecialCaringDB[T]['value'][]
 ): Promise<void> {
@@ -183,7 +184,7 @@ export async function saveOfflineBatch<T extends keyof SpecialCaringDB>(
 /**
  * Get data from offline storage by key
  */
-export async function getOffline<T extends keyof SpecialCaringDB>(
+export async function getOffline<T extends StoreNames>(
   storeName: T,
   key: string
 ): Promise<SpecialCaringDB[T]['value'] | undefined> {
@@ -194,7 +195,7 @@ export async function getOffline<T extends keyof SpecialCaringDB>(
 /**
  * Get all data from a store
  */
-export async function getAllOffline<T extends keyof SpecialCaringDB>(
+export async function getAllOffline<T extends StoreNames>(
   storeName: T
 ): Promise<SpecialCaringDB[T]['value'][]> {
   const db = await getDB();
@@ -204,20 +205,21 @@ export async function getAllOffline<T extends keyof SpecialCaringDB>(
 /**
  * Get data by index
  */
-export async function getByIndex<T extends keyof SpecialCaringDB>(
+export async function getByIndex<T extends StoreNames>(
   storeName: T,
   indexName: string,
   key: string
 ): Promise<SpecialCaringDB[T]['value'][]> {
   const db = await getDB();
-  const index = db.transaction(storeName).store.index(indexName as any);
-  return index.getAll(key);
+  const tx = db.transaction(storeName);
+  const index = tx.store.index(indexName as any);
+  return index.getAll(key as any);
 }
 
 /**
  * Delete data from offline storage
  */
-export async function deleteOffline<T extends keyof SpecialCaringDB>(
+export async function deleteOffline<T extends StoreNames>(
   storeName: T,
   key: string
 ): Promise<void> {
@@ -228,7 +230,7 @@ export async function deleteOffline<T extends keyof SpecialCaringDB>(
 /**
  * Clear all data from a store
  */
-export async function clearStore<T extends keyof SpecialCaringDB>(
+export async function clearStore<T extends StoreNames>(
   storeName: T
 ): Promise<void> {
   const db = await getDB();
