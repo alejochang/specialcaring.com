@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { validateUUID, ValidationError } from "../_shared/validation.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -53,10 +54,14 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Parse request body
-    const { user_id } = await req.json();
-    if (!user_id) {
-      return new Response(JSON.stringify({ error: "user_id is required" }), {
+    // Parse and validate request body
+    const body = await req.json();
+    let user_id: string;
+    try {
+      user_id = validateUUID(body.user_id, 'user_id');
+    } catch (e) {
+      const msg = e instanceof ValidationError ? e.message : 'Invalid user_id';
+      return new Response(JSON.stringify({ error: msg }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

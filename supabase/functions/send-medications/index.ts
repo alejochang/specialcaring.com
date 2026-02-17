@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { checkRateLimit, getClientIdentifier, rateLimitHeaders } from "../_shared/rateLimiter.ts";
+import { validateEmail, sanitizeString, ValidationError } from "../_shared/validation.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -50,8 +51,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { recipientEmail, recipientName } = await req.json();
-    if (!recipientEmail) throw new Error("recipientEmail is required");
+    const body = await req.json();
+    const recipientEmail = validateEmail(body.recipientEmail, 'recipientEmail');
+    const recipientName = sanitizeString(body.recipientName, 200);
 
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
@@ -110,8 +112,9 @@ Deno.serve(async (req) => {
     });
   } catch (error: any) {
     console.error("Error sending medications email:", error);
+    const status = error instanceof ValidationError ? 400 : 500;
     return new Response(JSON.stringify({ error: error.message }), {
-      status: 400,
+      status,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
