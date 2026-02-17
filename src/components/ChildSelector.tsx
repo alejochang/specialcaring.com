@@ -8,7 +8,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Heart, Loader2, Ticket } from "lucide-react";
+import { Plus, Pencil, Trash2, Heart, Loader2, Ticket, MoreVertical } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import RedeemInvite from "@/components/RedeemInvite";
 
 const ChildSelector = () => {
@@ -98,14 +99,50 @@ const ChildSelector = () => {
         {children.map((child, idx) => (
           <Card
             key={child.id}
-            className={`cursor-pointer transition-all min-w-[140px] ${
+            className={`cursor-pointer transition-all min-w-[140px] group ${
               activeChild?.id === child.id
                 ? 'ring-2 ring-special-500 shadow-lg scale-105'
                 : 'hover:shadow-md hover:scale-102 opacity-75'
             }`}
             onClick={() => setActiveChildId(child.id)}
           >
-            <CardContent className="p-4 flex flex-col items-center gap-2">
+            <CardContent className="p-4 flex flex-col items-center gap-2 relative">
+              {isOwner(child.id) && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <MoreVertical className="h-3.5 w-3.5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setEditId(child.id);
+                        setEditName(child.name);
+                        setIsEditOpen(true);
+                      }}
+                    >
+                      <Pencil className="h-3.5 w-3.5 mr-2" /> Rename
+                    </DropdownMenuItem>
+                    {children.filter(c => c.accessRole === 'owner').length > 1 && (
+                      <DropdownMenuItem
+                        className="text-destructive focus:text-destructive"
+                        onClick={() => {
+                          setDeleteId(child.id);
+                          setIsDeleteOpen(true);
+                        }}
+                      >
+                        <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
               <Avatar className={`h-14 w-14 bg-gradient-to-br ${colors[idx % colors.length]}`}>
                 <AvatarFallback className="text-white font-bold text-lg bg-transparent">
                   {getInitials(child.name)}
@@ -113,37 +150,6 @@ const ChildSelector = () => {
               </Avatar>
               <span className="font-medium text-sm text-center truncate w-full">{child.name}</span>
               {roleBadge(child.accessRole)}
-              {activeChild?.id === child.id && isOwner(child.id) && (
-                <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEditId(child.id);
-                      setEditName(child.name);
-                      setIsEditOpen(true);
-                    }}
-                  >
-                    <Pencil className="h-3 w-3" />
-                  </Button>
-                  {children.filter(c => c.accessRole === 'owner').length > 1 && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-destructive"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setDeleteId(child.id);
-                        setIsDeleteOpen(true);
-                      }}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  )}
-                </div>
-              )}
             </CardContent>
           </Card>
         ))}
