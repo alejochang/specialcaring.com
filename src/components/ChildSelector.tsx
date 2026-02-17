@@ -12,6 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Plus, Pencil, Trash2, Heart, Loader2, Ticket, MoreVertical, Camera } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import RedeemInvite from "@/components/RedeemInvite";
+import AddChildDialog from "@/components/AddChildDialog";
 
 const ChildSelector = () => {
   const { children, activeChild, setActiveChildId, addChild, updateChild, updateChildAvatar, deleteChild, isLoading, isOwner } = useChild();
@@ -19,7 +20,7 @@ const ChildSelector = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isRedeemOpen, setIsRedeemOpen] = useState(false);
-  const [newName, setNewName] = useState("");
+  
   const [editName, setEditName] = useState("");
   const [editId, setEditId] = useState("");
   const [deleteId, setDeleteId] = useState("");
@@ -34,12 +35,6 @@ const ChildSelector = () => {
     );
   }
 
-  const handleAdd = async () => {
-    if (!newName.trim()) return;
-    await addChild(newName.trim());
-    setNewName("");
-    setIsAddOpen(false);
-  };
 
   const handleEdit = async () => {
     if (!editName.trim() || !editId) return;
@@ -232,24 +227,8 @@ const ChildSelector = () => {
       {/* Redeem Invite */}
       <RedeemInvite open={isRedeemOpen} onOpenChange={setIsRedeemOpen} />
 
-      {/* Add Dialog */}
-      <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add Child</DialogTitle>
-          </DialogHeader>
-          <Input
-            placeholder="Child's name"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-          />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddOpen(false)}>Cancel</Button>
-            <Button onClick={handleAdd} disabled={!newName.trim()}>Add</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Add Child Dialog */}
+      <AddChildDialog open={isAddOpen} onOpenChange={setIsAddOpen} />
 
       {/* Edit Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
