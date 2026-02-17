@@ -1,19 +1,20 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useChild } from "@/contexts/ChildContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Heart, Loader2, Ticket, MoreVertical } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Plus, Pencil, Trash2, Heart, Loader2, Ticket, MoreVertical, Camera } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import RedeemInvite from "@/components/RedeemInvite";
 
 const ChildSelector = () => {
-  const { children, activeChild, setActiveChildId, addChild, updateChild, deleteChild, isLoading, isOwner } = useChild();
+  const { children, activeChild, setActiveChildId, addChild, updateChild, updateChildAvatar, deleteChild, isLoading, isOwner } = useChild();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
@@ -22,6 +23,8 @@ const ChildSelector = () => {
   const [editName, setEditName] = useState("");
   const [editId, setEditId] = useState("");
   const [deleteId, setDeleteId] = useState("");
+  const [uploadingAvatarId, setUploadingAvatarId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (isLoading) {
     return (
@@ -48,6 +51,40 @@ const ChildSelector = () => {
     if (!deleteId) return;
     await deleteChild(deleteId);
     setIsDeleteOpen(false);
+  };
+
+  const handleAvatarUpload = async (childId: string, file: File) => {
+    if (!file.type.startsWith('image/')) return;
+    setUploadingAvatarId(childId);
+    try {
+      const ext = file.name.split('.').pop();
+      const filePath = `${childId}/avatar.${ext}`;
+
+      // Remove old avatar if exists
+      await supabase.storage.from('child-avatars').remove([filePath]);
+
+      const { error: uploadError } = await supabase.storage
+        .from('child-avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('child-avatars')
+        .getPublicUrl(filePath);
+
+      // Add cache-buster to force refresh
+      await updateChildAvatar(childId, `${publicUrl}?t=${Date.now()}`);
+    } catch (error: any) {
+      console.error("Avatar upload error:", error);
+    } finally {
+      setUploadingAvatarId(null);
+    }
+  };
+
+  const triggerAvatarUpload = (childId: string) => {
+    setUploadingAvatarId(childId);
+    fileInputRef.current?.click();
   };
 
   const getInitials = (name: string) => {
@@ -140,12 +177,32 @@ const ChildSelector = () => {
                         <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
                       </DropdownMenuItem>
                     )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => triggerAvatarUpload(child.id)}
+                    >
+                      <Camera className="h-3.5 w-3.5 mr-2" /> Change Photo
+                    </DropdownMenuItem>
+                    {child.avatar_url && (
+                      <DropdownMenuItem
+                        onClick={() => updateChildAvatar(child.id, null)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5 mr-2" /> Remove Photo
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
               <Avatar className={`h-14 w-14 bg-gradient-to-br ${colors[idx % colors.length]}`}>
+                {child.avatar_url && (
+                  <AvatarImage src={child.avatar_url} alt={child.name} className="object-cover" />
+                )}
                 <AvatarFallback className="text-white font-bold text-lg bg-transparent">
-                  {getInitials(child.name)}
+                  {uploadingAvatarId === child.id ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    getInitials(child.name)
+                  )}
                 </AvatarFallback>
               </Avatar>
               <span className="font-medium text-sm text-center truncate w-full">{child.name}</span>
@@ -230,6 +287,21 @@ const ChildSelector = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Hidden file input for avatar upload */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file && uploadingAvatarId) {
+            handleAvatarUpload(uploadingAvatarId, file);
+          }
+          e.target.value = '';
+        }}
+      />
     </div>
   );
 };
