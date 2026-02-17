@@ -28,6 +28,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useChild } from "@/contexts/ChildContext";
 import { useUserRole } from "@/hooks/useUserRole";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import {
@@ -151,6 +152,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const location = useLocation();
   const { user, signOut, isLoading } = useAuth();
   const { role } = useUserRole();
+  const { activeChild } = useChild();
   const navigate = useNavigate();
 
   const filteredSidebarItems = sidebarItems.filter(
@@ -245,6 +247,29 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             ))}
           </ul>
         </nav>
+
+        {/* Active Child Indicator */}
+        {activeChild && (
+          <div className={cn(
+            "border-t border-border p-3 flex items-center gap-3",
+            isCollapsed && "justify-center"
+          )}>
+            <Avatar className="h-9 w-9 shrink-0">
+              {activeChild.avatar_url && (
+                <AvatarImage src={activeChild.avatar_url} alt={activeChild.name} className="object-cover" />
+              )}
+              <AvatarFallback className="bg-special-100 text-special-700 text-xs font-semibold">
+                {activeChild.name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2)}
+              </AvatarFallback>
+            </Avatar>
+            {!isCollapsed && (
+              <div className="min-w-0">
+                <p className="text-sm font-medium truncate">{activeChild.name}</p>
+                <p className="text-[11px] text-muted-foreground">Active child</p>
+              </div>
+            )}
+          </div>
+        )}
       </aside>
 
       {/* Mobile Sidebar */}
@@ -329,7 +354,23 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         )}
       >
         {/* Desktop Header */}
-        <div className="hidden md:flex h-16 items-center justify-end px-6 border-b border-border bg-white">
+        <div className="hidden md:flex h-16 items-center justify-between px-6 border-b border-border bg-white">
+          {/* Active child in header */}
+          <div className="flex items-center gap-3">
+            {activeChild && (
+              <>
+                <Avatar className="h-8 w-8">
+                  {activeChild.avatar_url && (
+                    <AvatarImage src={activeChild.avatar_url} alt={activeChild.name} className="object-cover" />
+                  )}
+                  <AvatarFallback className="bg-special-100 text-special-700 text-xs font-semibold">
+                    {activeChild.name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2)}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-sm font-medium text-foreground">{activeChild.name}</span>
+              </>
+            )}
+          </div>
           <div className="flex items-center gap-4">
             <Link to="/" className="flex items-center gap-2 text-special-600 hover:text-special-700">
               <Home size={20} />
