@@ -26,6 +26,7 @@ interface ChildContextType {
   isLoading: boolean;
   addChild: (name: string) => Promise<void>;
   updateChild: (id: string, name: string) => Promise<void>;
+  updateChildAvatar: (id: string, avatarUrl: string | null) => Promise<void>;
   deleteChild: (id: string) => Promise<void>;
   refetch: () => Promise<void>;
   isOwner: (childId?: string) => boolean;
@@ -173,6 +174,22 @@ export const ChildProvider = ({ children: childrenProp }: { children: ReactNode 
     }
   };
 
+  const updateChildAvatar = async (id: string, avatarUrl: string | null) => {
+    try {
+      const { error } = await supabase
+        .from('children')
+        .update({ avatar_url: avatarUrl })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setChildList(prev => prev.map(c => c.id === id ? { ...c, avatar_url: avatarUrl } : c));
+      toast({ title: "Avatar updated" });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
   const isOwner = (childId?: string) => {
     const id = childId || activeChildId;
     if (!id) return false;
@@ -190,6 +207,7 @@ export const ChildProvider = ({ children: childrenProp }: { children: ReactNode 
       isLoading,
       addChild,
       updateChild,
+      updateChildAvatar,
       deleteChild,
       refetch: fetchChildren,
       isOwner,
