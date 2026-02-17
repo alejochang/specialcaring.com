@@ -1,48 +1,33 @@
 
-# Add Delete User Functionality for Admins
 
-## Overview
-Allow admins to delete users from the system via the Admin Panel. Since deleting a user from `auth.users` requires the service role key (not available client-side), this needs a Supabase Edge Function.
+## Problem
 
-## How It Works
-1. Admin clicks a "Delete" button next to a user in the Admin Panel
-2. A confirmation dialog appears to prevent accidental deletions
-3. On confirmation, the app calls a new Edge Function that securely deletes the user
-4. The Edge Function uses the service role key to remove the user from `auth.users`, which cascades to `user_roles` and `profiles`
+When adding a new child, the name is saved to the `children` table. However, when navigating to the Child Profile (Key Information) section, the form reads from the `key_information` table, which has its own `full_name` field. These two are completely disconnected -- the name entered during child creation never prefills the Child Profile form.
+
+## Solution
+
+Prefill the `full_name` field in the Key Information form with the child's name from the `children` table when no key_information record exists yet. This creates a seamless flow: add a child by name, then see that name already filled in when you open their profile.
 
 ## Changes
 
-### 1. New Edge Function: `delete-user`
-- Accepts a `user_id` in the request body
-- Verifies the calling user is an admin (server-side check using the JWT + `has_role` function)
-- Prevents self-deletion
-- Uses the Supabase Admin API to delete the user from `auth.users`
-- Related data in `user_roles`, `profiles`, and other tables with user_id will be cleaned up (user_roles has `ON DELETE CASCADE`)
+### 1. Update `KeyInformation.tsx` -- Prefill from `activeChild.name`
 
-### 2. Update Admin Panel (`src/pages/AdminPanel.tsx`)
-- Add a "Delete" button (with trash icon) in the actions column for each user (except the current admin)
-- Add a confirmation dialog asking "Are you sure you want to permanently delete this user?"
-- Wire up the delete action to call the new edge function
-- Refresh the user list after successful deletion
+In the `dbToFormValues` function, when there is no existing `key_information` record (i.e., `dbData` is null), use `activeChild.name` as the default value for `fullName` instead of an empty string.
 
-## Technical Details
+Additionally, update the `useEffect` that resets the form to also handle the case where `keyInfo` is null but `activeChild` changes -- ensuring the name prefills when switching between children who don't yet have a key_information record.
 
-### Edge Function (`supabase/functions/delete-user/index.ts`)
-```text
-POST /delete-user
-Headers: Authorization: Bearer <user-jwt>
-Body: { "user_id": "<uuid>" }
+### 2. Keep names in sync (optional but recommended)
 
-Flow:
-1. Extract JWT, verify caller is authenticated
-2. Query user_roles to confirm caller has admin role
-3. Reject if user_id matches caller (no self-delete)
-4. Call supabase.auth.admin.deleteUser(user_id)
-5. Return success/error response
-```
+When saving the Key Information form, also update the `children.name` field to match the `full_name` entered, so the child selector and the profile stay consistent.
 
-### Frontend Changes
-- Import `AlertDialog` components and `Trash2` icon
-- Add `deleteUser` async function that calls the edge function
-- Add confirmation dialog triggered by the delete button
-- Show delete button only for non-self users in both "Pending" and "All Users" tabs
+### Technical Details
+
+**File: `src/components/sections/KeyInformation.tsx`**
+
+- Modify `dbToFormValues` to accept `activeChild` as a second parameter
+- When `dbData` is null, set `fullName` to `activeChild?.name || ""`
+- In the `useEffect`, also trigger a form reset when `activeChild` changes and `keyInfo` is null
+- In the `mutation.mutationFn`, after saving key_information, call `updateChild(activeChild.id, values.fullName)` to keep the child selector name in sync
+
+No database changes are needed -- this is purely a frontend wiring fix.
+
