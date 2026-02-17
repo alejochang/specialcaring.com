@@ -49,7 +49,7 @@ const KeyInformation = () => {
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
-  const { activeChild } = useChild();
+  const { activeChild, updateChild } = useChild();
   const queryClient = useQueryClient();
 
   const { data: keyInfo, isLoading } = useQuery({
@@ -88,9 +88,9 @@ const KeyInformation = () => {
     enabled: !!user && !!activeChild,
   });
 
-  const dbToFormValues = (dbData: any): FormValues => {
+  const dbToFormValues = (dbData: any, childName?: string): FormValues => {
     if (!dbData) return {
-      fullName: "",
+      fullName: childName || "",
       birthDate: "",
       healthCardNumber: "",
       address: "",
@@ -154,14 +154,12 @@ const KeyInformation = () => {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: dbToFormValues(keyInfo),
+    defaultValues: dbToFormValues(keyInfo, activeChild?.name),
   });
 
   useEffect(() => {
-    if (keyInfo) {
-      form.reset(dbToFormValues(keyInfo));
-    }
-  }, [keyInfo, form]);
+    form.reset(dbToFormValues(keyInfo, activeChild?.name));
+  }, [keyInfo, activeChild, form]);
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
@@ -182,6 +180,11 @@ const KeyInformation = () => {
           .insert([formattedData]);
           
         if (error) throw error;
+      }
+
+      // Keep child selector name in sync
+      if (activeChild && values.fullName !== activeChild.name) {
+        await updateChild(activeChild.id, values.fullName);
       }
     },
     onSuccess: () => {
