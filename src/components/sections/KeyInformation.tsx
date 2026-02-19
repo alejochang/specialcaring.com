@@ -28,15 +28,15 @@ import { useUserRole } from "@/hooks/useUserRole";
 
 const formSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
-  birthDate: z.string().min(1, "Birth date is required"),
+  birthDate: z.string().optional(),
   healthCardNumber: z.string().optional(),
-  address: z.string().min(1, "Address is required"),
-  phoneNumber: z.string().min(1, "Phone number is required"),
-  email: z.string().email("Please enter a valid email").optional(),
+  address: z.string().optional(),
+  phoneNumber: z.string().optional(),
+  email: z.string().email("Please enter a valid email").optional().or(z.literal("")),
   insuranceProvider: z.string().optional(),
   insuranceNumber: z.string().optional(),
-  emergencyContact: z.string().min(1, "Emergency contact is required"),
-  emergencyPhone: z.string().min(1, "Emergency phone is required"),
+  emergencyContact: z.string().optional(),
+  emergencyPhone: z.string().optional(),
   medicalConditions: z.string().optional(),
   allergies: z.string().optional(),
   likes: z.string().optional(),
@@ -90,6 +90,9 @@ const KeyInformation = () => {
     },
     enabled: !!user && !!activeChild,
   });
+
+  // Whether this child has no key_information record yet
+  const isNewProfile = !isLoading && !keyInfo;
 
   const dbToFormValues = (dbData: any, childName?: string): FormValues => {
     if (!dbData) return {
@@ -160,9 +163,17 @@ const KeyInformation = () => {
     defaultValues: dbToFormValues(keyInfo, activeChild?.name),
   });
 
+  // Re-initialize form when data or schema changes
   useEffect(() => {
     form.reset(dbToFormValues(keyInfo, activeChild?.name));
   }, [keyInfo, activeChild, form]);
+
+  // Auto-enter edit mode for new profiles
+  useEffect(() => {
+    if (isNewProfile && canEdit) {
+      setIsEditing(true);
+    }
+  }, [isNewProfile, canEdit]);
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
@@ -195,8 +206,10 @@ const KeyInformation = () => {
       setIsEditing(false);
 
       toast({
-        title: "Child profile updated",
-        description: "The child's information has been successfully updated.",
+        title: keyInfo ? "Child profile updated" : "Child profile created",
+        description: keyInfo
+          ? "The child's information has been successfully updated."
+          : "The child's profile has been created successfully.",
       });
     },
     onError: (error) => {
@@ -252,10 +265,23 @@ const KeyInformation = () => {
             <Heart className="h-8 w-8 text-special-600" />
           </div>
           <div>
-            <h2 className="text-3xl font-bold text-foreground">Child Profile</h2>
-            <p className="text-muted-foreground text-lg">
-              Complete snapshot of your child's essential information
-            </p>
+            {isNewProfile ? (
+              <>
+                <h2 className="text-3xl font-bold text-foreground">
+                  Complete {activeChild.name}'s Profile
+                </h2>
+                <p className="text-muted-foreground text-lg">
+                  Fill in as much as you can now — you can always come back to add more later
+                </p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-3xl font-bold text-foreground">Child Profile</h2>
+                <p className="text-muted-foreground text-lg">
+                  Complete snapshot of your child's essential information
+                </p>
+              </>
+            )}
           </div>
         </div>
         {keyInfo && !isEditing && canEdit ? (
@@ -751,7 +777,7 @@ const KeyInformation = () => {
                 />
 
                 <div className="flex justify-end gap-3">
-                  {isEditing && (
+                  {isEditing && keyInfo && (
                     <Button
                       type="button"
                       variant="outline"

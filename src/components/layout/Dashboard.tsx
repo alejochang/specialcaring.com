@@ -6,7 +6,6 @@ import {
   Home,
   FileText,
   AlertTriangle,
-  Heart,
   Pill,
   Calendar,
   Phone,
@@ -78,11 +77,6 @@ const sidebarItems: SidebarItem[] = [
     title: "Emergency Protocols",
     icon: FileText,
     path: "/dashboard/medical-emergency-protocols",
-  },
-  {
-    title: "Medical Information",
-    icon: Heart,
-    path: "/dashboard/medical-information",
   },
   {
     title: "Medications",

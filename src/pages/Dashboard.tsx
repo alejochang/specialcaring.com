@@ -17,7 +17,7 @@ import EndOfLifeWishes from "@/components/sections/EndOfLifeWishes";
 import DocumentsSection from "@/components/sections/DocumentsSection";
 import Celebrations from "@/components/sections/Celebrations";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Calendar, AlertTriangle, Heart, Pill, Phone, Truck, Shield, Building, FileText, PartyPopper } from "lucide-react";
+import { Calendar, AlertTriangle, Heart, Pill, Phone, Truck, Shield, Building, FileText, PartyPopper } from "lucide-react";
 
 import CareTeamManager from "@/components/CareTeamManager";
 import { useChild } from "@/contexts/ChildContext";
@@ -54,8 +54,6 @@ const Dashboard = () => {
         return <CommunityServices />;
       case "daily-log":
         return <DailyLog />;
-      case "medical-information":
-        return <KeyInformation />;
       case "employment":
         return <EmploymentAgreement />;
       case "financial-legal":
@@ -155,24 +153,6 @@ const DashboardOverview = () => {
           </Card>
         </Link>
 
-        <Link to="/dashboard/medical-information" className="block transition-transform hover:scale-105">
-          <Card className="bg-white shadow-sm border border-border h-full">
-            <CardHeader className="pb-2">
-              <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center mb-1">
-                <User className="h-6 w-6 text-special-600" />
-              </div>
-              <CardTitle className="text-lg">Medical Information</CardTitle>
-              <CardDescription>
-                Health history and conditions
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground pb-4">
-                Document medical history, current conditions, allergies, and other important health information.
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
 
         <Link to="/dashboard/medications" className="block transition-transform hover:scale-105">
           <Card className="bg-white shadow-sm border border-border h-full">
