@@ -7,15 +7,24 @@ import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-ro
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ChildProvider } from "@/contexts/ChildContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import Index from "./pages/Index";
-import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Profile from "./pages/Profile";
-import AdminPanel from "./pages/AdminPanel";
-import AddChild from "./pages/AddChild";
-import NotFound from "./pages/NotFound";
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
+import { Loader2 } from "lucide-react";
+
+// Lazy-load route pages for code-splitting
+const Index = lazy(() => import("./pages/Index"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const Profile = lazy(() => import("./pages/Profile"));
+const AdminPanel = lazy(() => import("./pages/AdminPanel"));
+const AddChild = lazy(() => import("./pages/AddChild"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <Loader2 className="h-8 w-8 animate-spin text-special-600" />
+  </div>
+);
 
 // Component to handle auth-based navigation
 const AuthNavigationHandler = ({ children }: { children: React.ReactNode }) => {
@@ -51,6 +60,7 @@ const AppContent = () => {
     <AuthProvider>
       <ChildProvider>
       <AuthNavigationHandler>
+        <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
@@ -97,6 +107,7 @@ const AppContent = () => {
           />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
       </AuthNavigationHandler>
       </ChildProvider>
     </AuthProvider>
