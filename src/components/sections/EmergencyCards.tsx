@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -58,10 +58,13 @@ interface DbCard {
   expiry_date: string;
 }
 
+const SIGNED_URL_EXPIRY = 3600; // 1 hour
+
 const EmergencyCards = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [uploadingFront, setUploadingFront] = useState(false);
   const [uploadingBack, setUploadingBack] = useState(false);
+  const [signedUrls, setSignedUrls] = useState<{ front?: string; back?: string }>({});
   const frontInputRef = useRef<HTMLInputElement>(null);
   const backInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -69,6 +72,18 @@ const EmergencyCards = () => {
   const { activeChild } = useChild();
   const { canEdit } = useUserRole();
   const queryClient = useQueryClient();
+
+  // Generate a signed URL for a private bucket file path.
+  // Legacy data may contain full http URLs from when the bucket was public — pass those through.
+  const getSignedImageUrl = useCallback(async (pathOrUrl: string): Promise<string | undefined> => {
+    if (!pathOrUrl) return undefined;
+    if (pathOrUrl.startsWith('http')) return pathOrUrl; // legacy URL
+    const { data, error } = await supabase.storage
+      .from('emergency-cards')
+      .createSignedUrl(pathOrUrl, SIGNED_URL_EXPIRY);
+    if (error || !data?.signedUrl) return undefined;
+    return data.signedUrl;
+  }, []);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -102,6 +117,24 @@ const EmergencyCards = () => {
 
   const savedData = cardData?.formVals ?? null;
   const dbId = cardData?.dbId ?? null;
+
+  // Resolve signed URLs whenever card data changes
+  useEffect(() => {
+    if (!savedData) {
+      setSignedUrls({});
+      return;
+    }
+    let cancelled = false;
+    const resolve = async () => {
+      const [front, back] = await Promise.all([
+        savedData.frontImage ? getSignedImageUrl(savedData.frontImage) : undefined,
+        savedData.backImage ? getSignedImageUrl(savedData.backImage) : undefined,
+      ]);
+      if (!cancelled) setSignedUrls({ front, back });
+    };
+    resolve();
+    return () => { cancelled = true; };
+  }, [savedData?.frontImage, savedData?.backImage, getSignedImageUrl]);
 
   const saveMutation = useMutation({
     mutationFn: async (values: FormValues) => {
@@ -157,16 +190,25 @@ const EmergencyCards = () => {
     try {
       const ext = file.name.split('.').pop();
       const filePath = `${activeChild.id}/${side}-card.${ext}`;
-      await supabase.storage.from('emergency-cards').remove([filePath]);
-      const { error: uploadError } = await supabase.storage.from('emergency-cards').upload(filePath, file, { upsert: true });
+      const { error: uploadError } = await supabase.storage
+        .from('emergency-cards')
+        .upload(filePath, file, { upsert: true });
       if (uploadError) throw uploadError;
-      const { data: { publicUrl } } = supabase.storage.from('emergency-cards').getPublicUrl(filePath);
-      form.setValue(formField, `${publicUrl}?t=${Date.now()}`);
+      // Store the path (not a URL) — signed URLs are generated for display
+      form.setValue(formField, filePath);
+      const signedUrl = await getSignedImageUrl(filePath);
+      setSignedUrls((prev) => ({ ...prev, [side === 'front' ? 'front' : 'back']: signedUrl }));
     } catch (error: any) {
       toast({ title: "Upload failed", description: error.message, variant: "destructive" });
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleRemoveImage = (side: 'front' | 'back') => {
+    const formField = side === 'front' ? 'frontImage' : 'backImage';
+    form.setValue(formField, '');
+    setSignedUrls((prev) => ({ ...prev, [side]: undefined }));
   };
 
   const onSubmit = (values: FormValues) => {
@@ -266,8 +308,10 @@ const EmergencyCards = () => {
               <CardContent>
                 <div className="flex flex-col items-center">
                   <div className="w-full max-w-md h-56 bg-muted rounded-md overflow-hidden mb-4">
-                    {savedData.frontImage ? (
-                      <img src={savedData.frontImage} alt="ID Card Front" className="w-full h-full object-contain" />
+                    {savedData.frontImage && signedUrls.front ? (
+                      <img src={signedUrls.front} alt="ID Card Front" className="w-full h-full object-contain" />
+                    ) : savedData.frontImage ? (
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin" /></div>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-muted-foreground">No image uploaded</div>
                     )}
@@ -291,8 +335,10 @@ const EmergencyCards = () => {
               <CardContent>
                 <div className="flex flex-col items-center">
                   <div className="w-full max-w-md h-56 bg-muted rounded-md overflow-hidden mb-4">
-                    {savedData.backImage ? (
-                      <img src={savedData.backImage} alt="ID Card Back" className="w-full h-full object-contain" />
+                    {savedData.backImage && signedUrls.back ? (
+                      <img src={signedUrls.back} alt="ID Card Back" className="w-full h-full object-contain" />
+                    ) : savedData.backImage ? (
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin" /></div>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-muted-foreground">No image uploaded</div>
                     )}
@@ -316,10 +362,14 @@ const EmergencyCards = () => {
                     <h3 className="font-medium">Front Side</h3>
                     <div className="w-full h-48 bg-muted rounded-md relative overflow-hidden flex items-center justify-center">
                       {form.watch('frontImage') ? (
-                        <>
-                          <img src={form.watch('frontImage')} alt="ID Front Preview" className="w-full h-full object-contain" />
-                          <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 opacity-70 hover:opacity-100" onClick={() => form.setValue('frontImage', '')}><Trash2 size={16} /></Button>
-                        </>
+                        signedUrls.front ? (
+                          <>
+                            <img src={signedUrls.front} alt="ID Front Preview" className="w-full h-full object-contain" />
+                            <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 opacity-70 hover:opacity-100" onClick={() => handleRemoveImage('front')}><Trash2 size={16} /></Button>
+                          </>
+                        ) : (
+                          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                        )
                       ) : (
                         <div className="text-center p-4"><Camera size={32} className="mx-auto mb-2 text-muted-foreground" /><p className="text-sm text-muted-foreground">Upload front image</p></div>
                       )}
@@ -346,10 +396,14 @@ const EmergencyCards = () => {
                     <h3 className="font-medium">Back Side</h3>
                     <div className="w-full h-48 bg-muted rounded-md relative overflow-hidden flex items-center justify-center">
                       {form.watch('backImage') ? (
-                        <>
-                          <img src={form.watch('backImage')} alt="ID Back Preview" className="w-full h-full object-contain" />
-                          <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 opacity-70 hover:opacity-100" onClick={() => form.setValue('backImage', '')}><Trash2 size={16} /></Button>
-                        </>
+                        signedUrls.back ? (
+                          <>
+                            <img src={signedUrls.back} alt="ID Back Preview" className="w-full h-full object-contain" />
+                            <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 opacity-70 hover:opacity-100" onClick={() => handleRemoveImage('back')}><Trash2 size={16} /></Button>
+                          </>
+                        ) : (
+                          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                        )
                       ) : (
                         <div className="text-center p-4"><Camera size={32} className="mx-auto mb-2 text-muted-foreground" /><p className="text-sm text-muted-foreground">Upload back image</p></div>
                       )}
