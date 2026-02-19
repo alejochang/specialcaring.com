@@ -31,6 +31,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useChild } from "@/contexts/ChildContext";
 import { useUserRole } from "@/hooks/useUserRole";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import SidebarChildSwitcher from "@/components/layout/SidebarChildSwitcher";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -227,6 +228,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </Button>
         </div>
 
+        <SidebarChildSwitcher isCollapsed={isCollapsed} />
+
         <nav className="flex-1 overflow-y-auto py-4">
           <ul className="space-y-1 px-2">
             {filteredSidebarItems.map((item) => (
@@ -247,29 +250,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             ))}
           </ul>
         </nav>
-
-        {/* Active Child Indicator */}
-        {activeChild && (
-          <div className={cn(
-            "border-t border-border p-3 flex items-center gap-3",
-            isCollapsed && "justify-center"
-          )}>
-            <Avatar className="h-9 w-9 shrink-0">
-              {activeChild.avatar_url && (
-                <AvatarImage src={activeChild.avatar_url} alt={activeChild.name} className="object-cover" />
-              )}
-              <AvatarFallback className="bg-special-100 text-special-700 text-xs font-semibold">
-                {activeChild.name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2)}
-              </AvatarFallback>
-            </Avatar>
-            {!isCollapsed && (
-              <div className="min-w-0">
-                <p className="text-sm font-medium truncate">{activeChild.name}</p>
-                <p className="text-[11px] text-muted-foreground">Active child</p>
-              </div>
-            )}
-          </div>
-        )}
       </aside>
 
       {/* Mobile Sidebar */}
@@ -321,6 +301,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <Button variant="ghost" size="icon" onClick={toggleMobileSidebar}>
               <X size={24} />
             </Button>
+          </div>
+          <div className="px-4 pt-4">
+            <SidebarChildSwitcher isCollapsed={false} />
           </div>
           <nav className="p-4">
             <ul className="space-y-2">

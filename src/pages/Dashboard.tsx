@@ -18,7 +18,7 @@ import DocumentsSection from "@/components/sections/DocumentsSection";
 import Celebrations from "@/components/sections/Celebrations";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Calendar, AlertTriangle, Heart, Pill, Phone, Truck, Shield, Building, FileText, PartyPopper } from "lucide-react";
-import ChildSelector from "@/components/ChildSelector";
+
 import CareTeamManager from "@/components/CareTeamManager";
 import { useChild } from "@/contexts/ChildContext";
 
@@ -74,7 +74,6 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       <div className="container py-8 px-4 md:px-6 animate-fadeIn">
-        <ChildSelector />
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-3">
             {renderContent()}

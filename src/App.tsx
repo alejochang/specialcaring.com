@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import AdminPanel from "./pages/AdminPanel";
+import AddChild from "./pages/AddChild";
 import NotFound from "./pages/NotFound";
 import { useState, useEffect } from "react";
 
@@ -35,7 +36,7 @@ const AuthNavigationHandler = ({ children }: { children: React.ReactNode }) => {
     }
     
     // If user is not authenticated and trying to access protected routes, redirect to login
-    if (!user && location.pathname.startsWith('/dashboard')) {
+    if (!user && (location.pathname.startsWith('/dashboard') || location.pathname === '/add-child')) {
       console.log('Redirecting unauthenticated user to login from:', location.pathname);
       navigate('/login', { replace: true });
       return;
@@ -85,6 +86,14 @@ const AppContent = () => {
                 <Profile />
               </ProtectedRoute>
             } 
+          />
+          <Route
+            path="/add-child"
+            element={
+              <ProtectedRoute>
+                <AddChild />
+              </ProtectedRoute>
+            }
           />
           <Route path="*" element={<NotFound />} />
         </Routes>
