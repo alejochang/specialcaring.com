@@ -1,76 +1,74 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
+import {
   Shield, Home, Phone, AlertTriangle, Eye, Lock, Thermometer, Lightbulb, Camera,
-  Heart, Zap, Car, Baby, FireExtinguisher, Bell, Wrench, CheckCircle, Loader2
+  Heart, Zap, Car, Baby, FireExtinguisher, Bell, Wrench, CheckCircle, Loader2, AlertCircle
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChild } from "@/contexts/ChildContext";
 import { useToast } from "@/hooks/use-toast";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const HomeSafety = () => {
-  const [completedChecks, setCompletedChecks] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
   const { activeChild } = useChild();
   const { toast } = useToast();
+  const { canEdit } = useUserRole();
+  const queryClient = useQueryClient();
+  const queryKey = ['homeSafetyChecks', activeChild?.id];
 
-  useEffect(() => {
-    if (user && activeChild) {
-      fetchChecks();
-    } else if (!activeChild) {
-      setIsLoading(false);
-    }
-  }, [user, activeChild?.id]);
-
-  const fetchChecks = async () => {
-    if (!user || !activeChild) return;
-    try {
+  const { data: completedChecks = [], isLoading } = useQuery({
+    queryKey,
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('home_safety_checks')
         .select('check_id')
-        .eq('child_id', activeChild.id);
+        .eq('child_id', activeChild!.id);
       if (error) throw error;
-      setCompletedChecks((data || []).map((d: any) => d.check_id));
-    } catch (error: any) {
-      toast({ title: "Error loading safety checks", description: error.message, variant: "destructive" });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      return (data || []).map((d: any) => d.check_id) as string[];
+    },
+    enabled: !!user && !!activeChild,
+  });
 
-  const toggleCheck = async (checkId: string) => {
-    if (!user) return;
-    const isCompleted = completedChecks.includes(checkId);
-    
-    // Optimistic update
-    setCompletedChecks(prev => isCompleted ? prev.filter(id => id !== checkId) : [...prev, checkId]);
-
-    try {
+  const toggleMutation = useMutation({
+    mutationFn: async (checkId: string) => {
+      const isCompleted = completedChecks.includes(checkId);
       if (isCompleted) {
-        const { error } = await supabase
-          .from('home_safety_checks')
-          .delete()
-          .eq('check_id', checkId)
-          .eq('user_id', user.id);
+        const { error } = await supabase.from('home_safety_checks').delete()
+          .eq('check_id', checkId).eq('user_id', user!.id).eq('child_id', activeChild!.id);
         if (error) throw error;
       } else {
-        if (!activeChild) return;
-        const { error } = await supabase
-          .from('home_safety_checks')
-          .insert([{ user_id: user.id, child_id: activeChild.id, check_id: checkId }]);
+        const { error } = await supabase.from('home_safety_checks')
+          .insert([{ user_id: user!.id, child_id: activeChild!.id, check_id: checkId }]);
         if (error) throw error;
       }
-    } catch (error: any) {
-      // Revert optimistic update
-      setCompletedChecks(prev => isCompleted ? [...prev, checkId] : prev.filter(id => id !== checkId));
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    }
+      return checkId;
+    },
+    onMutate: async (checkId: string) => {
+      // Optimistic update
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<string[]>(queryKey);
+      queryClient.setQueryData<string[]>(queryKey, (old = []) =>
+        old.includes(checkId) ? old.filter(id => id !== checkId) : [...old, checkId]
+      );
+      return { previous };
+    },
+    onError: (_error: any, _checkId, context: any) => {
+      queryClient.setQueryData(queryKey, context?.previous);
+      toast({ title: "Error", description: _error.message, variant: "destructive" });
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey }),
+  });
+
+  const toggleCheck = (checkId: string) => {
+    if (!user || !activeChild) return;
+    toggleMutation.mutate(checkId);
   };
 
   const safetyAreas = [
@@ -152,10 +150,11 @@ const HomeSafety = () => {
       {items.map((item) => (
         <div key={item.id} className="flex items-center space-x-3 p-3 bg-white rounded-lg border">
           <button
-            onClick={() => toggleCheck(item.id)}
+            onClick={() => canEdit && toggleCheck(item.id)}
+            disabled={!canEdit}
             className={`flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
               completedChecks.includes(item.id) ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 hover:border-green-400'
-            }`}
+            } ${!canEdit ? 'cursor-not-allowed opacity-60' : ''}`}
           >
             {completedChecks.includes(item.id) && <CheckCircle className="h-3 w-3" />}
           </button>
@@ -169,6 +168,15 @@ const HomeSafety = () => {
 
   const totalItems = emergencyChecklist.length + medicalSafety.length + physicalEnvironment.length + monitoringSystems.length;
   const completionPercentage = Math.round((completedChecks.length / totalItems) * 100);
+
+  if (!activeChild) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-3xl font-bold text-foreground">Home Safety</h2>
+        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>Please select or create a child profile first.</AlertDescription></Alert>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return <div className="flex justify-center items-center py-12"><Loader2 className="h-8 w-8 animate-spin text-special-600" /></div>;
@@ -216,9 +224,9 @@ const HomeSafety = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ChecklistSection 
-                    title="Emergency Readiness Checklist" 
-                    items={emergencyChecklist} 
+                  <ChecklistSection
+                    title="Emergency Readiness Checklist"
+                    items={emergencyChecklist}
                   />
                 </CardContent>
               </Card>
@@ -236,9 +244,9 @@ const HomeSafety = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ChecklistSection 
-                    title="Medical Safety Checklist" 
-                    items={medicalSafety} 
+                  <ChecklistSection
+                    title="Medical Safety Checklist"
+                    items={medicalSafety}
                   />
                 </CardContent>
               </Card>
@@ -256,9 +264,9 @@ const HomeSafety = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ChecklistSection 
-                    title="Physical Safety Checklist" 
-                    items={physicalEnvironment} 
+                  <ChecklistSection
+                    title="Physical Safety Checklist"
+                    items={physicalEnvironment}
                   />
                 </CardContent>
               </Card>
@@ -276,9 +284,9 @@ const HomeSafety = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ChecklistSection 
-                    title="Monitoring Systems Checklist" 
-                    items={monitoringSystems} 
+                  <ChecklistSection
+                    title="Monitoring Systems Checklist"
+                    items={monitoringSystems}
                   />
                 </CardContent>
               </Card>
@@ -350,7 +358,7 @@ const HomeSafety = () => {
               </Alert>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">

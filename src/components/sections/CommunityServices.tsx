@@ -1,65 +1,72 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Building, Users, GraduationCap, Heart, Phone, MapPin, Clock, ExternalLink, 
-  Bookmark, BookmarkCheck, Star, Calendar, Loader2
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Building, Users, GraduationCap, Heart, Phone, MapPin, Clock, ExternalLink,
+  Bookmark, BookmarkCheck, Star, Calendar, Loader2, AlertCircle
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChild } from "@/contexts/ChildContext";
 import { useToast } from "@/hooks/use-toast";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const CommunityServices = () => {
-  const [savedServices, setSavedServices] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
   const { activeChild } = useChild();
   const { toast } = useToast();
+  const { canEdit } = useUserRole();
+  const queryClient = useQueryClient();
+  const queryKey = ['savedCommunityServices', activeChild?.id];
 
-  useEffect(() => {
-    if (user && activeChild) {
-      fetchSaved();
-    } else if (!activeChild) {
-      setIsLoading(false);
-    }
-  }, [user, activeChild?.id]);
-
-  const fetchSaved = async () => {
-    if (!user || !activeChild) return;
-    try {
-      const { data, error } = await supabase.from('saved_community_services').select('service_id').eq('child_id', activeChild.id);
+  const { data: savedServices = [], isLoading } = useQuery({
+    queryKey,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('saved_community_services')
+        .select('service_id')
+        .eq('child_id', activeChild!.id);
       if (error) throw error;
-      setSavedServices((data || []).map((d: any) => d.service_id));
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      return (data || []).map((d: any) => d.service_id) as string[];
+    },
+    enabled: !!user && !!activeChild,
+  });
 
-  const toggleSaved = async (serviceId: string) => {
-    if (!user) return;
-    const isSaved = savedServices.includes(serviceId);
-    
-    // Optimistic update
-    setSavedServices(prev => isSaved ? prev.filter(id => id !== serviceId) : [...prev, serviceId]);
-
-    try {
+  const toggleMutation = useMutation({
+    mutationFn: async (serviceId: string) => {
+      const isSaved = savedServices.includes(serviceId);
       if (isSaved) {
-        const { error } = await supabase.from('saved_community_services').delete().eq('service_id', serviceId).eq('user_id', user.id);
+        const { error } = await supabase.from('saved_community_services').delete()
+          .eq('service_id', serviceId).eq('user_id', user!.id).eq('child_id', activeChild!.id);
         if (error) throw error;
       } else {
-        if (!activeChild) return;
-        const { error } = await supabase.from('saved_community_services').insert([{ user_id: user.id, child_id: activeChild.id, service_id: serviceId }]);
+        const { error } = await supabase.from('saved_community_services')
+          .insert([{ user_id: user!.id, child_id: activeChild!.id, service_id: serviceId }]);
         if (error) throw error;
       }
-    } catch (error: any) {
-      setSavedServices(prev => isSaved ? [...prev, serviceId] : prev.filter(id => id !== serviceId));
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    }
+    },
+    onMutate: async (serviceId: string) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<string[]>(queryKey);
+      queryClient.setQueryData<string[]>(queryKey, (old = []) =>
+        old.includes(serviceId) ? old.filter(id => id !== serviceId) : [...old, serviceId]
+      );
+      return { previous };
+    },
+    onError: (_error: any, _serviceId, context: any) => {
+      queryClient.setQueryData(queryKey, context?.previous);
+      toast({ title: "Error", description: _error.message, variant: "destructive" });
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey }),
+  });
+
+  const toggleSaved = (serviceId: string) => {
+    if (!user || !activeChild) return;
+    toggleMutation.mutate(serviceId);
   };
 
   const educationServices = [
@@ -220,7 +227,7 @@ const CommunityServices = () => {
 
   const ServiceCard = ({ service, category }: { service: any, category: string }) => {
     const isSaved = savedServices.includes(service.id);
-    
+
     return (
       <Card className="h-full hover:shadow-md transition-shadow">
         <CardHeader className="pb-3">
@@ -228,18 +235,20 @@ const CommunityServices = () => {
             <Badge variant="secondary" className="mb-2">
               {category}
             </Badge>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => toggleSaved(service.id)}
-              className="h-8 w-8 p-0"
-            >
-              {isSaved ? (
-                <BookmarkCheck className="h-4 w-4 text-special-600" />
-              ) : (
-                <Bookmark className="h-4 w-4" />
-              )}
-            </Button>
+            {canEdit && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => toggleSaved(service.id)}
+                className="h-8 w-8 p-0"
+              >
+                {isSaved ? (
+                  <BookmarkCheck className="h-4 w-4 text-special-600" />
+                ) : (
+                  <Bookmark className="h-4 w-4" />
+                )}
+              </Button>
+            )}
           </div>
           <CardTitle className="text-lg leading-tight">{service.name}</CardTitle>
           <CardDescription>{service.description}</CardDescription>
@@ -263,7 +272,7 @@ const CommunityServices = () => {
               <span>{service.hours}</span>
             </div>
           </div>
-          
+
           <div className="flex flex-wrap gap-1 mb-4">
             {service.tags.map((tag: string, index: number) => (
               <Badge key={index} variant="outline" className="text-xs">
@@ -271,7 +280,7 @@ const CommunityServices = () => {
               </Badge>
             ))}
           </div>
-          
+
           <div className="flex gap-2">
             <Button size="sm" className="flex-1">
               <Calendar className="h-4 w-4 mr-1" />
@@ -287,6 +296,15 @@ const CommunityServices = () => {
       </Card>
     );
   };
+
+  if (!activeChild) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-3xl font-bold text-foreground">Community Services</h2>
+        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>Please select or create a child profile first.</AlertDescription></Alert>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return <div className="flex justify-center items-center py-12"><Loader2 className="h-8 w-8 animate-spin text-special-600" /></div>;

@@ -1,9 +1,10 @@
 
-import { useState, useEffect } from "react";
+import { useState, useRef } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Save, PlusCircle, Pencil, Camera, Upload, Trash2, Loader2 } from "lucide-react";
+import { Save, PlusCircle, Pencil, Camera, Upload, Trash2, Loader2, AlertCircle } from "lucide-react";
 import ExportEmailButtons from "@/components/shared/ExportEmailButtons";
 
 import { Button } from "@/components/ui/button";
@@ -18,10 +19,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChild } from "@/contexts/ChildContext";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const formSchema = z.object({
   frontImage: z.string().optional(),
@@ -46,97 +60,128 @@ interface DbCard {
 
 const EmergencyCards = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [savedData, setSavedData] = useState<FormValues | null>(null);
-  const [dbId, setDbId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [uploadingFront, setUploadingFront] = useState(false);
+  const [uploadingBack, setUploadingBack] = useState(false);
+  const frontInputRef = useRef<HTMLInputElement>(null);
+  const backInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
   const { activeChild } = useChild();
+  const { canEdit } = useUserRole();
+  const queryClient = useQueryClient();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      frontImage: "",
-      backImage: "",
-      idType: "",
-      idNumber: "",
-      issueDate: "",
-      expiryDate: "",
-    },
+    defaultValues: { frontImage: "", backImage: "", idType: "", idNumber: "", issueDate: "", expiryDate: "" },
   });
 
-  useEffect(() => {
-    if (user && activeChild) {
-      fetchCard();
-    } else if (!activeChild) {
-      setIsLoading(false);
-    }
-  }, [user, activeChild?.id]);
-
-  const fetchCard = async () => {
-    if (!user || !activeChild) return;
-    try {
-      // Use secure view for reading (auto-decrypts sensitive fields)
+  // Reads from secure view which auto-decrypts sensitive fields
+  const { data: cardData, isLoading } = useQuery({
+    queryKey: ['emergencyCards', activeChild?.id],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('emergency_cards_secure')
         .select('*')
-        .eq('child_id', activeChild.id)
+        .eq('child_id', activeChild!.id)
         .maybeSingle();
       if (error) throw error;
       if (data) {
         const d = data as any as DbCard;
         const formVals: FormValues = {
-          frontImage: d.front_image || '',
-          backImage: d.back_image || '',
-          idType: d.id_type || '',
-          idNumber: d.id_number || '',
-          issueDate: d.issue_date || '',
-          expiryDate: d.expiry_date || '',
+          frontImage: d.front_image || '', backImage: d.back_image || '',
+          idType: d.id_type || '', idNumber: d.id_number || '',
+          issueDate: d.issue_date || '', expiryDate: d.expiry_date || '',
         };
-        setSavedData(formVals);
-        setDbId(d.id);
         form.reset(formVals);
+        return { formVals, dbId: d.id };
       }
-    } catch (error: any) {
-      toast({ title: "Error loading card", description: error.message, variant: "destructive" });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      return null;
+    },
+    enabled: !!user && !!activeChild,
+  });
 
-  const onSubmit = async (values: FormValues) => {
-    if (!user) return;
-    try {
-      if (!activeChild) return;
+  const savedData = cardData?.formVals ?? null;
+  const dbId = cardData?.dbId ?? null;
+
+  const saveMutation = useMutation({
+    mutationFn: async (values: FormValues) => {
       const dbData = {
-        user_id: user.id,
-        child_id: activeChild.id,
-        front_image: values.frontImage || '',
-        back_image: values.backImage || '',
-        id_type: values.idType,
-        id_number: values.idNumber,
-        issue_date: values.issueDate || '',
-        expiry_date: values.expiryDate || '',
+        user_id: user!.id, child_id: activeChild!.id,
+        front_image: values.frontImage || '', back_image: values.backImage || '',
+        id_type: values.idType, id_number: values.idNumber,
+        issue_date: values.issueDate || '', expiry_date: values.expiryDate || '',
       };
-
       if (dbId) {
         const { error } = await supabase.from('emergency_cards').update(dbData).eq('id', dbId);
         if (error) throw error;
       } else {
-        const { data, error } = await supabase.from('emergency_cards').insert([dbData]).select().single();
+        const { error } = await supabase.from('emergency_cards').insert([dbData]);
         if (error) throw error;
-        setDbId((data as any).id);
       }
-
-      setSavedData(values);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['emergencyCards', activeChild?.id] });
       setIsEditing(false);
       toast({ title: "Information saved", description: "Emergency card information has been successfully updated." });
+    },
+    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from('emergency_cards').delete().eq('id', dbId!);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['emergencyCards', activeChild?.id] });
+      form.reset({ frontImage: '', backImage: '', idType: '', idNumber: '', issueDate: '', expiryDate: '' });
+      toast({ title: "Card deleted", description: "Emergency card information has been removed." });
+    },
+    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+  });
+
+  const handleDeleteCard = () => {
+    if (!dbId) return;
+    deleteMutation.mutate();
+  };
+
+  const handleImageUpload = async (file: File, side: 'front' | 'back') => {
+    if (!user || !activeChild) return;
+    if (!file.type.startsWith('image/')) {
+      toast({ title: "Invalid file", description: "Please select an image file.", variant: "destructive" });
+      return;
+    }
+    const setUploading = side === 'front' ? setUploadingFront : setUploadingBack;
+    const formField = side === 'front' ? 'frontImage' : 'backImage';
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const filePath = `${activeChild.id}/${side}-card.${ext}`;
+      await supabase.storage.from('emergency-cards').remove([filePath]);
+      const { error: uploadError } = await supabase.storage.from('emergency-cards').upload(filePath, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data: { publicUrl } } = supabase.storage.from('emergency-cards').getPublicUrl(filePath);
+      form.setValue(formField, `${publicUrl}?t=${Date.now()}`);
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+    } finally {
+      setUploading(false);
     }
   };
 
-  const placeholderImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Ccircle cx='8.5' cy='8.5' r='1.5'%3E%3C/circle%3E%3Cpolyline points='21 15 16 10 5 21'%3E%3C/polyline%3E%3C/svg%3E";
+  const onSubmit = (values: FormValues) => {
+    if (!user || !activeChild) return;
+    saveMutation.mutate(values);
+  };
+
+  if (!activeChild) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-3xl font-bold text-foreground">Emergency Identification Cards</h2>
+        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>Please select or create a child profile first.</AlertDescription></Alert>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -163,14 +208,43 @@ const EmergencyCards = () => {
               exportFilename="emergency-card.html"
               label="Emergency Card"
             />
-            <Button 
-              onClick={() => setIsEditing(true)}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <Pencil size={16} />
-              Edit Cards
-            </Button>
+            {canEdit && (
+              <Button
+                onClick={() => setIsEditing(true)}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Pencil size={16} />
+                Edit Cards
+              </Button>
+            )}
+            {canEdit && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" className="flex items-center gap-2 text-destructive hover:text-destructive border-destructive/30 hover:bg-destructive/10">
+                    <Trash2 size={16} />
+                    Delete
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Emergency Card?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete all emergency card information and uploaded images. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      onClick={handleDeleteCard}
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
         ) : null}
       </div>
@@ -250,11 +324,23 @@ const EmergencyCards = () => {
                         <div className="text-center p-4"><Camera size={32} className="mx-auto mb-2 text-muted-foreground" /><p className="text-sm text-muted-foreground">Upload front image</p></div>
                       )}
                     </div>
-                    <FormField control={form.control} name="frontImage" render={({ field: { value, onChange, ...fieldProps } }) => (
-                      <FormItem className="w-full"><FormControl>
-                        <Button type="button" variant="outline" className="w-full flex items-center gap-2" onClick={() => onChange(placeholderImage)}><Upload size={16} />Upload Front Image</Button>
-                      </FormControl><FormMessage /></FormItem>
-                    )} />
+                    <input
+                      ref={frontInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageUpload(f, 'front'); e.target.value = ''; }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full flex items-center gap-2"
+                      onClick={() => frontInputRef.current?.click()}
+                      disabled={uploadingFront}
+                    >
+                      {uploadingFront ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
+                      {uploadingFront ? 'Uploading...' : 'Upload Front Image'}
+                    </Button>
                   </div>
                   <div className="space-y-4">
                     <h3 className="font-medium">Back Side</h3>
@@ -268,11 +354,23 @@ const EmergencyCards = () => {
                         <div className="text-center p-4"><Camera size={32} className="mx-auto mb-2 text-muted-foreground" /><p className="text-sm text-muted-foreground">Upload back image</p></div>
                       )}
                     </div>
-                    <FormField control={form.control} name="backImage" render={({ field: { value, onChange, ...fieldProps } }) => (
-                      <FormItem className="w-full"><FormControl>
-                        <Button type="button" variant="outline" className="w-full flex items-center gap-2" onClick={() => onChange(placeholderImage)}><Upload size={16} />Upload Back Image</Button>
-                      </FormControl><FormMessage /></FormItem>
-                    )} />
+                    <input
+                      ref={backInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageUpload(f, 'back'); e.target.value = ''; }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full flex items-center gap-2"
+                      onClick={() => backInputRef.current?.click()}
+                      disabled={uploadingBack}
+                    >
+                      {uploadingBack ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
+                      {uploadingBack ? 'Uploading...' : 'Upload Back Image'}
+                    </Button>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">

@@ -1,17 +1,23 @@
 
 import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChild } from "@/contexts/ChildContext";
-import { FileCheck, Pencil, Loader2, Save, Heart, Shield, BookOpen } from "lucide-react";
+import { useUserRole } from "@/hooks/useUserRole";
+import { FileCheck, Pencil, Loader2, Save, Heart, Shield, BookOpen, AlertCircle } from "lucide-react";
 
 interface EndOfLife {
   id: string;
@@ -27,61 +33,67 @@ interface EndOfLife {
   additional_notes: string;
 }
 
+const eolSchema = z.object({
+  medical_directives: z.string().optional(),
+  preferred_hospital: z.string().optional(),
+  preferred_physician: z.string().optional(),
+  organ_donation: z.enum(['yes', 'no', 'not_specified']),
+  funeral_preferences: z.string().optional(),
+  religious_cultural_wishes: z.string().optional(),
+  legal_guardian: z.string().optional(),
+  power_of_attorney: z.string().optional(),
+  special_instructions: z.string().optional(),
+  additional_notes: z.string().optional(),
+});
+
+type EolFormValues = z.infer<typeof eolSchema>;
+
 const EndOfLifeWishes = () => {
-  const [data, setData] = useState<EndOfLife | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const { user } = useAuth();
   const { activeChild } = useChild();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { canEdit } = useUserRole();
 
-  const emptyForm = {
-    medical_directives: '', preferred_hospital: '', preferred_physician: '',
-    organ_donation: 'not_specified', funeral_preferences: '', religious_cultural_wishes: '',
-    legal_guardian: '', power_of_attorney: '', special_instructions: '', additional_notes: '',
-  };
-  const [form, setForm] = useState(emptyForm);
+  const form = useForm<EolFormValues>({
+    resolver: zodResolver(eolSchema),
+    defaultValues: {
+      medical_directives: '', preferred_hospital: '', preferred_physician: '',
+      organ_donation: 'not_specified', funeral_preferences: '', religious_cultural_wishes: '',
+      legal_guardian: '', power_of_attorney: '', special_instructions: '', additional_notes: '',
+    },
+  });
 
-  useEffect(() => {
-    if (user && activeChild) {
-      fetchData();
-    } else if (!activeChild) {
-      setIsLoading(false);
-    }
-  }, [user, activeChild?.id]);
-
-  const fetchData = async () => {
-    if (!user || !activeChild) return;
-    try {
+  const { data, isLoading } = useQuery({
+    queryKey: ['endOfLifeWishes', activeChild?.id],
+    queryFn: async () => {
       const { data: d, error } = await supabase
         .from('end_of_life_wishes')
         .select('*')
-        .eq('child_id', activeChild.id)
+        .eq('child_id', activeChild!.id)
         .maybeSingle();
       if (error) throw error;
-      if (d) {
-        const typed = d as any as EndOfLife;
-        setData(typed);
-        setForm({
-          medical_directives: typed.medical_directives || '', preferred_hospital: typed.preferred_hospital || '',
-          preferred_physician: typed.preferred_physician || '', organ_donation: typed.organ_donation || 'not_specified',
-          funeral_preferences: typed.funeral_preferences || '', religious_cultural_wishes: typed.religious_cultural_wishes || '',
-          legal_guardian: typed.legal_guardian || '', power_of_attorney: typed.power_of_attorney || '',
-          special_instructions: typed.special_instructions || '', additional_notes: typed.additional_notes || '',
-        });
-      }
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      return d ? (d as any as EndOfLife) : null;
+    },
+    enabled: !!user && !!activeChild,
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user || !activeChild) return;
-    try {
-      const dbData = { ...form, user_id: user.id, child_id: activeChild.id };
+  useEffect(() => {
+    if (data) {
+      form.reset({
+        medical_directives: data.medical_directives || '', preferred_hospital: data.preferred_hospital || '',
+        preferred_physician: data.preferred_physician || '', organ_donation: (data.organ_donation as 'yes' | 'no' | 'not_specified') || 'not_specified',
+        funeral_preferences: data.funeral_preferences || '', religious_cultural_wishes: data.religious_cultural_wishes || '',
+        legal_guardian: data.legal_guardian || '', power_of_attorney: data.power_of_attorney || '',
+        special_instructions: data.special_instructions || '', additional_notes: data.additional_notes || '',
+      });
+    }
+  }, [data, form]);
+
+  const saveMutation = useMutation({
+    mutationFn: async (values: EolFormValues) => {
+      const dbData = { ...values, user_id: user!.id, child_id: activeChild!.id };
       if (data) {
         const { error } = await supabase.from('end_of_life_wishes').update(dbData).eq('id', data.id);
         if (error) throw error;
@@ -89,13 +101,28 @@ const EndOfLifeWishes = () => {
         const { error } = await supabase.from('end_of_life_wishes').insert([dbData]);
         if (error) throw error;
       }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['endOfLifeWishes', activeChild?.id] });
       toast({ title: "Saved successfully" });
       setIsEditing(false);
-      fetchData();
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    }
+    },
+    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+  });
+
+  const onSubmit = (values: EolFormValues) => {
+    if (!user || !activeChild) return;
+    saveMutation.mutate(values);
   };
+
+  if (!activeChild) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-3xl font-bold text-foreground">End-of-Life Wishes</h2>
+        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>Please select or create a child profile first.</AlertDescription></Alert>
+      </div>
+    );
+  }
 
   if (isLoading) return <div className="flex justify-center items-center py-12"><Loader2 className="h-8 w-8 animate-spin text-special-600" /></div>;
 
@@ -123,7 +150,7 @@ const EndOfLifeWishes = () => {
             <FileCheck className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium mb-2">No Information Recorded</h3>
             <p className="text-muted-foreground mb-4 max-w-md mx-auto">Document important end-of-life preferences, medical directives, and guardianship information.</p>
-            <Button onClick={() => setIsEditing(true)} className="bg-special-600 hover:bg-special-700">Begin Documentation</Button>
+            {canEdit && <Button onClick={() => setIsEditing(true)} className="bg-special-600 hover:bg-special-700">Begin Documentation</Button>}
           </CardContent>
         </Card>
       </div>
@@ -142,39 +169,61 @@ const EndOfLifeWishes = () => {
             </div>
           </div>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <Section title="Medical Directives" icon={Heart}>
-            <div className="space-y-4">
-              <div><Label>Advanced Medical Directives</Label><Textarea value={form.medical_directives} onChange={e => setForm({...form, medical_directives: e.target.value})} className="min-h-[120px]" placeholder="Document any advanced medical directives, DNR orders, or treatment preferences..." /></div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><Label>Preferred Hospital</Label><Input value={form.preferred_hospital} onChange={e => setForm({...form, preferred_hospital: e.target.value})} /></div>
-                <div><Label>Preferred Physician</Label><Input value={form.preferred_physician} onChange={e => setForm({...form, preferred_physician: e.target.value})} /></div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <Section title="Medical Directives" icon={Heart}>
+              <div className="space-y-4">
+                <FormField control={form.control} name="medical_directives" render={({ field }) => (
+                  <FormItem><FormLabel>Advanced Medical Directives</FormLabel><FormControl><Textarea {...field} className="min-h-[120px]" placeholder="Document any advanced medical directives, DNR orders, or treatment preferences..." /></FormControl><FormMessage /></FormItem>
+                )} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField control={form.control} name="preferred_hospital" render={({ field }) => (
+                    <FormItem><FormLabel>Preferred Hospital</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                  <FormField control={form.control} name="preferred_physician" render={({ field }) => (
+                    <FormItem><FormLabel>Preferred Physician</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  )} />
+                </div>
+                <FormField control={form.control} name="organ_donation" render={({ field }) => (
+                  <FormItem><FormLabel>Organ Donation</FormLabel><FormControl><Select onValueChange={field.onChange} value={field.value}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="yes">Yes - Organ Donor</SelectItem><SelectItem value="no">No</SelectItem><SelectItem value="not_specified">Not Specified</SelectItem></SelectContent></Select></FormControl><FormMessage /></FormItem>
+                )} />
               </div>
-              <div><Label>Organ Donation</Label><Select value={form.organ_donation} onValueChange={v => setForm({...form, organ_donation: v})}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="yes">Yes - Organ Donor</SelectItem><SelectItem value="no">No</SelectItem><SelectItem value="not_specified">Not Specified</SelectItem></SelectContent></Select></div>
-            </div>
-          </Section>
+            </Section>
 
-          <Section title="Legal & Guardianship" icon={Shield}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div><Label>Legal Guardian</Label><Input value={form.legal_guardian} onChange={e => setForm({...form, legal_guardian: e.target.value})} placeholder="Name and contact" /></div>
-              <div><Label>Power of Attorney</Label><Input value={form.power_of_attorney} onChange={e => setForm({...form, power_of_attorney: e.target.value})} placeholder="Name and contact" /></div>
-            </div>
-          </Section>
+            <Section title="Legal & Guardianship" icon={Shield}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField control={form.control} name="legal_guardian" render={({ field }) => (
+                  <FormItem><FormLabel>Legal Guardian</FormLabel><FormControl><Input {...field} placeholder="Name and contact" /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="power_of_attorney" render={({ field }) => (
+                  <FormItem><FormLabel>Power of Attorney</FormLabel><FormControl><Input {...field} placeholder="Name and contact" /></FormControl><FormMessage /></FormItem>
+                )} />
+              </div>
+            </Section>
 
-          <Section title="Personal Wishes" icon={BookOpen}>
-            <div className="space-y-4">
-              <div><Label>Funeral Preferences</Label><Textarea value={form.funeral_preferences} onChange={e => setForm({...form, funeral_preferences: e.target.value})} className="min-h-[80px]" /></div>
-              <div><Label>Religious/Cultural Wishes</Label><Textarea value={form.religious_cultural_wishes} onChange={e => setForm({...form, religious_cultural_wishes: e.target.value})} className="min-h-[80px]" /></div>
-              <div><Label>Special Instructions</Label><Textarea value={form.special_instructions} onChange={e => setForm({...form, special_instructions: e.target.value})} className="min-h-[80px]" /></div>
-              <div><Label>Additional Notes</Label><Textarea value={form.additional_notes} onChange={e => setForm({...form, additional_notes: e.target.value})} className="min-h-[80px]" /></div>
-            </div>
-          </Section>
+            <Section title="Personal Wishes" icon={BookOpen}>
+              <div className="space-y-4">
+                <FormField control={form.control} name="funeral_preferences" render={({ field }) => (
+                  <FormItem><FormLabel>Funeral Preferences</FormLabel><FormControl><Textarea {...field} className="min-h-[80px]" /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="religious_cultural_wishes" render={({ field }) => (
+                  <FormItem><FormLabel>Religious/Cultural Wishes</FormLabel><FormControl><Textarea {...field} className="min-h-[80px]" /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="special_instructions" render={({ field }) => (
+                  <FormItem><FormLabel>Special Instructions</FormLabel><FormControl><Textarea {...field} className="min-h-[80px]" /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="additional_notes" render={({ field }) => (
+                  <FormItem><FormLabel>Additional Notes</FormLabel><FormControl><Textarea {...field} className="min-h-[80px]" /></FormControl><FormMessage /></FormItem>
+                )} />
+              </div>
+            </Section>
 
-          <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={() => { setIsEditing(false); if (data) setForm({ medical_directives: data.medical_directives || '', preferred_hospital: data.preferred_hospital || '', preferred_physician: data.preferred_physician || '', organ_donation: data.organ_donation || 'not_specified', funeral_preferences: data.funeral_preferences || '', religious_cultural_wishes: data.religious_cultural_wishes || '', legal_guardian: data.legal_guardian || '', power_of_attorney: data.power_of_attorney || '', special_instructions: data.special_instructions || '', additional_notes: data.additional_notes || '' }); }}>Cancel</Button>
-            <Button type="submit" className="bg-special-600 hover:bg-special-700"><Save className="h-4 w-4 mr-2" />Save</Button>
-          </div>
-        </form>
+            <div className="flex justify-end gap-3">
+              <Button type="button" variant="outline" onClick={() => { setIsEditing(false); if (data) form.reset(); }}>Cancel</Button>
+              <Button type="submit" className="bg-special-600 hover:bg-special-700"><Save className="h-4 w-4 mr-2" />Save</Button>
+            </div>
+          </form>
+        </Form>
       </div>
     );
   }
@@ -190,7 +239,7 @@ const EndOfLifeWishes = () => {
             <p className="text-muted-foreground">Advanced directives and preferences</p>
           </div>
         </div>
-        <Button variant="outline" onClick={() => setIsEditing(true)}><Pencil className="h-4 w-4 mr-2" />Edit</Button>
+        {canEdit && <Button variant="outline" onClick={() => setIsEditing(true)}><Pencil className="h-4 w-4 mr-2" />Edit</Button>}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

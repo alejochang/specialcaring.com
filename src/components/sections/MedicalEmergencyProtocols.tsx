@@ -1,9 +1,10 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Save, PlusCircle, Pencil, AlertTriangle, Phone, Clock, FileText, Trash2, Loader2 } from "lucide-react";
+import { Save, PlusCircle, Pencil, AlertTriangle, Phone, Clock, FileText, Trash2, Loader2, AlertCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,11 +14,22 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChild } from "@/contexts/ChildContext";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const protocolSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -35,102 +47,86 @@ interface Protocol extends ProtocolValues {
 }
 
 const MedicalEmergencyProtocols = () => {
-  const [protocols, setProtocols] = useState<Protocol[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
   const { activeChild } = useChild();
+  const { canEdit } = useUserRole();
+  const queryClient = useQueryClient();
 
   const form = useForm<ProtocolValues>({
     resolver: zodResolver(protocolSchema),
     defaultValues: { title: "", severity: "moderate", emergencyContacts: "", immediateSteps: "", whenToCall911: "", additionalNotes: "" },
   });
 
-  useEffect(() => {
-    if (user && activeChild) {
-      fetchProtocols();
-    } else if (!activeChild) {
-      setIsLoading(false);
-    }
-  }, [user, activeChild?.id]);
-
-  const fetchProtocols = async () => {
-    if (!user || !activeChild) return;
-    try {
+  const { data: protocols = [], isLoading } = useQuery({
+    queryKey: ['emergencyProtocols', activeChild?.id],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('emergency_protocols')
         .select('*')
-        .eq('child_id', activeChild.id)
+        .eq('child_id', activeChild!.id)
         .order('created_at', { ascending: false });
       if (error) throw error;
-      setProtocols((data || []).map((d: any) => ({
-        id: d.id,
-        title: d.title,
-        severity: d.severity as any,
-        emergencyContacts: d.emergency_contacts,
-        immediateSteps: d.immediate_steps,
-        whenToCall911: d.when_to_call_911 || '',
-        additionalNotes: d.additional_notes || '',
-      })));
-    } catch (error: any) {
-      toast({ title: "Error loading protocols", description: error.message, variant: "destructive" });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      return (data || []).map((d: any) => ({
+        id: d.id, title: d.title, severity: d.severity as any,
+        emergencyContacts: d.emergency_contacts, immediateSteps: d.immediate_steps,
+        whenToCall911: d.when_to_call_911 || '', additionalNotes: d.additional_notes || '',
+      })) as Protocol[];
+    },
+    enabled: !!user && !!activeChild,
+  });
 
-  const onSubmit = async (values: ProtocolValues) => {
-    if (!user) return;
-    try {
-      if (!activeChild) return;
+  const saveMutation = useMutation({
+    mutationFn: async (values: ProtocolValues) => {
+      if (!user || !activeChild) throw new Error('No user or child');
       const dbData = {
-        user_id: user.id,
-        child_id: activeChild.id,
-        title: values.title,
-        severity: values.severity,
-        emergency_contacts: values.emergencyContacts,
-        immediate_steps: values.immediateSteps,
-        when_to_call_911: values.whenToCall911 || '',
-        additional_notes: values.additionalNotes || '',
+        user_id: user.id, child_id: activeChild.id, title: values.title, severity: values.severity,
+        emergency_contacts: values.emergencyContacts, immediate_steps: values.immediateSteps,
+        when_to_call_911: values.whenToCall911 || '', additional_notes: values.additionalNotes || '',
       };
-
       if (editingId) {
         const { error } = await supabase.from('emergency_protocols').update(dbData).eq('id', editingId);
         if (error) throw error;
-        setProtocols(prev => prev.map(p => p.id === editingId ? { ...values, id: editingId } : p));
-        toast({ title: "Protocol updated" });
       } else {
-        const { data, error } = await supabase.from('emergency_protocols').insert([dbData]).select().single();
+        const { error } = await supabase.from('emergency_protocols').insert([dbData]);
         if (error) throw error;
-        setProtocols(prev => [{ ...values, id: (data as any).id }, ...prev]);
-        toast({ title: "Protocol added" });
       }
-      
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['emergencyProtocols', activeChild?.id] });
+      toast({ title: editingId ? "Protocol updated" : "Protocol added" });
       setIsEditing(false);
       setEditingId(null);
       form.reset();
-    } catch (error: any) {
+    },
+    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('emergency_protocols').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['emergencyProtocols', activeChild?.id] });
+      toast({ title: "Protocol deleted" });
+      setDeletingId(null);
+    },
+    onError: (error: any) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
-    }
-  };
+      setDeletingId(null);
+    },
+  });
+
+  const onSubmit = (values: ProtocolValues) => saveMutation.mutate(values);
 
   const handleEdit = (protocol: Protocol) => {
     setEditingId(protocol.id);
     form.reset(protocol);
     setIsEditing(true);
-  };
-
-  const handleDelete = async (id: string) => {
-    try {
-      const { error } = await supabase.from('emergency_protocols').delete().eq('id', id);
-      if (error) throw error;
-      setProtocols(prev => prev.filter(p => p.id !== id));
-      toast({ title: "Protocol deleted" });
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    }
   };
 
   const getSeverityColor = (severity: string) => {
@@ -151,6 +147,15 @@ const MedicalEmergencyProtocols = () => {
     }
   };
 
+  if (!activeChild) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-3xl font-bold text-foreground">Medical Emergency Protocols</h2>
+        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>Please select or create a child profile first.</AlertDescription></Alert>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return <div className="flex justify-center items-center py-12"><Loader2 className="h-8 w-8 animate-spin text-special-600" /></div>;
   }
@@ -162,9 +167,11 @@ const MedicalEmergencyProtocols = () => {
           <h2 className="text-2xl font-bold">Medical Emergency Protocols</h2>
           <p className="text-muted-foreground">Quick reference guides for managing medical emergencies</p>
         </div>
-        <Button onClick={() => { setEditingId(null); form.reset(); setIsEditing(true); }} className="bg-special-600 hover:bg-special-700 flex items-center gap-2">
-          <PlusCircle size={16} />Add Protocol
-        </Button>
+        {canEdit && (
+          <Button onClick={() => { setEditingId(null); form.reset(); setIsEditing(true); }} className="bg-special-600 hover:bg-special-700 flex items-center gap-2">
+            <PlusCircle size={16} />Add Protocol
+          </Button>
+        )}
       </div>
 
       <Alert className="mb-6 border-red-200 bg-red-50">
@@ -185,10 +192,12 @@ const MedicalEmergencyProtocols = () => {
                     {getSeverityIcon(protocol.severity)}
                     <div><CardTitle className="text-xl">{protocol.title}</CardTitle><CardDescription className="capitalize">{protocol.severity} Priority</CardDescription></div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleEdit(protocol)}><Pencil size={16} /></Button>
-                    <Button variant="outline" size="sm" onClick={() => handleDelete(protocol.id)}><Trash2 size={16} /></Button>
-                  </div>
+                  {canEdit && (
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => handleEdit(protocol)}><Pencil size={16} /></Button>
+                      <Button variant="outline" size="sm" onClick={() => setDeletingId(protocol.id)}><Trash2 size={16} /></Button>
+                    </div>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -222,7 +231,9 @@ const MedicalEmergencyProtocols = () => {
             <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium mb-2">No Emergency Protocols Yet</h3>
             <p className="text-muted-foreground mb-4">Create your first emergency protocol to be prepared for critical situations.</p>
-            <Button onClick={() => setIsEditing(true)} className="bg-special-600 hover:bg-special-700"><PlusCircle size={16} className="mr-2" />Add Your First Protocol</Button>
+            {canEdit && (
+              <Button onClick={() => setIsEditing(true)} className="bg-special-600 hover:bg-special-700"><PlusCircle size={16} className="mr-2" />Add Your First Protocol</Button>
+            )}
           </CardContent>
         </Card>
       )}
@@ -251,6 +262,26 @@ const MedicalEmergencyProtocols = () => {
           </Form>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={deletingId !== null} onOpenChange={(open) => { if (!open) setDeletingId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Protocol?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove this emergency protocol. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => { if (deletingId) deleteMutation.mutate(deletingId); }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

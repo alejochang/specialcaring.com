@@ -68,9 +68,11 @@ const AuthForm = ({ type }: AuthFormProps) => {
         navigate("/dashboard");
       } else {
         await signUp(values.email, values.password, values.name);
+        toast({ title: "Success!", description: "Account created successfully. Please check your email to verify your account." });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Authentication error:", error);
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -80,8 +82,9 @@ const AuthForm = ({ type }: AuthFormProps) => {
     setLoading(true);
     try {
       await signInWithGoogle();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Google sign in error:", error);
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Save, PlusCircle, Pencil, Loader2, Heart, Calendar, IdCard, Stethoscope, Pill, ThumbsUp, ThumbsDown, AlertTriangle } from "lucide-react";
+import { Save, PlusCircle, Pencil, Loader2, Heart, Calendar, IdCard, Stethoscope, Pill, ThumbsUp, ThumbsDown, AlertTriangle, AlertCircle } from "lucide-react";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
@@ -19,10 +19,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChild } from "@/contexts/ChildContext";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const formSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
@@ -50,20 +52,21 @@ const KeyInformation = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const { activeChild, updateChild } = useChild();
+  const { canEdit } = useUserRole();
   const queryClient = useQueryClient();
 
   const { data: keyInfo, isLoading } = useQuery({
     queryKey: ['keyInformation', activeChild?.id],
     queryFn: async () => {
       if (!user || !activeChild) throw new Error("No user or child found");
-      
+
       // Use secure view for reading (auto-decrypts sensitive fields)
       const { data, error } = await supabase
         .from('key_information_secure')
         .select('*')
         .eq('child_id', activeChild.id)
         .maybeSingle();
-        
+
       if (error) throw error;
       return data;
     },
@@ -75,13 +78,13 @@ const KeyInformation = () => {
     queryKey: ['medications', activeChild?.id],
     queryFn: async () => {
       if (!user || !activeChild) throw new Error("No user or child found");
-      
+
       const { data, error } = await supabase
         .from('medications')
         .select('*')
         .eq('child_id', activeChild.id)
         .order('created_at', { ascending: false });
-        
+
       if (error) throw error;
       return data || [];
     },
@@ -107,7 +110,7 @@ const KeyInformation = () => {
       doNots: "",
       additionalNotes: "",
     };
-    
+
     return {
       fullName: dbData.full_name || "",
       birthDate: dbData.birth_date || "",
@@ -164,21 +167,21 @@ const KeyInformation = () => {
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
       if (!user || !activeChild) throw new Error("No user or child found");
-      
+
       const formattedData = formToDbValues(values, user.id, activeChild.id);
-      
+
       if (keyInfo) {
         const { error } = await supabase
           .from('key_information')
           .update(formattedData)
           .eq('id', keyInfo.id);
-          
+
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from('key_information')
           .insert([formattedData]);
-          
+
         if (error) throw error;
       }
 
@@ -190,7 +193,7 @@ const KeyInformation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['keyInformation', activeChild?.id] });
       setIsEditing(false);
-      
+
       toast({
         title: "Child profile updated",
         description: "The child's information has been successfully updated.",
@@ -216,13 +219,22 @@ const KeyInformation = () => {
     const birth = new Date(birthDate);
     let age = today.getFullYear() - birth.getFullYear();
     const monthDiff = today.getMonth() - birth.getMonth();
-    
+
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
       age--;
     }
-    
+
     return age;
   };
+
+  if (!activeChild) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-3xl font-bold text-foreground">Child Profile</h2>
+        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>Please select or create a child profile first.</AlertDescription></Alert>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -246,8 +258,8 @@ const KeyInformation = () => {
             </p>
           </div>
         </div>
-        {keyInfo && !isEditing ? (
-          <Button 
+        {keyInfo && !isEditing && canEdit ? (
+          <Button
             onClick={() => setIsEditing(true)}
             variant="outline"
             className="flex items-center gap-2"
@@ -307,14 +319,14 @@ const KeyInformation = () => {
                     <p className="text-gray-700 leading-relaxed">{keyInfo.medical_conditions}</p>
                   </div>
                 )}
-                
+
                 {keyInfo.allergies && (
                   <div>
                     <h4 className="text-sm font-semibold text-red-700 mb-2">Allergies</h4>
                     <p className="text-gray-700 leading-relaxed">{keyInfo.allergies}</p>
                   </div>
                 )}
-                
+
                 {(!keyInfo.medical_conditions && !keyInfo.allergies) && (
                   <p className="text-muted-foreground italic">No medical conditions or allergies recorded.</p>
                 )}
@@ -419,33 +431,33 @@ const KeyInformation = () => {
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">Address</h4>
                     <p className="text-gray-700">{keyInfo.address}</p>
                   </div>
-                  
+
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">Phone</h4>
                     <p className="text-gray-700">{keyInfo.phone_number}</p>
                   </div>
-                  
+
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">Email</h4>
                     <p className="text-gray-700">{keyInfo.email || "Not provided"}</p>
                   </div>
-                  
+
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">Emergency Contact</h4>
                     <p className="text-gray-700">{keyInfo.emergency_contact}</p>
                   </div>
-                  
+
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">Emergency Phone</h4>
                     <p className="text-gray-700">{keyInfo.emergency_phone}</p>
                   </div>
-                  
+
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">Insurance</h4>
                     <p className="text-gray-700">{keyInfo.insurance_provider || "Not provided"}</p>
                   </div>
                 </div>
-                
+
                 {keyInfo.additional_notes && (
                   <div className="mt-6 pt-6 border-t">
                     <h4 className="text-sm font-medium text-muted-foreground mb-2">Additional Notes</h4>
@@ -483,7 +495,7 @@ const KeyInformation = () => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="birthDate"
@@ -497,7 +509,7 @@ const KeyInformation = () => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="healthCardNumber"
@@ -525,17 +537,17 @@ const KeyInformation = () => {
                         <FormItem>
                           <FormLabel>Medical Conditions & Diagnoses</FormLabel>
                           <FormControl>
-                            <Textarea 
+                            <Textarea
                               placeholder="List any medical conditions, diagnoses, or special needs"
                               className="min-h-[100px]"
-                              {...field} 
+                              {...field}
                             />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="allergies"
@@ -543,10 +555,10 @@ const KeyInformation = () => {
                         <FormItem>
                           <FormLabel>Allergies</FormLabel>
                           <FormControl>
-                            <Textarea 
+                            <Textarea
                               placeholder="List any known allergies (food, environmental, medications, etc.)"
                               className="min-h-[80px]"
-                              {...field} 
+                              {...field}
                             />
                           </FormControl>
                           <FormMessage />
@@ -567,17 +579,17 @@ const KeyInformation = () => {
                         <FormItem>
                           <FormLabel>What They Love</FormLabel>
                           <FormControl>
-                            <Textarea 
+                            <Textarea
                               placeholder="Activities, foods, toys, routines they enjoy..."
                               className="min-h-[100px]"
-                              {...field} 
+                              {...field}
                             />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="dislikes"
@@ -585,17 +597,17 @@ const KeyInformation = () => {
                         <FormItem>
                           <FormLabel>What They Don't Like</FormLabel>
                           <FormControl>
-                            <Textarea 
+                            <Textarea
                               placeholder="Things that upset them, triggers to avoid..."
                               className="min-h-[100px]"
-                              {...field} 
+                              {...field}
                             />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="doNots"
@@ -603,10 +615,10 @@ const KeyInformation = () => {
                         <FormItem>
                           <FormLabel>Important: Do NOT Do</FormLabel>
                           <FormControl>
-                            <Textarea 
+                            <Textarea
                               placeholder="Critical safety instructions (e.g., 'Do not give small objects - choking hazard', 'Do not force fine motor activities'...)"
                               className="min-h-[100px]"
-                              {...field} 
+                              {...field}
                             />
                           </FormControl>
                           <FormMessage />
@@ -633,7 +645,7 @@ const KeyInformation = () => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="phoneNumber"
@@ -647,7 +659,7 @@ const KeyInformation = () => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="email"
@@ -661,7 +673,7 @@ const KeyInformation = () => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="emergencyContact"
@@ -675,7 +687,7 @@ const KeyInformation = () => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="emergencyPhone"
@@ -689,7 +701,7 @@ const KeyInformation = () => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="insuranceProvider"
@@ -703,7 +715,7 @@ const KeyInformation = () => {
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="insuranceNumber"
@@ -719,7 +731,7 @@ const KeyInformation = () => {
                     />
                   </div>
                 </div>
-                
+
                 <FormField
                   control={form.control}
                   name="additionalNotes"
@@ -727,29 +739,29 @@ const KeyInformation = () => {
                     <FormItem>
                       <FormLabel>Additional Notes (Optional)</FormLabel>
                       <FormControl>
-                        <Textarea 
-                          placeholder="Any other important information about your child" 
+                        <Textarea
+                          placeholder="Any other important information about your child"
                           className="min-h-[100px]"
-                          {...field} 
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 <div className="flex justify-end gap-3">
                   {isEditing && (
-                    <Button 
-                      type="button" 
-                      variant="outline" 
+                    <Button
+                      type="button"
+                      variant="outline"
                       onClick={() => setIsEditing(false)}
                     >
                       Cancel
                     </Button>
                   )}
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     className="bg-special-600 hover:bg-special-700 flex items-center gap-2"
                     disabled={mutation.isPending}
                   >

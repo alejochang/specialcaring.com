@@ -1,21 +1,64 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChild } from "@/contexts/ChildContext";
+import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/components/ui/use-toast";
-import { Plus, Edit, Trash2, Phone, Globe, Package, Calendar } from "lucide-react";
+import { Plus, Edit, Trash2, Phone, Globe, Package, Calendar, Loader2, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 
-type SupplierCategory = 'Medicine' | 'Supplement' | 'Supply' | 'Other';
+/* ---------- Zod schema ---------- */
+const supplierSchema = z.object({
+  category: z.enum(["Medicine", "Supplement", "Supply", "Other"], {
+    required_error: "Category is required",
+  }),
+  item_name: z.string().min(1, "Item name is required"),
+  dosage_or_size: z.string().min(1, "Dosage/size is required"),
+  brand_or_strength: z.string().optional().default(""),
+  provider_name: z.string().min(1, "Provider name is required"),
+  contact_phone: z.string().min(1, "Contact phone is required"),
+  address: z.string().optional().default(""),
+  website: z.string().optional().default(""),
+  ordering_instructions: z.string().optional().default(""),
+  notes: z.string().optional().default(""),
+  inventory_threshold: z.string().optional().default(""),
+  last_order_date: z.string().optional().default(""),
+});
+
+type SupplierForm = z.infer<typeof supplierSchema>;
+
+type SupplierCategory = "Medicine" | "Supplement" | "Supply" | "Other";
 
 interface SupplierEntry {
   id: string;
@@ -35,206 +78,172 @@ interface SupplierEntry {
   updated_at: string;
 }
 
+const defaultValues: SupplierForm = {
+  category: "Medicine",
+  item_name: "",
+  dosage_or_size: "",
+  brand_or_strength: "",
+  provider_name: "",
+  contact_phone: "",
+  address: "",
+  website: "",
+  ordering_instructions: "",
+  notes: "",
+  inventory_threshold: "",
+  last_order_date: "",
+};
+
 const SuppliersList = () => {
-  const [suppliers, setSuppliers] = useState<SupplierEntry[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<SupplierEntry | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const { user } = useAuth();
   const { activeChild } = useChild();
   const { toast } = useToast();
+  const { canEdit } = useUserRole();
+  const queryClient = useQueryClient();
 
-  const [formData, setFormData] = useState({
-    category: 'Medicine' as SupplierCategory,
-    item_name: '',
-    dosage_or_size: '',
-    brand_or_strength: '',
-    provider_name: '',
-    contact_phone: '',
-    address: '',
-    website: '',
-    ordering_instructions: '',
-    notes: '',
-    inventory_threshold: '',
-    last_order_date: '',
+  const form = useForm<SupplierForm>({
+    resolver: zodResolver(supplierSchema),
+    defaultValues,
   });
 
-  useEffect(() => {
-    if (user && activeChild) {
-      fetchSuppliers();
-    } else if (!activeChild) {
-      setIsLoading(false);
-    }
-  }, [user, activeChild?.id]);
-
-  const fetchSuppliers = async () => {
-    if (!activeChild) return;
-    try {
-      const { data, error } = await (supabase as any)
-        .from('suppliers')
-        .select('*')
-        .eq('child_id', activeChild.id)
-        .order('created_at', { ascending: false });
-
+  /* ---------- Query ---------- */
+  const { data: suppliers = [], isLoading } = useQuery({
+    queryKey: ["suppliers", activeChild?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("suppliers")
+        .select("*")
+        .eq("child_id", activeChild!.id)
+        .order("created_at", { ascending: false });
       if (error) throw error;
-      
-      // Type-cast the data to ensure proper typing
-      const typedData: SupplierEntry[] = (data || []).map((item: any) => ({
+      return (data || []).map((item: any) => ({
         ...item,
-        category: item.category as SupplierCategory
-      }));
-      
-      setSuppliers(typedData);
-    } catch (error) {
-      console.error('Error fetching suppliers:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load suppliers",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        category: item.category as SupplierCategory,
+      })) as SupplierEntry[];
+    },
+    enabled: !!user && !!activeChild,
+  });
 
-  const resetForm = () => {
-    setFormData({
-      category: 'Medicine',
-      item_name: '',
-      dosage_or_size: '',
-      brand_or_strength: '',
-      provider_name: '',
-      contact_phone: '',
-      address: '',
-      website: '',
-      ordering_instructions: '',
-      notes: '',
-      inventory_threshold: '',
-      last_order_date: '',
-    });
-    setEditingSupplier(null);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
-
-    try {
-      if (!activeChild) return;
+  /* ---------- Mutations ---------- */
+  const saveMutation = useMutation({
+    mutationFn: async (formValues: SupplierForm) => {
       const supplierData = {
-        ...formData,
-        user_id: user.id,
-        child_id: activeChild.id,
-        inventory_threshold: formData.inventory_threshold ? parseInt(formData.inventory_threshold) : null,
-        brand_or_strength: formData.brand_or_strength || null,
-        address: formData.address || null,
-        website: formData.website || null,
-        ordering_instructions: formData.ordering_instructions || null,
-        notes: formData.notes || null,
-        last_order_date: formData.last_order_date || null,
+        ...formValues,
+        user_id: user!.id,
+        child_id: activeChild!.id,
+        inventory_threshold: formValues.inventory_threshold ? parseInt(formValues.inventory_threshold) : null,
+        brand_or_strength: formValues.brand_or_strength || null,
+        address: formValues.address || null,
+        website: formValues.website || null,
+        ordering_instructions: formValues.ordering_instructions || null,
+        notes: formValues.notes || null,
+        last_order_date: formValues.last_order_date || null,
       };
-
       if (editingSupplier) {
-        const { error } = await (supabase as any)
-          .from('suppliers')
-          .update(supplierData)
-          .eq('id', editingSupplier.id);
-
+        const { error } = await supabase.from("suppliers").update(supplierData).eq("id", editingSupplier.id);
         if (error) throw error;
-        toast({
-          title: "Success",
-          description: "Supplier updated successfully",
-        });
       } else {
-        const { error } = await (supabase as any)
-          .from('suppliers')
-          .insert([supplierData]);
-
+        const { error } = await supabase.from("suppliers").insert([supplierData]);
         if (error) throw error;
-        toast({
-          title: "Success",
-          description: "Supplier added successfully",
-        });
       }
-
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["suppliers", activeChild?.id] });
+      toast({ title: "Success", description: editingSupplier ? "Supplier updated successfully" : "Supplier added successfully" });
       setIsDialogOpen(false);
-      resetForm();
-      fetchSuppliers();
-    } catch (error) {
-      console.error('Error saving supplier:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save supplier",
-        variant: "destructive",
-      });
-    }
+      setEditingSupplier(null);
+      form.reset(defaultValues);
+    },
+    onError: (error: any) =>
+      toast({ title: "Error", description: error.message || "Failed to save supplier", variant: "destructive" }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("suppliers").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["suppliers", activeChild?.id] });
+      toast({ title: "Success", description: "Supplier deleted successfully" });
+    },
+    onError: (error: any) =>
+      toast({ title: "Error", description: error.message || "Failed to delete supplier", variant: "destructive" }),
+  });
+
+  /* ---------- Handlers ---------- */
+  const onSubmit = (values: SupplierForm) => {
+    if (!user || !activeChild) return;
+    saveMutation.mutate(values);
   };
 
   const handleEdit = (supplier: SupplierEntry) => {
     setEditingSupplier(supplier);
-    setFormData({
+    form.reset({
       category: supplier.category,
       item_name: supplier.item_name,
       dosage_or_size: supplier.dosage_or_size,
-      brand_or_strength: supplier.brand_or_strength || '',
+      brand_or_strength: supplier.brand_or_strength || "",
       provider_name: supplier.provider_name,
       contact_phone: supplier.contact_phone,
-      address: supplier.address || '',
-      website: supplier.website || '',
-      ordering_instructions: supplier.ordering_instructions || '',
-      notes: supplier.notes || '',
-      inventory_threshold: supplier.inventory_threshold?.toString() || '',
-      last_order_date: supplier.last_order_date || '',
+      address: supplier.address || "",
+      website: supplier.website || "",
+      ordering_instructions: supplier.ordering_instructions || "",
+      notes: supplier.notes || "",
+      inventory_threshold: supplier.inventory_threshold?.toString() || "",
+      last_order_date: supplier.last_order_date || "",
     });
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this supplier?')) return;
-
-    try {
-      const { error } = await (supabase as any)
-        .from('suppliers')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-      toast({
-        title: "Success",
-        description: "Supplier deleted successfully",
-      });
-      fetchSuppliers();
-    } catch (error) {
-      console.error('Error deleting supplier:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete supplier",
-        variant: "destructive",
-      });
+  const confirmDelete = () => {
+    if (deletingId) {
+      deleteMutation.mutate(deletingId);
+      setDeletingId(null);
     }
   };
 
-  const filteredSuppliers = suppliers.filter(supplier => {
-    const matchesSearch = supplier.item_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         supplier.provider_name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = categoryFilter === 'all' || supplier.category === categoryFilter;
+  const filteredSuppliers = suppliers.filter((supplier) => {
+    const matchesSearch =
+      supplier.item_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      supplier.provider_name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = categoryFilter === "all" || supplier.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
 
   const getCategoryColor = (category: SupplierCategory) => {
     const colors = {
-      Medicine: 'bg-red-100 text-red-800',
-      Supplement: 'bg-green-100 text-green-800',
-      Supply: 'bg-blue-100 text-blue-800',
-      Other: 'bg-gray-100 text-gray-800'
+      Medicine: "bg-red-100 text-red-800",
+      Supplement: "bg-green-100 text-green-800",
+      Supply: "bg-blue-100 text-blue-800",
+      Other: "bg-gray-100 text-gray-800",
     };
     return colors[category];
   };
 
+  /* ---------- Guards ---------- */
+  if (!activeChild) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-3xl font-bold text-foreground">Suppliers & Providers</h2>
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>Please select or create a child profile first.</AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   if (isLoading) {
-    return <div>Loading suppliers...</div>;
+    return (
+      <div className="flex justify-center items-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-special-600" />
+      </div>
+    );
   }
 
   return (
@@ -242,182 +251,237 @@ const SuppliersList = () => {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Suppliers & Providers</h1>
-          <p className="text-muted-foreground">
-            Manage suppliers for medicines, supplements, and caregiving supplies
-          </p>
+          <p className="text-muted-foreground">Manage suppliers for medicines, supplements, and caregiving supplies</p>
         </div>
-        
+
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={resetForm} className="bg-special-600 hover:bg-special-700">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Supplier
-            </Button>
-          </DialogTrigger>
+          {canEdit && (
+            <DialogTrigger asChild>
+              <Button
+                onClick={() => {
+                  setEditingSupplier(null);
+                  form.reset(defaultValues);
+                }}
+                className="bg-special-600 hover:bg-special-700"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Supplier
+              </Button>
+            </DialogTrigger>
+          )}
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editingSupplier ? 'Edit Supplier' : 'Add New Supplier'}</DialogTitle>
+              <DialogTitle>{editingSupplier ? "Edit Supplier" : "Add New Supplier"}</DialogTitle>
               <DialogDescription>
-                {editingSupplier ? 'Update supplier information' : 'Add a new supplier or provider to your list'}
+                {editingSupplier ? "Update supplier information" : "Add a new supplier or provider to your list"}
               </DialogDescription>
             </DialogHeader>
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="category">Category</Label>
-                  <Select value={formData.category} onValueChange={(value: SupplierCategory) => setFormData({...formData, category: value})}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Medicine">Medicine</SelectItem>
-                      <SelectItem value="Supplement">Supplement</SelectItem>
-                      <SelectItem value="Supply">Supply</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label htmlFor="item_name">Item Name</Label>
-                  <Input
-                    id="item_name"
-                    value={formData.item_name}
-                    onChange={(e) => setFormData({...formData, item_name: e.target.value})}
-                    required
-                  />
-                </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="dosage_or_size">Dosage/Size</Label>
-                  <Input
-                    id="dosage_or_size"
-                    value={formData.dosage_or_size}
-                    onChange={(e) => setFormData({...formData, dosage_or_size: e.target.value})}
-                    placeholder="e.g., 2.4 mL, 50 ct"
-                    required
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Category</FormLabel>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Medicine">Medicine</SelectItem>
+                            <SelectItem value="Supplement">Supplement</SelectItem>
+                            <SelectItem value="Supply">Supply</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-                
-                <div>
-                  <Label htmlFor="brand_or_strength">Brand/Strength</Label>
-                  <Input
-                    id="brand_or_strength"
-                    value={formData.brand_or_strength}
-                    onChange={(e) => setFormData({...formData, brand_or_strength: e.target.value})}
-                    placeholder="Optional"
-                  />
-                </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="provider_name">Provider Name</Label>
-                  <Input
-                    id="provider_name"
-                    value={formData.provider_name}
-                    onChange={(e) => setFormData({...formData, provider_name: e.target.value})}
-                    required
+                  <FormField
+                    control={form.control}
+                    name="item_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Item Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
-                
-                <div>
-                  <Label htmlFor="contact_phone">Contact Phone</Label>
-                  <Input
-                    id="contact_phone"
-                    value={formData.contact_phone}
-                    onChange={(e) => setFormData({...formData, contact_phone: e.target.value})}
-                    required
-                  />
-                </div>
-              </div>
 
-              <div>
-                <Label htmlFor="address">Address</Label>
-                <Input
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => setFormData({...formData, address: e.target.value})}
-                  placeholder="Optional"
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="dosage_or_size"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Dosage/Size</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., 2.4 mL, 50 ct" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="brand_or_strength"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Brand/Strength</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Optional" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="provider_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Provider Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="contact_phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Contact Phone</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Address</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Optional" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="website">Website</Label>
-                  <Input
-                    id="website"
-                    value={formData.website}
-                    onChange={(e) => setFormData({...formData, website: e.target.value})}
-                    placeholder="Optional"
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="website"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Website</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Optional" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="inventory_threshold"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Inventory Threshold</FormLabel>
+                        <FormControl>
+                          <Input type="number" placeholder="Optional" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
-                
-                <div>
-                  <Label htmlFor="inventory_threshold">Inventory Threshold</Label>
-                  <Input
-                    id="inventory_threshold"
-                    type="number"
-                    value={formData.inventory_threshold}
-                    onChange={(e) => setFormData({...formData, inventory_threshold: e.target.value})}
-                    placeholder="Optional"
-                  />
+
+                <FormField
+                  control={form.control}
+                  name="last_order_date"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Last Order Date</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="ordering_instructions"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Ordering Instructions</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Special instructions for ordering" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Notes</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Additional notes" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex justify-end gap-2">
+                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" className="bg-special-600 hover:bg-special-700">
+                    {editingSupplier ? "Update" : "Add"} Supplier
+                  </Button>
                 </div>
-              </div>
-
-              <div>
-                <Label htmlFor="last_order_date">Last Order Date</Label>
-                <Input
-                  id="last_order_date"
-                  type="date"
-                  value={formData.last_order_date}
-                  onChange={(e) => setFormData({...formData, last_order_date: e.target.value})}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="ordering_instructions">Ordering Instructions</Label>
-                <Textarea
-                  id="ordering_instructions"
-                  value={formData.ordering_instructions}
-                  onChange={(e) => setFormData({...formData, ordering_instructions: e.target.value})}
-                  placeholder="Special instructions for ordering"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="notes">Notes</Label>
-                <Textarea
-                  id="notes"
-                  value={formData.notes}
-                  onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                  placeholder="Additional notes"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" className="bg-special-600 hover:bg-special-700">
-                  {editingSupplier ? 'Update' : 'Add'} Supplier
-                </Button>
-              </div>
-            </form>
+              </form>
+            </Form>
           </DialogContent>
         </Dialog>
       </div>
 
       <div className="flex gap-4 mb-6">
         <div className="flex-1">
-          <Input
-            placeholder="Search suppliers..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <Input placeholder="Search suppliers..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
         </div>
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
           <SelectTrigger className="w-48">
@@ -438,10 +502,9 @@ const SuppliersList = () => {
           <CardHeader>
             <CardTitle>No suppliers found</CardTitle>
             <CardDescription>
-              {suppliers.length === 0 
+              {suppliers.length === 0
                 ? "Get started by adding your first supplier or provider."
-                : "No suppliers match your current search criteria."
-              }
+                : "No suppliers match your current search criteria."}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -454,23 +517,23 @@ const SuppliersList = () => {
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <CardTitle className="text-lg">{supplier.item_name}</CardTitle>
-                      <Badge className={getCategoryColor(supplier.category)}>
-                        {supplier.category}
-                      </Badge>
+                      <Badge className={getCategoryColor(supplier.category)}>{supplier.category}</Badge>
                     </div>
                     <CardDescription>
                       {supplier.dosage_or_size}
-                      {supplier.brand_or_strength && ` • ${supplier.brand_or_strength}`}
+                      {supplier.brand_or_strength && ` \u2022 ${supplier.brand_or_strength}`}
                     </CardDescription>
                   </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleEdit(supplier)}>
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleDelete(supplier.id)}>
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
+                  {canEdit && (
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => handleEdit(supplier)}>
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => setDeletingId(supplier.id)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </CardHeader>
               <CardContent>
@@ -479,48 +542,50 @@ const SuppliersList = () => {
                     <Package className="w-4 h-4 text-special-600" />
                     <span className="font-medium">{supplier.provider_name}</span>
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     <Phone className="w-4 h-4 text-special-600" />
                     <span>{supplier.contact_phone}</span>
                   </div>
-                  
+
                   {supplier.website && (
                     <div className="flex items-center gap-2">
                       <Globe className="w-4 h-4 text-special-600" />
-                      <a href={supplier.website} target="_blank" rel="noopener noreferrer" 
-                         className="text-special-600 hover:underline">
+                      <a
+                        href={supplier.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-special-600 hover:underline"
+                      >
                         Website
                       </a>
                     </div>
                   )}
-                  
+
                   {supplier.last_order_date && (
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4 text-special-600" />
-                      <span>Last order: {format(new Date(supplier.last_order_date), 'MMM d, yyyy')}</span>
+                      <span>Last order: {format(new Date(supplier.last_order_date), "MMM d, yyyy")}</span>
                     </div>
                   )}
-                  
+
                   {supplier.inventory_threshold && (
-                    <div className="text-orange-600">
-                      Low stock threshold: {supplier.inventory_threshold}
-                    </div>
+                    <div className="text-orange-600">Low stock threshold: {supplier.inventory_threshold}</div>
                   )}
                 </div>
-                
+
                 {supplier.address && (
                   <div className="mt-3 text-sm text-muted-foreground">
                     <strong>Address:</strong> {supplier.address}
                   </div>
                 )}
-                
+
                 {supplier.ordering_instructions && (
                   <div className="mt-3 text-sm">
                     <strong>Ordering Instructions:</strong> {supplier.ordering_instructions}
                   </div>
                 )}
-                
+
                 {supplier.notes && (
                   <div className="mt-3 text-sm text-muted-foreground">
                     <strong>Notes:</strong> {supplier.notes}
@@ -531,6 +596,27 @@ const SuppliersList = () => {
           ))}
         </div>
       )}
+
+      {/* ---------- Delete Confirmation AlertDialog ---------- */}
+      <AlertDialog open={deletingId !== null} onOpenChange={(open) => !open && setDeletingId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Supplier?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this supplier entry. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={confirmDelete}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
