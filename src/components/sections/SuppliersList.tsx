@@ -132,7 +132,11 @@ const SuppliersList = () => {
   const saveMutation = useMutation({
     mutationFn: async (formValues: SupplierForm) => {
       const supplierData = {
-        ...formValues,
+        item_name: formValues.item_name,
+        dosage_or_size: formValues.dosage_or_size,
+        provider_name: formValues.provider_name,
+        contact_phone: formValues.contact_phone,
+        category: formValues.category,
         user_id: user!.id,
         child_id: activeChild!.id,
         inventory_threshold: formValues.inventory_threshold ? parseInt(formValues.inventory_threshold) : null,
