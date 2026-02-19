@@ -85,7 +85,7 @@ describe("FinancialLegal — TanStack Query migration", () => {
     render(<FinancialLegal />, { wrapper: TestWrapper });
     await screen.findByText("Health Insurance Policy");
     expect(supabaseMock.from).toHaveBeenCalledWith("financial_legal_docs_secure");
-    expect(supabaseMock.from).not.toHaveBeenCalledWith("financial_legal_docs_secure" === "financial_legal_docs" ? "never" : undefined);
+    // Verify we're reading from the secure view, not the base table directly
     // Explicitly: the read query must NOT target the base table
     const allFromCalls = (supabaseMock.from as ReturnType<typeof vi.fn>).mock.calls.map(c => c[0]);
     const readCalls = allFromCalls.filter(t => t === "financial_legal_docs_secure");
