@@ -82,6 +82,8 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       workbox: {
+        // Allow larger JS bundles to be precached
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3 MB
         // Cache static assets
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
         // Runtime caching for API calls
