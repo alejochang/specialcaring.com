@@ -18,6 +18,7 @@ import DocumentsSection from "@/components/sections/DocumentsSection";
 import Celebrations from "@/components/sections/Celebrations";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, AlertTriangle, Heart, Pill, Phone, Truck, Shield, Building, FileText, PartyPopper } from "lucide-react";
+import DashboardSummaryWidgets from "@/components/dashboard/DashboardSummaryWidgets";
 
 import CareTeamManager from "@/components/CareTeamManager";
 import { useChild } from "@/contexts/ChildContext";
@@ -94,6 +95,8 @@ const DashboardOverview = () => {
           Welcome to your caregiver organizer dashboard
         </p>
       </div>
+
+      <DashboardSummaryWidgets />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
         <Link to="/dashboard/key-information" className="block transition-transform hover:scale-105">
