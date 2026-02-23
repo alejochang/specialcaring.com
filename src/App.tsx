@@ -19,6 +19,7 @@ const Profile = lazy(() => import("./pages/Profile"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
 const AddChild = lazy(() => import("./pages/AddChild"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Privacy = lazy(() => import("./pages/Privacy"));
 
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center">
@@ -105,6 +106,7 @@ const AppContent = () => {
               </ProtectedRoute>
             }
           />
+          <Route path="/privacy" element={<Privacy />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         </Suspense>

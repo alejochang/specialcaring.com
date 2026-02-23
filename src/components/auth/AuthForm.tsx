@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Separator } from "@/components/ui/separator";
 
 // Registration schema
@@ -39,11 +40,12 @@ const loginSchema = z.object({
 type RegisterFormValues = z.infer<typeof registerSchema>;
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-interface AuthFormProps {
+export interface AuthFormProps {
   type: "login" | "register";
+  disabled?: boolean;
 }
 
-const AuthForm = ({ type }: AuthFormProps) => {
+const AuthForm = ({ type, disabled }: AuthFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -68,6 +70,17 @@ const AuthForm = ({ type }: AuthFormProps) => {
         navigate("/dashboard");
       } else {
         await signUp(values.email, values.password, values.name);
+        // Record privacy consent — the profile is created by trigger, update it with consent
+        const { data: { user: newUser } } = await supabase.auth.getUser();
+        if (newUser) {
+          await supabase
+            .from("profiles")
+            .update({
+              privacy_consent_at: new Date().toISOString(),
+              privacy_consent_version: "1.0",
+            })
+            .eq("id", newUser.id);
+        }
         toast({ title: "Success!", description: "Account created successfully. Please check your email to verify your account." });
       }
     } catch (error: any) {
@@ -229,7 +242,7 @@ const AuthForm = ({ type }: AuthFormProps) => {
             <Button
               type="submit"
               className="w-full h-11 mt-2"
-              disabled={loading}
+              disabled={loading || disabled}
             >
               {loading ? (
                 <>

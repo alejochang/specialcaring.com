@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, User, Save } from "lucide-react";
+import { Loader2, User, Save, Trash2, AlertTriangle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -18,6 +18,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -215,11 +226,123 @@ const Profile = () => {
               </Form>
             </CardContent>
           </Card>
+          {/* Delete Account Section */}
+          <Card className="mt-8 border-destructive/30">
+            <CardHeader>
+              <CardTitle className="text-lg text-destructive flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5" />
+                Danger Zone
+              </CardTitle>
+              <CardDescription>
+                Permanently delete your account and all associated data. This action cannot be undone.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DeleteAccountButton />
+            </CardContent>
+          </Card>
         </div>
       </main>
       
       <Footer />
     </div>
+  );
+};
+
+const DeleteAccountButton = () => {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [confirmText, setConfirmText] = useState("");
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error("Not authenticated");
+
+      const { data, error } = await supabase.functions.invoke("delete-own-account", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      toast({
+        title: "Account Deleted",
+        description: "Your account and all data have been permanently removed.",
+      });
+
+      await supabase.auth.signOut();
+      navigate("/");
+    } catch (err: any) {
+      console.error("Delete account error:", err);
+      toast({
+        title: "Error",
+        description: err.message || "Failed to delete account. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="destructive" className="gap-2">
+          <Trash2 className="h-4 w-4" />
+          Delete My Account
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription className="space-y-3">
+            <p>
+              This will <strong>permanently delete</strong> your account and all associated data, including:
+            </p>
+            <ul className="list-disc pl-6 space-y-1 text-sm">
+              <li>All children profiles you own</li>
+              <li>All medical records, medications, and care logs</li>
+              <li>All documents and emergency cards</li>
+              <li>Your profile and account credentials</li>
+            </ul>
+            <p className="font-medium text-destructive">
+              This action is irreversible.
+            </p>
+            <div className="pt-2">
+              <label className="text-sm font-medium text-foreground">
+                Type <span className="font-mono bg-muted px-1 rounded">DELETE</span> to confirm:
+              </label>
+              <Input
+                className="mt-1"
+                value={confirmText}
+                onChange={(e) => setConfirmText(e.target.value)}
+                placeholder="DELETE"
+              />
+            </div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDeleteAccount}
+            disabled={confirmText !== "DELETE" || isDeleting}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {isDeleting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Deleting...
+              </>
+            ) : (
+              "Delete Everything"
+            )}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 
