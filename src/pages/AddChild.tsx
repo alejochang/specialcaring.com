@@ -59,7 +59,7 @@ const AddChild = () => {
     try {
       const { data: childData, error: childError } = await supabase
         .from("children")
-        .insert([{ user_id: user.id, name: values.fullName }])
+        .insert([{ created_by: user.id, name: values.fullName, full_name: values.fullName, birth_date: values.birthDate || null }])
         .select()
         .single();
 
