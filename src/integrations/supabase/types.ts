@@ -156,7 +156,9 @@ export type Database = {
         Row: {
           additional_notes: string | null
           address: string | null
+          address_encrypted: string | null
           allergies: string | null
+          allergies_encrypted: string | null
           avatar_url: string | null
           birth_date: string | null
           created_at: string
@@ -164,23 +166,32 @@ export type Database = {
           dislikes: string | null
           do_nots: string | null
           email: string | null
+          email_encrypted: string | null
           emergency_contact: string | null
+          emergency_contact_encrypted: string | null
           emergency_phone: string | null
+          emergency_phone_encrypted: string | null
           full_name: string | null
           health_card_number: string | null
+          health_card_number_encrypted: string | null
           id: string
           insurance_number: string | null
+          insurance_number_encrypted: string | null
           insurance_provider: string | null
           likes: string | null
           medical_conditions: string | null
+          medical_conditions_encrypted: string | null
           name: string
           phone_number: string | null
+          phone_number_encrypted: string | null
           updated_at: string
         }
         Insert: {
           additional_notes?: string | null
           address?: string | null
+          address_encrypted?: string | null
           allergies?: string | null
+          allergies_encrypted?: string | null
           avatar_url?: string | null
           birth_date?: string | null
           created_at?: string
@@ -188,23 +199,32 @@ export type Database = {
           dislikes?: string | null
           do_nots?: string | null
           email?: string | null
+          email_encrypted?: string | null
           emergency_contact?: string | null
+          emergency_contact_encrypted?: string | null
           emergency_phone?: string | null
+          emergency_phone_encrypted?: string | null
           full_name?: string | null
           health_card_number?: string | null
+          health_card_number_encrypted?: string | null
           id?: string
           insurance_number?: string | null
+          insurance_number_encrypted?: string | null
           insurance_provider?: string | null
           likes?: string | null
           medical_conditions?: string | null
+          medical_conditions_encrypted?: string | null
           name: string
           phone_number?: string | null
+          phone_number_encrypted?: string | null
           updated_at?: string
         }
         Update: {
           additional_notes?: string | null
           address?: string | null
+          address_encrypted?: string | null
           allergies?: string | null
+          allergies_encrypted?: string | null
           avatar_url?: string | null
           birth_date?: string | null
           created_at?: string
@@ -212,17 +232,24 @@ export type Database = {
           dislikes?: string | null
           do_nots?: string | null
           email?: string | null
+          email_encrypted?: string | null
           emergency_contact?: string | null
+          emergency_contact_encrypted?: string | null
           emergency_phone?: string | null
+          emergency_phone_encrypted?: string | null
           full_name?: string | null
           health_card_number?: string | null
+          health_card_number_encrypted?: string | null
           id?: string
           insurance_number?: string | null
+          insurance_number_encrypted?: string | null
           insurance_provider?: string | null
           likes?: string | null
           medical_conditions?: string | null
+          medical_conditions_encrypted?: string | null
           name?: string
           phone_number?: string | null
+          phone_number_encrypted?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -1042,6 +1069,8 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          privacy_consent_at: string | null
+          privacy_consent_version: string | null
           updated_at: string
         }
         Insert: {
@@ -1049,6 +1078,8 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          privacy_consent_at?: string | null
+          privacy_consent_version?: string | null
           updated_at?: string
         }
         Update: {
@@ -1056,6 +1087,8 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          privacy_consent_at?: string | null
+          privacy_consent_version?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -1296,50 +1329,50 @@ export type Database = {
         }
         Insert: {
           additional_notes?: string | null
-          address?: string | null
-          allergies?: string | null
+          address?: never
+          allergies?: never
           avatar_url?: string | null
           birth_date?: string | null
           created_at?: string | null
           created_by?: string | null
           dislikes?: string | null
           do_nots?: string | null
-          email?: string | null
-          emergency_contact?: string | null
-          emergency_phone?: string | null
+          email?: never
+          emergency_contact?: never
+          emergency_phone?: never
           full_name?: string | null
-          health_card_number?: string | null
+          health_card_number?: never
           id?: string | null
-          insurance_number?: string | null
+          insurance_number?: never
           insurance_provider?: string | null
           likes?: string | null
-          medical_conditions?: string | null
+          medical_conditions?: never
           name?: string | null
-          phone_number?: string | null
+          phone_number?: never
           updated_at?: string | null
         }
         Update: {
           additional_notes?: string | null
-          address?: string | null
-          allergies?: string | null
+          address?: never
+          allergies?: never
           avatar_url?: string | null
           birth_date?: string | null
           created_at?: string | null
           created_by?: string | null
           dislikes?: string | null
           do_nots?: string | null
-          email?: string | null
-          emergency_contact?: string | null
-          emergency_phone?: string | null
+          email?: never
+          emergency_contact?: never
+          emergency_phone?: never
           full_name?: string | null
-          health_card_number?: string | null
+          health_card_number?: never
           id?: string | null
-          insurance_number?: string | null
+          insurance_number?: never
           insurance_provider?: string | null
           likes?: string | null
-          medical_conditions?: string | null
+          medical_conditions?: never
           name?: string | null
-          phone_number?: string | null
+          phone_number?: never
           updated_at?: string | null
         }
         Relationships: []

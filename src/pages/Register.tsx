@@ -1,10 +1,15 @@
 
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import AuthForm from "@/components/auth/AuthForm";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 const Register = () => {
+  const [consentGiven, setConsentGiven] = useState(false);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -55,8 +60,25 @@ const Register = () => {
             </div>
           </div>
           
-          <div>
-            <AuthForm type="register" />
+          <div className="space-y-4">
+            <AuthForm type="register" disabled={!consentGiven} />
+            
+            <div className="flex items-start space-x-3 rounded-md border border-border p-4 bg-muted/30">
+              <Checkbox
+                id="privacy-consent"
+                checked={consentGiven}
+                onCheckedChange={(checked) => setConsentGiven(checked as boolean)}
+              />
+              <div className="grid gap-1 leading-none">
+                <Label htmlFor="privacy-consent" className="text-sm cursor-pointer">
+                  I acknowledge and agree to the{" "}
+                  <Link to="/privacy" className="text-special-600 hover:underline font-medium">
+                    Privacy Policy
+                  </Link>
+                  , including how my data and my child&rsquo;s data will be collected, stored, and protected.
+                </Label>
+              </div>
+            </div>
           </div>
         </div>
       </main>

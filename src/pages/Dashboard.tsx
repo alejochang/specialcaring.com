@@ -17,8 +17,9 @@ import EndOfLifeWishes from "@/components/sections/EndOfLifeWishes";
 import DocumentsSection from "@/components/sections/DocumentsSection";
 import Celebrations from "@/components/sections/Celebrations";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, AlertTriangle, Heart, Pill, Phone, Truck, Shield, Building, FileText, PartyPopper } from "lucide-react";
+import { Calendar, AlertTriangle, Heart, Pill, Phone, Truck, Shield, Building, FileText, PartyPopper, Download } from "lucide-react";
 import DashboardSummaryWidgets from "@/components/dashboard/DashboardSummaryWidgets";
+import { ExportDialog } from "@/components/export/ExportDialog";
 
 import CareTeamManager from "@/components/CareTeamManager";
 import { useChild } from "@/contexts/ChildContext";
@@ -87,13 +88,29 @@ const Dashboard = () => {
 };
 
 const DashboardOverview = () => {
+  const { activeChild } = useChild();
+
   return (
     <div>
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Welcome to your caregiver organizer dashboard
-        </p>
+      <div className="mb-10 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Welcome to your caregiver organizer dashboard
+          </p>
+        </div>
+        {activeChild && (
+          <ExportDialog
+            childId={activeChild.id}
+            childName={activeChild.name}
+            trigger={
+              <button className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-muted transition-colors">
+                <Download className="h-4 w-4" />
+                Export Data
+              </button>
+            }
+          />
+        )}
       </div>
 
       <DashboardSummaryWidgets />

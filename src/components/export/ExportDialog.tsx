@@ -23,36 +23,19 @@ interface ExportDialogProps {
 }
 
 const SECTIONS: { id: ExportSection; label: string; description: string }[] = [
-  {
-    id: 'keyInformation',
-    label: 'Key Information',
-    description: 'Basic profile, contact info, medical conditions',
-  },
-  {
-    id: 'medications',
-    label: 'Medications',
-    description: 'Current medications, dosages, schedules',
-  },
-  {
-    id: 'medicalContacts',
-    label: 'Medical Contacts',
-    description: 'Doctors, specialists, healthcare providers',
-  },
-  {
-    id: 'emergencyProtocols',
-    label: 'Emergency Protocols',
-    description: 'Emergency procedures and instructions',
-  },
-  {
-    id: 'dailyLogs',
-    label: 'Daily Logs',
-    description: 'Recent daily care logs and notes',
-  },
-  {
-    id: 'suppliers',
-    label: 'Suppliers',
-    description: 'Medical equipment and supply providers',
-  },
+  { id: 'keyInformation', label: 'Key Information', description: 'Basic profile, contact info, medical conditions' },
+  { id: 'medications', label: 'Medications', description: 'Current medications, dosages, schedules' },
+  { id: 'medicalContacts', label: 'Medical Contacts', description: 'Doctors, specialists, healthcare providers' },
+  { id: 'emergencyProtocols', label: 'Emergency Protocols', description: 'Emergency procedures and instructions' },
+  { id: 'emergencyCards', label: 'Emergency Cards', description: 'ID cards and insurance documents' },
+  { id: 'dailyLogs', label: 'Daily Logs', description: 'Recent daily care logs and notes' },
+  { id: 'suppliers', label: 'Suppliers', description: 'Medical equipment and supply providers' },
+  { id: 'employmentAgreements', label: 'Employment Agreements', description: 'Care team employment details' },
+  { id: 'financialLegal', label: 'Financial & Legal', description: 'Financial and legal documents' },
+  { id: 'endOfLifeWishes', label: 'End-of-Life Wishes', description: 'Advanced directives and preferences' },
+  { id: 'homeSafety', label: 'Home Safety', description: 'Safety checks and protocols' },
+  { id: 'celebrations', label: 'Celebrations', description: 'Milestones and journey moments' },
+  { id: 'documents', label: 'Documents', description: 'Uploaded document metadata' },
 ];
 
 const FORMATS: { id: ExportFormat; label: string; icon: React.ReactNode; description: string }[] = [

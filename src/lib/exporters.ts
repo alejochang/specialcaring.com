@@ -3,12 +3,15 @@ import Papa from 'papaparse';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Data Export Module
+ * Data Export Module — GDPR/COPPA Compliant
  *
  * Supports multiple export formats:
  * - PDF: Formatted document for printing/sharing
  * - CSV: Spreadsheet compatible
  * - JSON: Machine-readable backup
+ *
+ * Privacy: Internal IDs (id, child_id, created_by) are stripped from output.
+ * Encrypted fields are decrypted via children_secure view.
  */
 
 export type ExportFormat = 'pdf' | 'csv' | 'json';
@@ -20,7 +23,14 @@ export type ExportSection =
   | 'medicalContacts'
   | 'emergencyProtocols'
   | 'dailyLogs'
-  | 'suppliers';
+  | 'suppliers'
+  | 'emergencyCards'
+  | 'employmentAgreements'
+  | 'financialLegal'
+  | 'endOfLifeWishes'
+  | 'homeSafety'
+  | 'celebrations'
+  | 'documents';
 
 export interface ExportOptions {
   childId: string;
@@ -39,8 +49,31 @@ export interface ExportedData {
   emergencyProtocols?: Record<string, unknown>[];
   dailyLogs?: Record<string, unknown>[];
   suppliers?: Record<string, unknown>[];
+  emergencyCards?: Record<string, unknown>[];
+  employmentAgreements?: Record<string, unknown>[];
+  financialLegal?: Record<string, unknown>[];
+  endOfLifeWishes?: Record<string, unknown>[];
+  homeSafety?: Record<string, unknown>[];
+  celebrations?: Record<string, unknown>[];
+  documents?: Record<string, unknown>[];
   exportedAt: string;
   childName?: string;
+}
+
+/** Remove internal DB columns from a record */
+function sanitizeRecord(record: Record<string, unknown>): Record<string, unknown> {
+  const internalKeys = ['id', 'child_id', 'created_by', 'created_at', 'updated_at'];
+  const sanitized: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(record)) {
+    if (!internalKeys.includes(key) && !key.endsWith('_encrypted')) {
+      sanitized[key] = value;
+    }
+  }
+  return sanitized;
+}
+
+function sanitizeArray(records: Record<string, unknown>[]): Record<string, unknown>[] {
+  return records.map(sanitizeRecord);
 }
 
 /**
@@ -55,17 +88,17 @@ async function fetchExportData(
     exportedAt: new Date().toISOString(),
   };
 
-  // Fetch key information
+  // Fetch key information via secure view (decrypts encrypted fields)
   if (includeAll || sections.includes('keyInformation')) {
     const { data: child } = await supabase
-      .from('children')
+      .from('children_secure')
       .select('*')
       .eq('id', childId)
       .single();
 
     if (child) {
-      data.keyInformation = child;
-      data.childName = child.full_name || child.name;
+      data.keyInformation = sanitizeRecord(child as Record<string, unknown>);
+      data.childName = (child.full_name as string) || (child.name as string);
     }
   }
 
@@ -76,8 +109,7 @@ async function fetchExportData(
       .select('*')
       .eq('child_id', childId)
       .order('name');
-
-    data.medications = meds || [];
+    data.medications = sanitizeArray((meds || []) as Record<string, unknown>[]);
   }
 
   // Fetch medical contacts
@@ -87,8 +119,7 @@ async function fetchExportData(
       .select('*')
       .eq('child_id', childId)
       .order('name');
-
-    data.medicalContacts = contacts || [];
+    data.medicalContacts = sanitizeArray((contacts || []) as Record<string, unknown>[]);
   }
 
   // Fetch emergency protocols
@@ -98,8 +129,7 @@ async function fetchExportData(
       .select('*')
       .eq('child_id', childId)
       .order('title');
-
-    data.emergencyProtocols = protocols || [];
+    data.emergencyProtocols = sanitizeArray((protocols || []) as Record<string, unknown>[]);
   }
 
   // Fetch daily logs
@@ -110,8 +140,7 @@ async function fetchExportData(
       .eq('child_id', childId)
       .order('date', { ascending: false })
       .limit(100);
-
-    data.dailyLogs = logs || [];
+    data.dailyLogs = sanitizeArray((logs || []) as Record<string, unknown>[]);
   }
 
   // Fetch suppliers
@@ -120,9 +149,71 @@ async function fetchExportData(
       .from('suppliers')
       .select('*')
       .eq('child_id', childId)
-      .order('name');
+      .order('item_name');
+    data.suppliers = sanitizeArray((suppliers || []) as Record<string, unknown>[]);
+  }
 
-    data.suppliers = suppliers || [];
+  // Fetch emergency cards via secure view
+  if (includeAll || sections.includes('emergencyCards')) {
+    const { data: cards } = await supabase
+      .from('emergency_cards_secure')
+      .select('*')
+      .eq('child_id', childId);
+    data.emergencyCards = sanitizeArray((cards || []) as Record<string, unknown>[]);
+  }
+
+  // Fetch employment agreements
+  if (includeAll || sections.includes('employmentAgreements')) {
+    const { data: agreements } = await supabase
+      .from('employment_agreements')
+      .select('*')
+      .eq('child_id', childId);
+    data.employmentAgreements = sanitizeArray((agreements || []) as Record<string, unknown>[]);
+  }
+
+  // Fetch financial/legal via secure view
+  if (includeAll || sections.includes('financialLegal')) {
+    const { data: docs } = await supabase
+      .from('financial_legal_docs_secure')
+      .select('*')
+      .eq('child_id', childId);
+    data.financialLegal = sanitizeArray((docs || []) as Record<string, unknown>[]);
+  }
+
+  // Fetch end-of-life wishes
+  if (includeAll || sections.includes('endOfLifeWishes')) {
+    const { data: wishes } = await supabase
+      .from('end_of_life_wishes')
+      .select('*')
+      .eq('child_id', childId);
+    data.endOfLifeWishes = sanitizeArray((wishes || []) as Record<string, unknown>[]);
+  }
+
+  // Fetch home safety checks
+  if (includeAll || sections.includes('homeSafety')) {
+    const { data: checks } = await supabase
+      .from('home_safety_checks')
+      .select('*')
+      .eq('child_id', childId);
+    data.homeSafety = sanitizeArray((checks || []) as Record<string, unknown>[]);
+  }
+
+  // Fetch celebrations (journeys + moments)
+  if (includeAll || sections.includes('celebrations')) {
+    const { data: journeys } = await supabase
+      .from('journeys')
+      .select('*, journey_moments(*)')
+      .eq('child_id', childId);
+    data.celebrations = sanitizeArray((journeys || []) as Record<string, unknown>[]);
+  }
+
+  // Fetch documents metadata
+  if (includeAll || sections.includes('documents')) {
+    const { data: docs } = await supabase
+      .from('documents')
+      .select('name, description, category, type, size')
+      .eq('child_id', childId);
+    data.documents = (docs || []) as Record<string, unknown>[];
   }
 
   return data;
@@ -136,11 +227,10 @@ function generatePDF(data: ExportedData): Blob {
   const margin = 20;
   let y = margin;
 
-  // Helper functions
   const addTitle = (text: string) => {
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(124, 58, 237); // Purple
+    doc.setTextColor(124, 58, 237);
     doc.text(text, margin, y);
     y += 10;
   };
@@ -173,7 +263,7 @@ function generatePDF(data: ExportedData): Blob {
   };
 
   // Title
-  addTitle(`Care Information Report`);
+  addTitle('Care Information Report');
   if (data.childName) {
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
@@ -236,14 +326,8 @@ function generatePDF(data: ExportedData): Blob {
       y += 5;
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      if (c.specialty) {
-        doc.text(`  Specialty: ${c.specialty}`, margin, y);
-        y += 4;
-      }
-      if (c.phone) {
-        doc.text(`  Phone: ${c.phone}`, margin, y);
-        y += 4;
-      }
+      if (c.specialty) { doc.text(`  Specialty: ${c.specialty}`, margin, y); y += 4; }
+      if (c.phone_number) { doc.text(`  Phone: ${c.phone_number}`, margin, y); y += 4; }
       y += 3;
       checkNewPage();
     }
@@ -278,6 +362,66 @@ function generatePDF(data: ExportedData): Blob {
     }
   }
 
+  // Emergency Cards
+  if (data.emergencyCards && data.emergencyCards.length > 0) {
+    checkNewPage();
+    addSubtitle('Emergency Cards');
+    for (const card of data.emergencyCards) {
+      const c = card as Record<string, string>;
+      addField('Type', c.id_type);
+      addField('Number', c.id_number);
+      addField('Issue Date', c.issue_date);
+      addField('Expiry Date', c.expiry_date);
+      y += 4;
+      checkNewPage();
+    }
+  }
+
+  // Employment Agreements
+  if (data.employmentAgreements && data.employmentAgreements.length > 0) {
+    checkNewPage();
+    addSubtitle('Employment Agreements');
+    for (const agreement of data.employmentAgreements) {
+      const a = agreement as Record<string, string>;
+      addField('Caregiver', a.caregiver_name);
+      addField('Position', a.position_title);
+      addField('Status', a.status);
+      addField('Schedule', a.work_schedule);
+      y += 4;
+      checkNewPage();
+    }
+  }
+
+  // Financial & Legal
+  if (data.financialLegal && data.financialLegal.length > 0) {
+    checkNewPage();
+    addSubtitle('Financial & Legal Documents');
+    for (const fdoc of data.financialLegal) {
+      const f = fdoc as Record<string, string>;
+      addField('Title', f.title);
+      addField('Type', f.doc_type);
+      addField('Institution', f.institution);
+      addField('Status', f.status);
+      y += 4;
+      checkNewPage();
+    }
+  }
+
+  // End-of-Life Wishes
+  if (data.endOfLifeWishes && data.endOfLifeWishes.length > 0) {
+    checkNewPage();
+    addSubtitle('End-of-Life Wishes');
+    for (const wish of data.endOfLifeWishes) {
+      const w = wish as Record<string, string>;
+      addField('Medical Directives', w.medical_directives);
+      addField('Legal Guardian', w.legal_guardian);
+      addField('Organ Donation', w.organ_donation);
+      addField('Preferred Hospital', w.preferred_hospital);
+      y += 4;
+      checkNewPage();
+    }
+  }
+
   // Footer
   doc.setFontSize(8);
   doc.setTextColor(150, 150, 150);
@@ -300,25 +444,24 @@ function generatePDF(data: ExportedData): Blob {
 function generateCSV(data: ExportedData): Blob {
   const sheets: { name: string; data: Record<string, unknown>[] }[] = [];
 
-  if (data.medications && data.medications.length > 0) {
-    sheets.push({ name: 'medications', data: data.medications });
-  }
-  if (data.medicalContacts && data.medicalContacts.length > 0) {
-    sheets.push({ name: 'medical_contacts', data: data.medicalContacts });
-  }
-  if (data.dailyLogs && data.dailyLogs.length > 0) {
-    sheets.push({ name: 'daily_logs', data: data.dailyLogs });
-  }
-  if (data.suppliers && data.suppliers.length > 0) {
-    sheets.push({ name: 'suppliers', data: data.suppliers });
-  }
-  if (data.emergencyProtocols && data.emergencyProtocols.length > 0) {
-    sheets.push({ name: 'emergency_protocols', data: data.emergencyProtocols });
-  }
+  const addSheet = (name: string, records?: Record<string, unknown>[]) => {
+    if (records && records.length > 0) sheets.push({ name, data: records });
+  };
 
-  // For CSV, we'll combine into one sheet with section headers
+  addSheet('medications', data.medications);
+  addSheet('medical_contacts', data.medicalContacts);
+  addSheet('daily_logs', data.dailyLogs);
+  addSheet('suppliers', data.suppliers);
+  addSheet('emergency_protocols', data.emergencyProtocols);
+  addSheet('emergency_cards', data.emergencyCards);
+  addSheet('employment_agreements', data.employmentAgreements);
+  addSheet('financial_legal', data.financialLegal);
+  addSheet('end_of_life_wishes', data.endOfLifeWishes);
+  addSheet('home_safety', data.homeSafety);
+  addSheet('celebrations', data.celebrations);
+  addSheet('documents', data.documents);
+
   let csvContent = '';
-
   for (const sheet of sheets) {
     csvContent += `\n--- ${sheet.name.toUpperCase()} ---\n`;
     csvContent += Papa.unparse(sheet.data);
@@ -342,11 +485,8 @@ function generateJSON(data: ExportedData): Blob {
  */
 export async function exportChildData(options: ExportOptions): Promise<Blob> {
   const { childId, format, sections } = options;
-
-  // Fetch data
   const data = await fetchExportData(childId, sections);
 
-  // Generate export based on format
   switch (format) {
     case 'pdf':
       return generatePDF(data);
@@ -367,12 +507,6 @@ export async function downloadExport(options: ExportOptions): Promise<void> {
 
   const extension =
     options.format === 'pdf' ? 'pdf' : options.format === 'csv' ? 'csv' : 'json';
-  const mimeType =
-    options.format === 'pdf'
-      ? 'application/pdf'
-      : options.format === 'csv'
-      ? 'text/csv'
-      : 'application/json';
 
   const filename = `special-caring-export-${new Date().toISOString().split('T')[0]}.${extension}`;
 
