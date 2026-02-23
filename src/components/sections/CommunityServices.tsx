@@ -41,11 +41,11 @@ const CommunityServices = () => {
       const isSaved = savedServices.includes(serviceId);
       if (isSaved) {
         const { error } = await supabase.from('saved_community_services').delete()
-          .eq('service_id', serviceId).eq('created_by', user!.id).eq('child_id', activeChild!.id);
+          .eq('service_id', serviceId).eq('user_id', user!.id).eq('child_id', activeChild!.id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from('saved_community_services')
-          .insert([{ created_by: user!.id, child_id: activeChild!.id, service_id: serviceId }]);
+          .insert([{ user_id: user!.id, child_id: activeChild!.id, service_id: serviceId }]);
         if (error) throw error;
       }
     },

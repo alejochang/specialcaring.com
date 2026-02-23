@@ -53,6 +53,13 @@ export type Database = {
             referencedRelation: "children"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "celebration_categories_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children_secure"
+            referencedColumns: ["id"]
+          },
         ]
       }
       child_access: {
@@ -83,6 +90,13 @@ export type Database = {
             columns: ["child_id"]
             isOneToOne: false
             referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "child_access_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children_secure"
             referencedColumns: ["id"]
           },
         ]
@@ -129,12 +143,19 @@ export type Database = {
             referencedRelation: "children"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "child_invites_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children_secure"
+            referencedColumns: ["id"]
+          },
         ]
       }
       children: {
         Row: {
           additional_notes: string | null
-          address: string
+          address: string | null
           allergies: string | null
           avatar_url: string | null
           birth_date: string | null
@@ -143,8 +164,8 @@ export type Database = {
           dislikes: string | null
           do_nots: string | null
           email: string | null
-          emergency_contact: string
-          emergency_phone: string
+          emergency_contact: string | null
+          emergency_phone: string | null
           full_name: string | null
           health_card_number: string | null
           id: string
@@ -153,12 +174,12 @@ export type Database = {
           likes: string | null
           medical_conditions: string | null
           name: string
-          phone_number: string
+          phone_number: string | null
           updated_at: string
         }
         Insert: {
           additional_notes?: string | null
-          address?: string
+          address?: string | null
           allergies?: string | null
           avatar_url?: string | null
           birth_date?: string | null
@@ -167,8 +188,8 @@ export type Database = {
           dislikes?: string | null
           do_nots?: string | null
           email?: string | null
-          emergency_contact?: string
-          emergency_phone?: string
+          emergency_contact?: string | null
+          emergency_phone?: string | null
           full_name?: string | null
           health_card_number?: string | null
           id?: string
@@ -177,12 +198,12 @@ export type Database = {
           likes?: string | null
           medical_conditions?: string | null
           name: string
-          phone_number?: string
+          phone_number?: string | null
           updated_at?: string
         }
         Update: {
           additional_notes?: string | null
-          address?: string
+          address?: string | null
           allergies?: string | null
           avatar_url?: string | null
           birth_date?: string | null
@@ -191,8 +212,8 @@ export type Database = {
           dislikes?: string | null
           do_nots?: string | null
           email?: string | null
-          emergency_contact?: string
-          emergency_phone?: string
+          emergency_contact?: string | null
+          emergency_phone?: string | null
           full_name?: string | null
           health_card_number?: string | null
           id?: string
@@ -201,7 +222,7 @@ export type Database = {
           likes?: string | null
           medical_conditions?: string | null
           name?: string
-          phone_number?: string
+          phone_number?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -260,6 +281,13 @@ export type Database = {
             referencedRelation: "children"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "daily_log_entries_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children_secure"
+            referencedColumns: ["id"]
+          },
         ]
       }
       documents: {
@@ -305,6 +333,13 @@ export type Database = {
             columns: ["child_id"]
             isOneToOne: false
             referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children_secure"
             referencedColumns: ["id"]
           },
         ]
@@ -360,6 +395,13 @@ export type Database = {
             referencedRelation: "children"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "emergency_cards_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children_secure"
+            referencedColumns: ["id"]
+          },
         ]
       }
       emergency_protocols: {
@@ -408,6 +450,13 @@ export type Database = {
             columns: ["child_id"]
             isOneToOne: false
             referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emergency_protocols_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children_secure"
             referencedColumns: ["id"]
           },
         ]
@@ -479,6 +528,13 @@ export type Database = {
             columns: ["child_id"]
             isOneToOne: false
             referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employment_agreements_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children_secure"
             referencedColumns: ["id"]
           },
         ]
@@ -564,6 +620,13 @@ export type Database = {
             referencedRelation: "children"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "end_of_life_wishes_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children_secure"
+            referencedColumns: ["id"]
+          },
         ]
       }
       financial_legal_docs: {
@@ -632,6 +695,13 @@ export type Database = {
             referencedRelation: "children"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "financial_legal_docs_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children_secure"
+            referencedColumns: ["id"]
+          },
         ]
       }
       home_safety_checks: {
@@ -662,6 +732,13 @@ export type Database = {
             columns: ["child_id"]
             isOneToOne: false
             referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "home_safety_checks_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children_secure"
             referencedColumns: ["id"]
           },
         ]
@@ -706,6 +783,13 @@ export type Database = {
             columns: ["child_id"]
             isOneToOne: false
             referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journey_moments_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children_secure"
             referencedColumns: ["id"]
           },
           {
@@ -769,6 +853,13 @@ export type Database = {
             referencedRelation: "children"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "journeys_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children_secure"
+            referencedColumns: ["id"]
+          },
         ]
       }
       medical_contacts: {
@@ -823,6 +914,13 @@ export type Database = {
             columns: ["child_id"]
             isOneToOne: false
             referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medical_contacts_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children_secure"
             referencedColumns: ["id"]
           },
         ]
@@ -888,6 +986,13 @@ export type Database = {
             columns: ["child_id"]
             isOneToOne: false
             referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medications_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children_secure"
             referencedColumns: ["id"]
           },
         ]
@@ -1015,6 +1120,13 @@ export type Database = {
             referencedRelation: "children"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "saved_community_services_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children_secure"
+            referencedColumns: ["id"]
+          },
         ]
       }
       security_audit_log: {
@@ -1120,6 +1232,13 @@ export type Database = {
             columns: ["child_id"]
             isOneToOne: false
             referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "suppliers_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children_secure"
             referencedColumns: ["id"]
           },
         ]
@@ -1230,7 +1349,6 @@ export type Database = {
           back_image: string | null
           child_id: string | null
           created_at: string | null
-          created_by: string | null
           expiry_date: string | null
           front_image: string | null
           id: string | null
@@ -1238,12 +1356,12 @@ export type Database = {
           id_type: string | null
           issue_date: string | null
           updated_at: string | null
+          user_id: string | null
         }
         Insert: {
           back_image?: string | null
           child_id?: string | null
           created_at?: string | null
-          created_by?: string | null
           expiry_date?: string | null
           front_image?: string | null
           id?: string | null
@@ -1251,12 +1369,12 @@ export type Database = {
           id_type?: string | null
           issue_date?: string | null
           updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           back_image?: string | null
           child_id?: string | null
           created_at?: string | null
-          created_by?: string | null
           expiry_date?: string | null
           front_image?: string | null
           id?: string | null
@@ -1264,6 +1382,7 @@ export type Database = {
           id_type?: string | null
           issue_date?: string | null
           updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -1271,6 +1390,13 @@ export type Database = {
             columns: ["child_id"]
             isOneToOne: false
             referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emergency_cards_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children_secure"
             referencedColumns: ["id"]
           },
         ]
@@ -1283,7 +1409,6 @@ export type Database = {
           contact_name: string | null
           contact_phone: string | null
           created_at: string | null
-          created_by: string | null
           description: string | null
           doc_type: string | null
           expiry_date: string | null
@@ -1293,6 +1418,7 @@ export type Database = {
           status: string | null
           title: string | null
           updated_at: string | null
+          user_id: string | null
         }
         Insert: {
           account_number?: never
@@ -1301,7 +1427,6 @@ export type Database = {
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string | null
-          created_by?: string | null
           description?: string | null
           doc_type?: string | null
           expiry_date?: string | null
@@ -1311,6 +1436,7 @@ export type Database = {
           status?: string | null
           title?: string | null
           updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           account_number?: never
@@ -1319,7 +1445,6 @@ export type Database = {
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string | null
-          created_by?: string | null
           description?: string | null
           doc_type?: string | null
           expiry_date?: string | null
@@ -1329,6 +1454,7 @@ export type Database = {
           status?: string | null
           title?: string | null
           updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -1336,6 +1462,13 @@ export type Database = {
             columns: ["child_id"]
             isOneToOne: false
             referencedRelation: "children"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_legal_docs_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "children_secure"
             referencedColumns: ["id"]
           },
         ]
