@@ -111,7 +111,7 @@ const MedicationsList = () => {
   const saveMutation = useMutation({
     mutationFn: async (values: MedicationForm) => {
       if (!user || !activeChild) throw new Error('No user or child');
-      const dbData = { ...formToDb(values), user_id: user.id, child_id: activeChild.id };
+      const dbData = { ...formToDb(values), created_by: user.id, child_id: activeChild.id };
       if (editingId) {
         const { error } = await supabase.from('medications').update(dbData).eq('id', editingId);
         if (error) throw error;

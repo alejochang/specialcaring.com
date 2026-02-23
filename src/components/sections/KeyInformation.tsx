@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Save, PlusCircle, Pencil, Loader2, Heart, Calendar, IdCard, Stethoscope, Pill, ThumbsUp, ThumbsDown, AlertTriangle, AlertCircle } from "lucide-react";
+import { Save, Pencil, Loader2, Heart, Calendar, IdCard, Stethoscope, Pill, ThumbsUp, ThumbsDown, AlertTriangle, AlertCircle } from "lucide-react";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
@@ -47,25 +47,31 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+/**
+ * KeyInformation — edits profile fields directly on the children table.
+ * After the domain merge, the child IS the profile. No separate entity needed.
+ * Reads from `children_secure` view (auto-decrypts sensitive fields).
+ * Writes directly to `children` table via updateChildProfile.
+ */
 const KeyInformation = () => {
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
-  const { activeChild, updateChild } = useChild();
+  const { activeChild, updateChildProfile, refetch } = useChild();
   const { canEdit } = useUserRole();
   const queryClient = useQueryClient();
 
-  const { data: keyInfo, isLoading } = useQuery({
-    queryKey: ['keyInformation', activeChild?.id],
+  // Read from the secure view for decrypted sensitive fields
+  const { data: childProfile, isLoading } = useQuery({
+    queryKey: ['childProfile', activeChild?.id],
     queryFn: async () => {
       if (!user || !activeChild) throw new Error("No user or child found");
 
-      // Use secure view for reading (auto-decrypts sensitive fields)
       const { data, error } = await supabase
-        .from('key_information_secure')
+        .from('children_secure')
         .select('*')
-        .eq('child_id', activeChild.id)
-        .maybeSingle();
+        .eq('id', activeChild.id)
+        .single();
 
       if (error) throw error;
       return data;
@@ -91,53 +97,34 @@ const KeyInformation = () => {
     enabled: !!user && !!activeChild,
   });
 
-  // Whether this child has no key_information record yet
-  const isNewProfile = !isLoading && !keyInfo;
+  // Profile is incomplete if essential fields are missing
+  const isIncompleteProfile = !isLoading && childProfile && !childProfile.birth_date;
 
-  const dbToFormValues = (dbData: any, childName?: string): FormValues => {
-    if (!dbData) return {
-      fullName: childName || "",
-      birthDate: "",
-      healthCardNumber: "",
-      address: "",
-      phoneNumber: "",
-      email: "",
-      insuranceProvider: "",
-      insuranceNumber: "",
-      emergencyContact: "",
-      emergencyPhone: "",
-      medicalConditions: "",
-      allergies: "",
-      likes: "",
-      dislikes: "",
-      doNots: "",
-      additionalNotes: "",
-    };
-
+  const childToFormValues = (child: any): FormValues => {
     return {
-      fullName: dbData.full_name || "",
-      birthDate: dbData.birth_date || "",
-      healthCardNumber: dbData.health_card_number || "",
-      address: dbData.address || "",
-      phoneNumber: dbData.phone_number || "",
-      email: dbData.email || "",
-      insuranceProvider: dbData.insurance_provider || "",
-      insuranceNumber: dbData.insurance_number || "",
-      emergencyContact: dbData.emergency_contact || "",
-      emergencyPhone: dbData.emergency_phone || "",
-      medicalConditions: dbData.medical_conditions || "",
-      allergies: dbData.allergies || "",
-      likes: dbData.likes || "",
-      dislikes: dbData.dislikes || "",
-      doNots: dbData.do_nots || "",
-      additionalNotes: dbData.additional_notes || "",
+      fullName: child?.full_name || child?.name || "",
+      birthDate: child?.birth_date || "",
+      healthCardNumber: child?.health_card_number || "",
+      address: child?.address || "",
+      phoneNumber: child?.phone_number || "",
+      email: child?.email || "",
+      insuranceProvider: child?.insurance_provider || "",
+      insuranceNumber: child?.insurance_number || "",
+      emergencyContact: child?.emergency_contact || "",
+      emergencyPhone: child?.emergency_phone || "",
+      medicalConditions: child?.medical_conditions || "",
+      allergies: child?.allergies || "",
+      likes: child?.likes || "",
+      dislikes: child?.dislikes || "",
+      doNots: child?.do_nots || "",
+      additionalNotes: child?.additional_notes || "",
     };
   };
 
-  const formToDbValues = (formData: FormValues, userId: string, childId: string) => {
+  /** Convert form values to snake_case DB columns for the children table */
+  const formToDbValues = (formData: FormValues) => {
     return {
-      user_id: userId,
-      child_id: childId,
+      name: formData.fullName,
       full_name: formData.fullName,
       birth_date: formData.birthDate,
       health_card_number: formData.healthCardNumber,
@@ -154,62 +141,42 @@ const KeyInformation = () => {
       dislikes: formData.dislikes,
       do_nots: formData.doNots,
       additional_notes: formData.additionalNotes,
-      updated_at: new Date().toISOString(),
     };
   };
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: dbToFormValues(keyInfo, activeChild?.name),
+    defaultValues: childToFormValues(childProfile || activeChild),
   });
 
-  // Re-initialize form when data or schema changes
+  // Re-initialize form when profile data changes
   useEffect(() => {
-    form.reset(dbToFormValues(keyInfo, activeChild?.name));
-  }, [keyInfo, activeChild, form]);
+    form.reset(childToFormValues(childProfile || activeChild));
+  }, [childProfile, activeChild, form]);
 
-  // Auto-enter edit mode for new profiles
+  // Auto-enter edit mode for incomplete profiles
   useEffect(() => {
-    if (isNewProfile && canEdit) {
+    if (isIncompleteProfile && canEdit) {
       setIsEditing(true);
     }
-  }, [isNewProfile, canEdit]);
+  }, [isIncompleteProfile, canEdit]);
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
       if (!user || !activeChild) throw new Error("No user or child found");
 
-      const formattedData = formToDbValues(values, user.id, activeChild.id);
-
-      if (keyInfo) {
-        const { error } = await supabase
-          .from('key_information')
-          .update(formattedData)
-          .eq('id', keyInfo.id);
-
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('key_information')
-          .insert([formattedData]);
-
-        if (error) throw error;
-      }
-
-      // Keep child selector name in sync
-      if (activeChild && values.fullName !== activeChild.name) {
-        await updateChild(activeChild.id, values.fullName);
-      }
+      // Write directly to children table — the child IS the profile
+      const profileData = formToDbValues(values);
+      await updateChildProfile(activeChild.id, profileData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['keyInformation', activeChild?.id] });
+      queryClient.invalidateQueries({ queryKey: ['childProfile', activeChild?.id] });
+      refetch(); // Refresh context so activeChild reflects new profile data
       setIsEditing(false);
 
       toast({
-        title: keyInfo ? "Child profile updated" : "Child profile created",
-        description: keyInfo
-          ? "The child's information has been successfully updated."
-          : "The child's profile has been created successfully.",
+        title: "Child profile updated",
+        description: "The child's information has been successfully updated.",
       });
     },
     onError: (error) => {
@@ -265,7 +232,7 @@ const KeyInformation = () => {
             <Heart className="h-8 w-8 text-special-600" />
           </div>
           <div>
-            {isNewProfile ? (
+            {isIncompleteProfile ? (
               <>
                 <h2 className="text-3xl font-bold text-foreground">
                   Complete {activeChild.name}'s Profile
@@ -284,7 +251,7 @@ const KeyInformation = () => {
             )}
           </div>
         </div>
-        {keyInfo && !isEditing && canEdit ? (
+        {childProfile && !isEditing && canEdit ? (
           <Button
             onClick={() => setIsEditing(true)}
             variant="outline"
@@ -296,7 +263,7 @@ const KeyInformation = () => {
         ) : null}
       </div>
 
-      {keyInfo && !isEditing ? (
+      {childProfile && !isEditing ? (
         <div className="space-y-6">
           {/* Header Card with Basic Info */}
           <Card className="shadow-lg border-0 bg-gradient-to-r from-special-50 to-kids-50">
@@ -306,21 +273,21 @@ const KeyInformation = () => {
                   <Heart className="h-10 w-10 text-special-600" />
                 </div>
                 <div>
-                  <CardTitle className="text-2xl font-bold text-special-800">{keyInfo.full_name}</CardTitle>
+                  <CardTitle className="text-2xl font-bold text-special-800">{childProfile.full_name}</CardTitle>
                   <div className="flex items-center gap-4 mt-2">
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
                       <span className="text-muted-foreground">
-                        {new Date(keyInfo.birth_date).toLocaleDateString()}
-                        {calculateAge(keyInfo.birth_date) && (
-                          <span className="ml-2 font-medium">({calculateAge(keyInfo.birth_date)} years old)</span>
+                        {new Date(childProfile.birth_date).toLocaleDateString()}
+                        {calculateAge(childProfile.birth_date) && (
+                          <span className="ml-2 font-medium">({calculateAge(childProfile.birth_date)} years old)</span>
                         )}
                       </span>
                     </div>
-                    {keyInfo.health_card_number && (
+                    {childProfile.health_card_number && (
                       <div className="flex items-center gap-2">
                         <IdCard className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">Health Card: {keyInfo.health_card_number}</span>
+                        <span className="text-muted-foreground">Health Card: {childProfile.health_card_number}</span>
                       </div>
                     )}
                   </div>
@@ -339,21 +306,21 @@ const KeyInformation = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6 space-y-4">
-                {keyInfo.medical_conditions && (
+                {childProfile.medical_conditions && (
                   <div>
                     <h4 className="text-sm font-semibold text-red-700 mb-2">Medical Conditions & Diagnoses</h4>
-                    <p className="text-gray-700 leading-relaxed">{keyInfo.medical_conditions}</p>
+                    <p className="text-gray-700 leading-relaxed">{childProfile.medical_conditions}</p>
                   </div>
                 )}
 
-                {keyInfo.allergies && (
+                {childProfile.allergies && (
                   <div>
                     <h4 className="text-sm font-semibold text-red-700 mb-2">Allergies</h4>
-                    <p className="text-gray-700 leading-relaxed">{keyInfo.allergies}</p>
+                    <p className="text-gray-700 leading-relaxed">{childProfile.allergies}</p>
                   </div>
                 )}
 
-                {(!keyInfo.medical_conditions && !keyInfo.allergies) && (
+                {(!childProfile.medical_conditions && !childProfile.allergies) && (
                   <p className="text-muted-foreground italic">No medical conditions or allergies recorded.</p>
                 )}
               </CardContent>
@@ -402,8 +369,8 @@ const KeyInformation = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
-                {keyInfo.likes ? (
-                  <p className="text-gray-700 leading-relaxed">{keyInfo.likes}</p>
+                {childProfile.likes ? (
+                  <p className="text-gray-700 leading-relaxed">{childProfile.likes}</p>
                 ) : (
                   <p className="text-muted-foreground italic">No preferences recorded yet.</p>
                 )}
@@ -419,8 +386,8 @@ const KeyInformation = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
-                {keyInfo.dislikes ? (
-                  <p className="text-gray-700 leading-relaxed">{keyInfo.dislikes}</p>
+                {childProfile.dislikes ? (
+                  <p className="text-gray-700 leading-relaxed">{childProfile.dislikes}</p>
                 ) : (
                   <p className="text-muted-foreground italic">No dislikes recorded yet.</p>
                 )}
@@ -436,9 +403,9 @@ const KeyInformation = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
-                {keyInfo.do_nots ? (
+                {childProfile.do_nots ? (
                   <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-red-800 leading-relaxed font-medium">{keyInfo.do_nots}</p>
+                    <p className="text-red-800 leading-relaxed font-medium">{childProfile.do_nots}</p>
                   </div>
                 ) : (
                   <p className="text-muted-foreground italic">No specific restrictions recorded.</p>
@@ -455,39 +422,39 @@ const KeyInformation = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">Address</h4>
-                    <p className="text-gray-700">{keyInfo.address}</p>
+                    <p className="text-gray-700">{childProfile.address}</p>
                   </div>
 
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">Phone</h4>
-                    <p className="text-gray-700">{keyInfo.phone_number}</p>
+                    <p className="text-gray-700">{childProfile.phone_number}</p>
                   </div>
 
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">Email</h4>
-                    <p className="text-gray-700">{keyInfo.email || "Not provided"}</p>
+                    <p className="text-gray-700">{childProfile.email || "Not provided"}</p>
                   </div>
 
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">Emergency Contact</h4>
-                    <p className="text-gray-700">{keyInfo.emergency_contact}</p>
+                    <p className="text-gray-700">{childProfile.emergency_contact}</p>
                   </div>
 
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">Emergency Phone</h4>
-                    <p className="text-gray-700">{keyInfo.emergency_phone}</p>
+                    <p className="text-gray-700">{childProfile.emergency_phone}</p>
                   </div>
 
                   <div>
                     <h4 className="text-sm font-medium text-muted-foreground mb-1">Insurance</h4>
-                    <p className="text-gray-700">{keyInfo.insurance_provider || "Not provided"}</p>
+                    <p className="text-gray-700">{childProfile.insurance_provider || "Not provided"}</p>
                   </div>
                 </div>
 
-                {keyInfo.additional_notes && (
+                {childProfile.additional_notes && (
                   <div className="mt-6 pt-6 border-t">
                     <h4 className="text-sm font-medium text-muted-foreground mb-2">Additional Notes</h4>
-                    <p className="text-gray-700 leading-relaxed">{keyInfo.additional_notes}</p>
+                    <p className="text-gray-700 leading-relaxed">{childProfile.additional_notes}</p>
                   </div>
                 )}
               </CardContent>
@@ -498,7 +465,7 @@ const KeyInformation = () => {
         <Card className="shadow-sm border border-border bg-white">
           <CardHeader>
             <CardTitle className="text-xl">
-              {keyInfo ? "Edit Child Profile" : "Create Child Profile"}
+              {childProfile ? "Edit Child Profile" : "Create Child Profile"}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -777,7 +744,7 @@ const KeyInformation = () => {
                 />
 
                 <div className="flex justify-end gap-3">
-                  {isEditing && keyInfo && (
+                  {isEditing && childProfile && (
                     <Button
                       type="button"
                       variant="outline"
@@ -793,12 +760,10 @@ const KeyInformation = () => {
                   >
                     {mutation.isPending ? (
                       <Loader2 size={16} className="animate-spin mr-2" />
-                    ) : keyInfo ? (
-                      <Save size={16} />
                     ) : (
-                      <PlusCircle size={16} />
+                      <Save size={16} />
                     )}
-                    {keyInfo ? "Save Changes" : "Create Profile"}
+                    Save Changes
                   </Button>
                 </div>
               </form>

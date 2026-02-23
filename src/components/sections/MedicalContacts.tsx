@@ -91,7 +91,7 @@ const MedicalContacts = () => {
     mutationFn: async (values: ContactForm) => {
       if (!user || !activeChild) throw new Error('No user or child');
       const dbData = {
-        user_id: user.id, child_id: activeChild.id,
+        created_by: user.id, child_id: activeChild.id,
         name: values.name, type: values.type, specialty: values.specialty || '',
         phone_number: values.phoneNumber, email: values.email || '',
         address: values.address || '', notes: values.notes || '', is_primary: values.isPrimary,

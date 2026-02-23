@@ -107,7 +107,7 @@ const FinancialLegal = () => {
         contact_name: formData.contact_name || '', contact_phone: formData.contact_phone || '',
         contact_email: formData.contact_email || '', expiry_date: formData.expiry_date || '',
         notes: formData.notes || '', status: formData.status,
-        user_id: user!.id, child_id: activeChild!.id,
+        created_by: user!.id, child_id: activeChild!.id,
       };
       if (id) {
         const { error } = await supabase.from('financial_legal_docs').update(dbData).eq('id', id);

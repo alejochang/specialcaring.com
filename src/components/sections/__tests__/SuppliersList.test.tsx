@@ -176,7 +176,7 @@ describe("SuppliersList — TanStack Query migration", () => {
             dosage_or_size: "5mg",
             provider_name: "NaturalPharm",
             contact_phone: "555-9999",
-            user_id: "user-123",
+            created_by: "user-123",
             child_id: "child-123",
           }),
         ])

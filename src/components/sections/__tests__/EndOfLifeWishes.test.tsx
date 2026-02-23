@@ -136,7 +136,7 @@ describe("EndOfLifeWishes — TanStack Query singleton pattern", () => {
       expect(chain.insert).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
-            user_id: "user-123",
+            created_by: "user-123",
             child_id: "child-123",
           }),
         ])
@@ -163,7 +163,7 @@ describe("EndOfLifeWishes — TanStack Query singleton pattern", () => {
     });
   });
 
-  it("saveMutation passes user_id and child_id in update payload", async () => {
+  it("saveMutation passes created_by and child_id in update payload", async () => {
     const { chain } = setupSingletonMock();
     render(<EndOfLifeWishes />, { wrapper: TestWrapper });
     await screen.findByText("DNR order in place");
@@ -174,7 +174,7 @@ describe("EndOfLifeWishes — TanStack Query singleton pattern", () => {
     await waitFor(() => {
       expect(chain.update).toHaveBeenCalledWith(
         expect.objectContaining({
-          user_id: "user-123",
+          created_by: "user-123",
           child_id: "child-123",
         })
       );

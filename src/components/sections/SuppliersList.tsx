@@ -137,7 +137,7 @@ const SuppliersList = () => {
         provider_name: formValues.provider_name,
         contact_phone: formValues.contact_phone,
         category: formValues.category,
-        user_id: user!.id,
+        created_by: user!.id,
         child_id: activeChild!.id,
         inventory_threshold: formValues.inventory_threshold ? parseInt(formValues.inventory_threshold) : null,
         brand_or_strength: formValues.brand_or_strength || null,

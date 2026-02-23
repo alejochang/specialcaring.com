@@ -96,9 +96,9 @@ describe("HomeSafety", () => {
 
     await waitFor(() => {
       expect(deleteFn).toHaveBeenCalled();
-      // Chain: .delete().eq('check_id', ...).eq('user_id', ...).eq('child_id', ...)
+      // Chain: .delete().eq('check_id', ...).eq('created_by', ...).eq('child_id', ...)
       expect(deleteEq1).toHaveBeenCalledWith("check_id", "emergency-contacts");
-      expect(deleteEq2).toHaveBeenCalledWith("user_id", mockUser.id);
+      expect(deleteEq2).toHaveBeenCalledWith("created_by", mockUser.id);
       expect(deleteEqChain).toHaveBeenCalledWith("child_id", "child-123");
     });
   });
@@ -132,7 +132,7 @@ describe("HomeSafety", () => {
       expect(insertFn).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
-            user_id: mockUser.id,
+            created_by: mockUser.id,
             child_id: "child-123",
             check_id: "emergency-contacts",
           }),

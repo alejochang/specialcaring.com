@@ -41,11 +41,11 @@ const HomeSafety = () => {
       const isCompleted = completedChecks.includes(checkId);
       if (isCompleted) {
         const { error } = await supabase.from('home_safety_checks').delete()
-          .eq('check_id', checkId).eq('user_id', user!.id).eq('child_id', activeChild!.id);
+          .eq('check_id', checkId).eq('created_by', user!.id).eq('child_id', activeChild!.id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from('home_safety_checks')
-          .insert([{ user_id: user!.id, child_id: activeChild!.id, check_id: checkId }]);
+          .insert([{ created_by: user!.id, child_id: activeChild!.id, check_id: checkId }]);
         if (error) throw error;
       }
       return checkId;

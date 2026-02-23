@@ -10,10 +10,26 @@ import { openDB, DBSchema, IDBPDatabase } from 'idb';
 // Type definitions for stored data
 export interface OfflineChild {
   id: string;
-  user_id: string;
+  created_by: string;
   name: string;
+  avatar_url?: string | null;
+  // Profile fields (merged from former key_information)
+  full_name?: string;
   birth_date?: string;
-  photo?: string;
+  address?: string;
+  phone_number?: string;
+  email?: string;
+  health_card_number?: string;
+  insurance_provider?: string;
+  insurance_number?: string;
+  emergency_contact?: string;
+  emergency_phone?: string;
+  medical_conditions?: string;
+  allergies?: string;
+  likes?: string;
+  dislikes?: string;
+  do_nots?: string;
+  additional_notes?: string;
   created_at: string;
   updated_at: string;
 }
@@ -44,27 +60,6 @@ export interface OfflineDailyLog {
   updated_at: string;
 }
 
-export interface OfflineKeyInfo {
-  id: string;
-  child_id: string;
-  full_name?: string;
-  birth_date?: string;
-  phone_number?: string;
-  address?: string;
-  health_card_number?: string;
-  insurance_provider?: string;
-  insurance_number?: string;
-  emergency_contact?: string;
-  emergency_phone?: string;
-  medical_conditions?: string;
-  allergies?: string;
-  likes?: string;
-  dislikes?: string;
-  do_nots?: string;
-  created_at: string;
-  updated_at: string;
-}
-
 export interface PendingSyncItem {
   id: string;
   operation: 'insert' | 'update' | 'delete';
@@ -79,7 +74,7 @@ interface SpecialCaringDB extends DBSchema {
   children: {
     key: string;
     value: OfflineChild;
-    indexes: { 'by-user': string };
+    indexes: { 'by-created-by': string };
   };
   medications: {
     key: string;
@@ -91,11 +86,6 @@ interface SpecialCaringDB extends DBSchema {
     value: OfflineDailyLog;
     indexes: { 'by-child': string; 'by-date': string };
   };
-  keyInformation: {
-    key: string;
-    value: OfflineKeyInfo;
-    indexes: { 'by-child': string };
-  };
   pendingSync: {
     key: string;
     value: PendingSyncItem;
@@ -104,8 +94,8 @@ interface SpecialCaringDB extends DBSchema {
 }
 
 const DB_NAME = 'special-caring-offline';
-const DB_VERSION = 1;
-type StoreNames = 'children' | 'dailyLogs' | 'keyInformation' | 'medications' | 'pendingSync';
+const DB_VERSION = 2; // Bumped: removed keyInformation store, enriched children, renamed user_id → created_by
+type StoreNames = 'children' | 'dailyLogs' | 'medications' | 'pendingSync';
 
 let dbPromise: Promise<IDBPDatabase<SpecialCaringDB>> | null = null;
 
@@ -118,9 +108,9 @@ export async function getDB(): Promise<IDBPDatabase<SpecialCaringDB>> {
       upgrade(db, oldVersion, _newVersion, _transaction) {
         // Initial database setup
         if (oldVersion < 1) {
-          // Children store
+          // Children store (enriched with profile fields)
           const childrenStore = db.createObjectStore('children', { keyPath: 'id' });
-          childrenStore.createIndex('by-user', 'user_id');
+          childrenStore.createIndex('by-created-by', 'created_by');
 
           // Medications store
           const medsStore = db.createObjectStore('medications', { keyPath: 'id' });
@@ -131,13 +121,23 @@ export async function getDB(): Promise<IDBPDatabase<SpecialCaringDB>> {
           logsStore.createIndex('by-child', 'child_id');
           logsStore.createIndex('by-date', 'date');
 
-          // Key information store
-          const keyInfoStore = db.createObjectStore('keyInformation', { keyPath: 'id' });
-          keyInfoStore.createIndex('by-child', 'child_id');
-
           // Pending sync queue
           const syncStore = db.createObjectStore('pendingSync', { keyPath: 'id' });
           syncStore.createIndex('by-table', 'table');
+        }
+
+        // V2: Remove keyInformation store (merged into children), rename user_id → created_by
+        if (oldVersion < 2) {
+          // Delete the old keyInformation store if upgrading from v1
+          if (db.objectStoreNames.contains('keyInformation' as any)) {
+            db.deleteObjectStore('keyInformation' as any);
+          }
+          // Recreate children store with new index (by-created-by instead of by-user)
+          if (db.objectStoreNames.contains('children')) {
+            db.deleteObjectStore('children');
+          }
+          const childrenStore = db.createObjectStore('children', { keyPath: 'id' });
+          childrenStore.createIndex('by-created-by', 'created_by');
         }
       },
       blocked() {
@@ -307,7 +307,6 @@ export async function clearAllOfflineData(): Promise<void> {
     db.clear('children'),
     db.clear('medications'),
     db.clear('dailyLogs'),
-    db.clear('keyInformation'),
     db.clear('pendingSync'),
   ]);
 }
@@ -319,14 +318,12 @@ export async function exportOfflineData(): Promise<{
   children: OfflineChild[];
   medications: OfflineMedication[];
   dailyLogs: OfflineDailyLog[];
-  keyInformation: OfflineKeyInfo[];
   pendingSync: PendingSyncItem[];
 }> {
   return {
     children: await getAllOffline('children'),
     medications: await getAllOffline('medications'),
     dailyLogs: await getAllOffline('dailyLogs'),
-    keyInformation: await getAllOffline('keyInformation'),
     pendingSync: await getAllOffline('pendingSync'),
   };
 }

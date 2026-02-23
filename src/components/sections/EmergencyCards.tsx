@@ -139,7 +139,7 @@ const EmergencyCards = () => {
   const saveMutation = useMutation({
     mutationFn: async (values: FormValues) => {
       const dbData = {
-        user_id: user!.id, child_id: activeChild!.id,
+        created_by: user!.id, child_id: activeChild!.id,
         front_image: values.frontImage || '', back_image: values.backImage || '',
         id_type: values.idType, id_number: values.idNumber,
         issue_date: values.issueDate || '', expiry_date: values.expiryDate || '',

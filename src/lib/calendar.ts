@@ -109,9 +109,9 @@ export async function generateMedicationCalendar(childId: string): Promise<strin
   if (error) throw error;
 
   const { data: childInfo } = await supabase
-    .from('key_information')
+    .from('children')
     .select('full_name')
-    .eq('child_id', childId)
+    .eq('id', childId)
     .single();
 
   const calendar = ical({
@@ -180,9 +180,9 @@ export async function generateAppointmentCalendar(childId: string): Promise<stri
   // Note: medical_contacts table doesn't have next_appointment column
   // This function returns an empty calendar for now
   const { data: childInfo } = await supabase
-    .from('key_information')
+    .from('children')
     .select('full_name')
-    .eq('child_id', childId)
+    .eq('id', childId)
     .single();
 
   const calendar = ical({

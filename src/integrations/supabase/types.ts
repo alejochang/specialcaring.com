@@ -133,28 +133,76 @@ export type Database = {
       }
       children: {
         Row: {
+          additional_notes: string | null
+          address: string
+          allergies: string | null
           avatar_url: string | null
+          birth_date: string | null
           created_at: string
+          created_by: string
+          dislikes: string | null
+          do_nots: string | null
+          email: string | null
+          emergency_contact: string
+          emergency_phone: string
+          full_name: string | null
+          health_card_number: string | null
           id: string
+          insurance_number: string | null
+          insurance_provider: string | null
+          likes: string | null
+          medical_conditions: string | null
           name: string
+          phone_number: string
           updated_at: string
-          user_id: string
         }
         Insert: {
+          additional_notes?: string | null
+          address?: string
+          allergies?: string | null
           avatar_url?: string | null
+          birth_date?: string | null
           created_at?: string
+          created_by: string
+          dislikes?: string | null
+          do_nots?: string | null
+          email?: string | null
+          emergency_contact?: string
+          emergency_phone?: string
+          full_name?: string | null
+          health_card_number?: string | null
           id?: string
+          insurance_number?: string | null
+          insurance_provider?: string | null
+          likes?: string | null
+          medical_conditions?: string | null
           name: string
+          phone_number?: string
           updated_at?: string
-          user_id: string
         }
         Update: {
+          additional_notes?: string | null
+          address?: string
+          allergies?: string | null
           avatar_url?: string | null
+          birth_date?: string | null
           created_at?: string
+          created_by?: string
+          dislikes?: string | null
+          do_nots?: string | null
+          email?: string | null
+          emergency_contact?: string
+          emergency_phone?: string
+          full_name?: string | null
+          health_card_number?: string | null
           id?: string
+          insurance_number?: string | null
+          insurance_provider?: string | null
+          likes?: string | null
+          medical_conditions?: string | null
           name?: string
+          phone_number?: string
           updated_at?: string
-          user_id?: string
         }
         Relationships: []
       }
@@ -163,6 +211,7 @@ export type Database = {
           category: string
           child_id: string
           created_at: string
+          created_by: string
           date: string
           description: string | null
           id: string
@@ -172,12 +221,12 @@ export type Database = {
           time: string
           title: string
           updated_at: string
-          user_id: string
         }
         Insert: {
           category: string
           child_id: string
           created_at?: string
+          created_by: string
           date: string
           description?: string | null
           id?: string
@@ -187,12 +236,12 @@ export type Database = {
           time: string
           title: string
           updated_at?: string
-          user_id: string
         }
         Update: {
           category?: string
           child_id?: string
           created_at?: string
+          created_by?: string
           date?: string
           description?: string | null
           id?: string
@@ -202,7 +251,6 @@ export type Database = {
           time?: string
           title?: string
           updated_at?: string
-          user_id?: string
         }
         Relationships: [
           {
@@ -266,6 +314,7 @@ export type Database = {
           back_image: string | null
           child_id: string
           created_at: string
+          created_by: string
           expiry_date: string | null
           front_image: string | null
           id: string
@@ -274,12 +323,12 @@ export type Database = {
           id_type: string
           issue_date: string | null
           updated_at: string
-          user_id: string
         }
         Insert: {
           back_image?: string | null
           child_id: string
           created_at?: string
+          created_by: string
           expiry_date?: string | null
           front_image?: string | null
           id?: string
@@ -288,12 +337,12 @@ export type Database = {
           id_type?: string
           issue_date?: string | null
           updated_at?: string
-          user_id: string
         }
         Update: {
           back_image?: string | null
           child_id?: string
           created_at?: string
+          created_by?: string
           expiry_date?: string | null
           front_image?: string | null
           id?: string
@@ -302,7 +351,6 @@ export type Database = {
           id_type?: string
           issue_date?: string | null
           updated_at?: string
-          user_id?: string
         }
         Relationships: [
           {
@@ -319,39 +367,39 @@ export type Database = {
           additional_notes: string | null
           child_id: string
           created_at: string
+          created_by: string
           emergency_contacts: string
           id: string
           immediate_steps: string
           severity: string
           title: string
           updated_at: string
-          user_id: string
           when_to_call_911: string | null
         }
         Insert: {
           additional_notes?: string | null
           child_id: string
           created_at?: string
+          created_by: string
           emergency_contacts?: string
           id?: string
           immediate_steps?: string
           severity?: string
           title: string
           updated_at?: string
-          user_id: string
           when_to_call_911?: string | null
         }
         Update: {
           additional_notes?: string | null
           child_id?: string
           created_at?: string
+          created_by?: string
           emergency_contacts?: string
           id?: string
           immediate_steps?: string
           severity?: string
           title?: string
           updated_at?: string
-          user_id?: string
           when_to_call_911?: string | null
         }
         Relationships: [
@@ -371,6 +419,7 @@ export type Database = {
           child_id: string
           confidentiality_terms: string | null
           created_at: string
+          created_by: string
           duties: string | null
           emergency_procedures: string | null
           end_date: string | null
@@ -382,7 +431,6 @@ export type Database = {
           status: string
           termination_terms: string | null
           updated_at: string
-          user_id: string
           work_schedule: string | null
         }
         Insert: {
@@ -391,6 +439,7 @@ export type Database = {
           child_id: string
           confidentiality_terms?: string | null
           created_at?: string
+          created_by: string
           duties?: string | null
           emergency_procedures?: string | null
           end_date?: string | null
@@ -402,7 +451,6 @@ export type Database = {
           status?: string
           termination_terms?: string | null
           updated_at?: string
-          user_id: string
           work_schedule?: string | null
         }
         Update: {
@@ -411,6 +459,7 @@ export type Database = {
           child_id?: string
           confidentiality_terms?: string | null
           created_at?: string
+          created_by?: string
           duties?: string | null
           emergency_procedures?: string | null
           end_date?: string | null
@@ -422,7 +471,6 @@ export type Database = {
           status?: string
           termination_terms?: string | null
           updated_at?: string
-          user_id?: string
           work_schedule?: string | null
         }
         Relationships: [
@@ -461,6 +509,7 @@ export type Database = {
           additional_notes: string | null
           child_id: string
           created_at: string
+          created_by: string
           funeral_preferences: string | null
           id: string
           legal_guardian: string | null
@@ -472,12 +521,12 @@ export type Database = {
           religious_cultural_wishes: string | null
           special_instructions: string | null
           updated_at: string
-          user_id: string
         }
         Insert: {
           additional_notes?: string | null
           child_id: string
           created_at?: string
+          created_by: string
           funeral_preferences?: string | null
           id?: string
           legal_guardian?: string | null
@@ -489,12 +538,12 @@ export type Database = {
           religious_cultural_wishes?: string | null
           special_instructions?: string | null
           updated_at?: string
-          user_id: string
         }
         Update: {
           additional_notes?: string | null
           child_id?: string
           created_at?: string
+          created_by?: string
           funeral_preferences?: string | null
           id?: string
           legal_guardian?: string | null
@@ -506,7 +555,6 @@ export type Database = {
           religious_cultural_wishes?: string | null
           special_instructions?: string | null
           updated_at?: string
-          user_id?: string
         }
         Relationships: [
           {
@@ -527,6 +575,7 @@ export type Database = {
           contact_name: string | null
           contact_phone: string | null
           created_at: string
+          created_by: string
           description: string | null
           doc_type: string
           expiry_date: string | null
@@ -536,7 +585,6 @@ export type Database = {
           status: string
           title: string
           updated_at: string
-          user_id: string
         }
         Insert: {
           account_number?: string | null
@@ -546,6 +594,7 @@ export type Database = {
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string
+          created_by: string
           description?: string | null
           doc_type?: string
           expiry_date?: string | null
@@ -555,7 +604,6 @@ export type Database = {
           status?: string
           title?: string
           updated_at?: string
-          user_id: string
         }
         Update: {
           account_number?: string | null
@@ -565,6 +613,7 @@ export type Database = {
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string
+          created_by?: string
           description?: string | null
           doc_type?: string
           expiry_date?: string | null
@@ -574,7 +623,6 @@ export type Database = {
           status?: string
           title?: string
           updated_at?: string
-          user_id?: string
         }
         Relationships: [
           {
@@ -591,22 +639,22 @@ export type Database = {
           check_id: string
           child_id: string
           completed_at: string
+          created_by: string
           id: string
-          user_id: string
         }
         Insert: {
           check_id: string
           child_id: string
           completed_at?: string
+          created_by: string
           id?: string
-          user_id: string
         }
         Update: {
           check_id?: string
           child_id?: string
           completed_at?: string
+          created_by?: string
           id?: string
-          user_id?: string
         }
         Relationships: [
           {
@@ -723,97 +771,12 @@ export type Database = {
           },
         ]
       }
-      key_information: {
-        Row: {
-          additional_notes: string | null
-          address: string
-          allergies: string | null
-          birth_date: string
-          child_id: string
-          created_at: string
-          dislikes: string | null
-          do_nots: string | null
-          email: string | null
-          emergency_contact: string
-          emergency_phone: string
-          full_name: string
-          health_card_number: string | null
-          health_card_number_encrypted: string | null
-          id: string
-          insurance_number: string | null
-          insurance_number_encrypted: string | null
-          insurance_provider: string | null
-          likes: string | null
-          medical_conditions: string | null
-          phone_number: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          additional_notes?: string | null
-          address?: string
-          allergies?: string | null
-          birth_date?: string
-          child_id: string
-          created_at?: string
-          dislikes?: string | null
-          do_nots?: string | null
-          email?: string | null
-          emergency_contact?: string
-          emergency_phone?: string
-          full_name?: string
-          health_card_number?: string | null
-          health_card_number_encrypted?: string | null
-          id?: string
-          insurance_number?: string | null
-          insurance_number_encrypted?: string | null
-          insurance_provider?: string | null
-          likes?: string | null
-          medical_conditions?: string | null
-          phone_number?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          additional_notes?: string | null
-          address?: string
-          allergies?: string | null
-          birth_date?: string
-          child_id?: string
-          created_at?: string
-          dislikes?: string | null
-          do_nots?: string | null
-          email?: string | null
-          emergency_contact?: string
-          emergency_phone?: string
-          full_name?: string
-          health_card_number?: string | null
-          health_card_number_encrypted?: string | null
-          id?: string
-          insurance_number?: string | null
-          insurance_number_encrypted?: string | null
-          insurance_provider?: string | null
-          likes?: string | null
-          medical_conditions?: string | null
-          phone_number?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "key_information_child_id_fkey"
-            columns: ["child_id"]
-            isOneToOne: false
-            referencedRelation: "children"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       medical_contacts: {
         Row: {
           address: string | null
           child_id: string
           created_at: string
+          created_by: string
           email: string | null
           id: string
           is_primary: boolean
@@ -823,12 +786,12 @@ export type Database = {
           specialty: string | null
           type: string
           updated_at: string
-          user_id: string
         }
         Insert: {
           address?: string | null
           child_id: string
           created_at?: string
+          created_by: string
           email?: string | null
           id?: string
           is_primary?: boolean
@@ -838,12 +801,12 @@ export type Database = {
           specialty?: string | null
           type?: string
           updated_at?: string
-          user_id: string
         }
         Update: {
           address?: string | null
           child_id?: string
           created_at?: string
+          created_by?: string
           email?: string | null
           id?: string
           is_primary?: boolean
@@ -853,7 +816,6 @@ export type Database = {
           specialty?: string | null
           type?: string
           updated_at?: string
-          user_id?: string
         }
         Relationships: [
           {
@@ -869,6 +831,7 @@ export type Database = {
         Row: {
           child_id: string
           created_at: string
+          created_by: string
           dosage: string
           end_date: string | null
           frequency: string
@@ -882,11 +845,11 @@ export type Database = {
           side_effects: string | null
           start_date: string | null
           updated_at: string
-          user_id: string
         }
         Insert: {
           child_id: string
           created_at?: string
+          created_by: string
           dosage?: string
           end_date?: string | null
           frequency?: string
@@ -900,11 +863,11 @@ export type Database = {
           side_effects?: string | null
           start_date?: string | null
           updated_at?: string
-          user_id: string
         }
         Update: {
           child_id?: string
           created_at?: string
+          created_by?: string
           dosage?: string
           end_date?: string | null
           frequency?: string
@@ -918,7 +881,6 @@ export type Database = {
           side_effects?: string | null
           start_date?: string | null
           updated_at?: string
-          user_id?: string
         }
         Relationships: [
           {
@@ -1102,6 +1064,7 @@ export type Database = {
           child_id: string
           contact_phone: string
           created_at: string
+          created_by: string
           dosage_or_size: string
           id: string
           inventory_threshold: number | null
@@ -1111,7 +1074,6 @@ export type Database = {
           ordering_instructions: string | null
           provider_name: string
           updated_at: string
-          user_id: string
           website: string | null
         }
         Insert: {
@@ -1121,6 +1083,7 @@ export type Database = {
           child_id: string
           contact_phone?: string
           created_at?: string
+          created_by: string
           dosage_or_size?: string
           id?: string
           inventory_threshold?: number | null
@@ -1130,7 +1093,6 @@ export type Database = {
           ordering_instructions?: string | null
           provider_name?: string
           updated_at?: string
-          user_id: string
           website?: string | null
         }
         Update: {
@@ -1140,6 +1102,7 @@ export type Database = {
           child_id?: string
           contact_phone?: string
           created_at?: string
+          created_by?: string
           dosage_or_size?: string
           id?: string
           inventory_threshold?: number | null
@@ -1149,7 +1112,6 @@ export type Database = {
           ordering_instructions?: string | null
           provider_name?: string
           updated_at?: string
-          user_id?: string
           website?: string | null
         }
         Relationships: [
@@ -1188,11 +1150,87 @@ export type Database = {
       }
     }
     Views: {
+      children_secure: {
+        Row: {
+          additional_notes: string | null
+          address: string | null
+          allergies: string | null
+          avatar_url: string | null
+          birth_date: string | null
+          created_at: string | null
+          created_by: string | null
+          dislikes: string | null
+          do_nots: string | null
+          email: string | null
+          emergency_contact: string | null
+          emergency_phone: string | null
+          full_name: string | null
+          health_card_number: string | null
+          id: string | null
+          insurance_number: string | null
+          insurance_provider: string | null
+          likes: string | null
+          medical_conditions: string | null
+          name: string | null
+          phone_number: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          additional_notes?: string | null
+          address?: string | null
+          allergies?: string | null
+          avatar_url?: string | null
+          birth_date?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          dislikes?: string | null
+          do_nots?: string | null
+          email?: string | null
+          emergency_contact?: string | null
+          emergency_phone?: string | null
+          full_name?: string | null
+          health_card_number?: string | null
+          id?: string | null
+          insurance_number?: string | null
+          insurance_provider?: string | null
+          likes?: string | null
+          medical_conditions?: string | null
+          name?: string | null
+          phone_number?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          additional_notes?: string | null
+          address?: string | null
+          allergies?: string | null
+          avatar_url?: string | null
+          birth_date?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          dislikes?: string | null
+          do_nots?: string | null
+          email?: string | null
+          emergency_contact?: string | null
+          emergency_phone?: string | null
+          full_name?: string | null
+          health_card_number?: string | null
+          id?: string | null
+          insurance_number?: string | null
+          insurance_provider?: string | null
+          likes?: string | null
+          medical_conditions?: string | null
+          name?: string | null
+          phone_number?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       emergency_cards_secure: {
         Row: {
           back_image: string | null
           child_id: string | null
           created_at: string | null
+          created_by: string | null
           expiry_date: string | null
           front_image: string | null
           id: string | null
@@ -1200,12 +1238,12 @@ export type Database = {
           id_type: string | null
           issue_date: string | null
           updated_at: string | null
-          user_id: string | null
         }
         Insert: {
           back_image?: string | null
           child_id?: string | null
           created_at?: string | null
+          created_by?: string | null
           expiry_date?: string | null
           front_image?: string | null
           id?: string | null
@@ -1213,12 +1251,12 @@ export type Database = {
           id_type?: string | null
           issue_date?: string | null
           updated_at?: string | null
-          user_id?: string | null
         }
         Update: {
           back_image?: string | null
           child_id?: string | null
           created_at?: string | null
+          created_by?: string | null
           expiry_date?: string | null
           front_image?: string | null
           id?: string | null
@@ -1226,7 +1264,6 @@ export type Database = {
           id_type?: string | null
           issue_date?: string | null
           updated_at?: string | null
-          user_id?: string | null
         }
         Relationships: [
           {
@@ -1246,6 +1283,7 @@ export type Database = {
           contact_name: string | null
           contact_phone: string | null
           created_at: string | null
+          created_by: string | null
           description: string | null
           doc_type: string | null
           expiry_date: string | null
@@ -1255,7 +1293,6 @@ export type Database = {
           status: string | null
           title: string | null
           updated_at: string | null
-          user_id: string | null
         }
         Insert: {
           account_number?: never
@@ -1264,6 +1301,7 @@ export type Database = {
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string | null
+          created_by?: string | null
           description?: string | null
           doc_type?: string | null
           expiry_date?: string | null
@@ -1273,7 +1311,6 @@ export type Database = {
           status?: string | null
           title?: string | null
           updated_at?: string | null
-          user_id?: string | null
         }
         Update: {
           account_number?: never
@@ -1282,6 +1319,7 @@ export type Database = {
           contact_name?: string | null
           contact_phone?: string | null
           created_at?: string | null
+          created_by?: string | null
           description?: string | null
           doc_type?: string | null
           expiry_date?: string | null
@@ -1291,91 +1329,10 @@ export type Database = {
           status?: string | null
           title?: string | null
           updated_at?: string | null
-          user_id?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "financial_legal_docs_child_id_fkey"
-            columns: ["child_id"]
-            isOneToOne: false
-            referencedRelation: "children"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      key_information_secure: {
-        Row: {
-          additional_notes: string | null
-          address: string | null
-          allergies: string | null
-          birth_date: string | null
-          child_id: string | null
-          created_at: string | null
-          dislikes: string | null
-          do_nots: string | null
-          email: string | null
-          emergency_contact: string | null
-          emergency_phone: string | null
-          full_name: string | null
-          health_card_number: string | null
-          id: string | null
-          insurance_number: string | null
-          insurance_provider: string | null
-          likes: string | null
-          medical_conditions: string | null
-          phone_number: string | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          additional_notes?: string | null
-          address?: string | null
-          allergies?: string | null
-          birth_date?: string | null
-          child_id?: string | null
-          created_at?: string | null
-          dislikes?: string | null
-          do_nots?: string | null
-          email?: string | null
-          emergency_contact?: string | null
-          emergency_phone?: string | null
-          full_name?: string | null
-          health_card_number?: never
-          id?: string | null
-          insurance_number?: never
-          insurance_provider?: string | null
-          likes?: string | null
-          medical_conditions?: string | null
-          phone_number?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          additional_notes?: string | null
-          address?: string | null
-          allergies?: string | null
-          birth_date?: string | null
-          child_id?: string | null
-          created_at?: string | null
-          dislikes?: string | null
-          do_nots?: string | null
-          email?: string | null
-          emergency_contact?: string | null
-          emergency_phone?: string | null
-          full_name?: string | null
-          health_card_number?: never
-          id?: string | null
-          insurance_number?: never
-          insurance_provider?: string | null
-          likes?: string | null
-          medical_conditions?: string | null
-          phone_number?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "key_information_child_id_fkey"
             columns: ["child_id"]
             isOneToOne: false
             referencedRelation: "children"

@@ -95,9 +95,9 @@ describe("CommunityServices", () => {
 
     await waitFor(() => {
       expect(deleteFn).toHaveBeenCalled();
-      // Chain: .eq('service_id', ...) -> .eq('user_id', ...) -> .eq('child_id', ...)
+      // Chain: .eq('service_id', ...) -> .eq('created_by', ...) -> .eq('child_id', ...)
       expect(deleteEq1).toHaveBeenCalledWith("service_id", "early-intervention");
-      expect(deleteEq2).toHaveBeenCalledWith("user_id", mockUser.id);
+      expect(deleteEq2).toHaveBeenCalledWith("created_by", mockUser.id);
       expect(deleteEq3).toHaveBeenCalledWith("child_id", "child-123");
     });
   });
@@ -131,7 +131,7 @@ describe("CommunityServices", () => {
       expect(insertFn).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
-            user_id: mockUser.id,
+            created_by: mockUser.id,
             child_id: "child-123",
             service_id: "early-intervention",
           }),

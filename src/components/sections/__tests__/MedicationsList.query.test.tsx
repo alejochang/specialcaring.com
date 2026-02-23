@@ -111,7 +111,7 @@ describe("MedicationsList — TanStack Query migration", () => {
     expect(document.querySelector(".animate-spin")).toBeInTheDocument();
   });
 
-  it("saveMutation inserts new medication with user_id and child_id", async () => {
+  it("saveMutation inserts new medication with created_by and child_id", async () => {
     const insertMock = vi.fn().mockResolvedValue({ error: null });
     const chain = {
       select: vi.fn().mockReturnThis(),
@@ -136,14 +136,14 @@ describe("MedicationsList — TanStack Query migration", () => {
     await userEvent.type(dosageInput, "81mg");
 
     // Note: Radix UI Select has jsdom scroll issues; we verify the form structure is correct
-    // The frequency field is a required Zod field — test that the form mutation wires user_id/child_id
+    // The frequency field is a required Zod field — test that the form mutation wires created_by/child_id
     // by directly calling the underlying supabase insert after form submit attempt
     // The form will not submit without frequency since it's required by Zod schema —
-    // instead, verify the insert method is wired to use user_id and child_id by checking
+    // instead, verify the insert method is wired to use created_by and child_id by checking
     // an edit-then-submit which avoids the Select combobox issue
     expect(nameInput).toHaveValue("Aspirin");
     expect(dosageInput).toHaveValue("81mg");
-    // Verify insert mock is properly configured (would be called with user_id/child_id on submit)
+    // Verify insert mock is properly configured (would be called with created_by/child_id on submit)
     expect(insertMock).not.toHaveBeenCalled(); // not yet — frequency not filled
     expect(supabaseMock.from).toHaveBeenCalledWith("medications");
   });

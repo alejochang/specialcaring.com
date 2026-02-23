@@ -93,7 +93,7 @@ const EndOfLifeWishes = () => {
 
   const saveMutation = useMutation({
     mutationFn: async (values: EolFormValues) => {
-      const dbData = { ...values, user_id: user!.id, child_id: activeChild!.id };
+      const dbData = { ...values, created_by: user!.id, child_id: activeChild!.id };
       if (data) {
         const { error } = await supabase.from('end_of_life_wishes').update(dbData).eq('id', data.id);
         if (error) throw error;

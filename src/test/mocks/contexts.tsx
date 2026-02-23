@@ -37,7 +37,7 @@ vi.mock("@/contexts/AuthContext", () => ({
 // ---------- Child mock ----------
 export const mockChild = {
   id: "child-123",
-  user_id: "user-123",
+  created_by: "user-123",
   name: "Test Child",
   avatar_url: null,
   created_at: "2024-01-01T00:00:00.000Z",
@@ -52,6 +52,7 @@ export const mockChildContext = {
   isLoading: false,
   addChild: vi.fn().mockResolvedValue(undefined),
   updateChild: vi.fn().mockResolvedValue(undefined),
+  updateChildProfile: vi.fn().mockResolvedValue(undefined),
   updateChildAvatar: vi.fn().mockResolvedValue(undefined),
   deleteChild: vi.fn().mockResolvedValue(undefined),
   refetch: vi.fn().mockResolvedValue(undefined),

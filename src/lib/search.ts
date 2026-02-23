@@ -9,7 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
  * - Emergency protocols
  * - Daily logs
  * - Suppliers
- * - Key information
+ * - Child profile
  */
 
 export interface SearchResult {
@@ -96,7 +96,7 @@ export async function searchAll(
     { data: protocols },
     { data: logs },
     { data: suppliers },
-    { data: keyInfo },
+    { data: childProfile },
   ] = await Promise.all([
     supabase.from('medications').select('*').eq('child_id', childId),
     supabase.from('medical_contacts').select('*').eq('child_id', childId),
@@ -108,7 +108,7 @@ export async function searchAll(
       .order('date', { ascending: false })
       .limit(50),
     supabase.from('suppliers').select('*').eq('child_id', childId),
-    supabase.from('key_information').select('*').eq('child_id', childId).single(),
+    supabase.from('children').select('*').eq('id', childId).single(),
   ]);
 
   // Search medications
@@ -212,20 +212,20 @@ export async function searchAll(
     }
   }
 
-  // Search key information
-  if (keyInfo) {
-    const searchText = `${keyInfo.full_name || ''} ${keyInfo.medical_conditions || ''} ${
-      keyInfo.allergies || ''
-    } ${keyInfo.emergency_contact || ''}`;
+  // Search child profile
+  if (childProfile) {
+    const searchText = `${childProfile.full_name || ''} ${childProfile.medical_conditions || ''} ${
+      childProfile.allergies || ''
+    } ${childProfile.emergency_contact || ''}`;
     const score = calculateScore(searchText, lowerQuery);
 
     if (score > 0) {
       results.push({
-        id: keyInfo.id,
+        id: childProfile.id,
         type: 'info',
-        title: 'Key Information',
-        subtitle: keyInfo.full_name,
-        description: keyInfo.medical_conditions,
+        title: 'Child Profile',
+        subtitle: childProfile.full_name,
+        description: childProfile.medical_conditions,
         url: TYPE_ROUTES.info,
         icon: TYPE_ICONS.info,
         score,

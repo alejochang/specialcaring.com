@@ -83,7 +83,7 @@ const MedicalEmergencyProtocols = () => {
     mutationFn: async (values: ProtocolValues) => {
       if (!user || !activeChild) throw new Error('No user or child');
       const dbData = {
-        user_id: user.id, child_id: activeChild.id, title: values.title, severity: values.severity,
+        created_by: user.id, child_id: activeChild.id, title: values.title, severity: values.severity,
         emergency_contacts: values.emergencyContacts, immediate_steps: values.immediateSteps,
         when_to_call_911: values.whenToCall911 || '', additional_notes: values.additionalNotes || '',
       };

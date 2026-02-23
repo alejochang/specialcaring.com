@@ -58,9 +58,9 @@ Deno.serve(async (req) => {
       .select("*");
     if (cardsError) throw cardsError;
 
-    // Fetch key information (use secure view for decryption)
+    // Fetch child profile (use secure view for decryption)
     const { data: keyInfo, error: keyInfoError } = await supabase
-      .from("key_information_secure")
+      .from("children_secure")
       .select("*")
       .maybeSingle();
     if (keyInfoError) throw keyInfoError;
@@ -120,7 +120,7 @@ Deno.serve(async (req) => {
     ${keyInfo.dislikes ? `<div class="field"><span class="label">Dislikes:</span><span class="value">${keyInfo.dislikes}</span></div>` : ""}
     ${keyInfo.do_nots ? `<div class="field"><span class="label">Do Nots:</span><span class="value">${keyInfo.do_nots}</span></div>` : ""}
   </div>
-  ` : "<p>No key information saved yet.</p>"}
+  ` : "<p>No child profile information saved yet.</p>"}
 
   ${card ? `
   <div class="section">

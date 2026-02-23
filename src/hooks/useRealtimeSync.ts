@@ -20,21 +20,21 @@ export interface UseRealtimeSyncOptions {
 
 // Tables to monitor by default
 const DEFAULT_TABLES = [
+  'children',
   'medications',
   'daily_log_entries',
   'medical_contacts',
   'emergency_protocols',
-  'key_information',
   'suppliers',
 ];
 
 // Human-readable table names
 const TABLE_NAMES: Record<string, string> = {
+  children: 'Child Profile',
   medications: 'Medications',
   daily_log_entries: 'Daily Log',
   medical_contacts: 'Medical Contacts',
   emergency_protocols: 'Emergency Protocols',
-  key_information: 'Key Information',
   suppliers: 'Suppliers',
 };
 
@@ -53,12 +53,18 @@ export function useRealtimeSync({
     (payload: RealtimePostgresChangesPayload<{ [key: string]: any }>) => {
       const { table, eventType, new: newRecord, old: oldRecord } = payload;
 
-      // Only process if it's for our child
+      // Only process if it's for our child.
+      // children table uses `id` as PK; all other tables use `child_id` as FK.
       const record = (newRecord || oldRecord) as Record<string, any>;
-      if (record?.child_id !== childId) return;
+      const recordChildId = table === 'children' ? record?.id : record?.child_id;
+      if (recordChildId !== childId) return;
 
-      // Invalidate relevant queries
+      // Invalidate relevant queries.
+      // For children table, also invalidate the childProfile query used by KeyInformation.
       queryClient.invalidateQueries({ queryKey: [table, childId] });
+      if (table === 'children') {
+        queryClient.invalidateQueries({ queryKey: ['childProfile', childId] });
+      }
 
       // Show toast notification
       if (showToasts) {
@@ -88,14 +94,16 @@ export function useRealtimeSync({
     const channel = supabase.channel(`child-updates:${childId}`);
 
     // Subscribe to each table
+    // children table uses `id` as PK; all other data tables use `child_id` FK
     for (const table of tables) {
+      const filterColumn = table === 'children' ? 'id' : 'child_id';
       channel.on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table,
-          filter: `child_id=eq.${childId}`,
+          filter: `${filterColumn}=eq.${childId}`,
         },
         handleChange
       );

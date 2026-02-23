@@ -143,7 +143,7 @@ describe("FinancialLegal — TanStack Query migration", () => {
       expect(writeChain.insert).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
-            user_id: "user-123",
+            created_by: "user-123",
             child_id: "child-123",
           }),
         ])

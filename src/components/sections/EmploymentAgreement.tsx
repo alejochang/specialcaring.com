@@ -123,7 +123,7 @@ const EmploymentAgreement = () => {
   const saveMutation = useMutation({
     mutationFn: async (values: AgreementForm) => {
       if (!user || !activeChild) throw new Error("Invalid form data");
-      const dbData = { ...values, user_id: user.id, child_id: activeChild.id };
+      const dbData = { ...values, created_by: user.id, child_id: activeChild.id };
       if (editingId) {
         const { error } = await supabase.from("employment_agreements").update(dbData).eq("id", editingId);
         if (error) throw error;

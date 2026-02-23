@@ -11,9 +11,8 @@ import { TestWrapper } from "@/test/mocks/contexts";
 import KeyInformation from "../KeyInformation";
 
 const mockKeyInfo = {
-  id: "ki-1",
-  child_id: "child-123",
-  user_id: "user-123",
+  id: "child-123",
+  created_by: "user-123",
   full_name: "Jane Doe",
   birth_date: "2015-06-01",
   health_card_number: "HC123456",
@@ -34,10 +33,11 @@ const mockKeyInfo = {
 
 function setupFromMock(keyInfoData: unknown = mockKeyInfo, medsData: unknown[] = []) {
   supabaseMock.from.mockImplementation((table: string) => {
-    if (table === "key_information_secure") {
+    if (table === "children_secure") {
       return {
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({ data: keyInfoData, error: null }),
             maybeSingle: vi.fn().mockResolvedValue({ data: keyInfoData, error: null }),
           }),
         }),
@@ -52,7 +52,7 @@ function setupFromMock(keyInfoData: unknown = mockKeyInfo, medsData: unknown[] =
         }),
       };
     }
-    if (table === "key_information") {
+    if (table === "children") {
       return {
         update: vi.fn().mockReturnValue({
           eq: vi.fn().mockResolvedValue({ data: null, error: null }),

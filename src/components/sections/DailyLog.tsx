@@ -107,7 +107,7 @@ const DailyLog = () => {
   const addMutation = useMutation({
     mutationFn: async (values: EntryFormValues) => {
       const { error } = await supabase.from('daily_log_entries').insert([{
-        user_id: user!.id, child_id: activeChild!.id,
+        created_by: user!.id, child_id: activeChild!.id,
         date: format(new Date(), 'yyyy-MM-dd'), time: format(new Date(), 'HH:mm'),
         category: values.category, mood: values.mood, title: values.title,
         description: values.description || '', tags: [], priority: values.priority,

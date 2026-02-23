@@ -54,13 +54,13 @@ const DashboardSummaryWidgets = () => {
     enabled: !!user && !!activeChild,
   });
 
-  const { data: keyInfo, isLoading: profileLoading } = useQuery({
-    queryKey: ["keyInformation", activeChild?.id],
+  const { data: childProfile, isLoading: profileLoading } = useQuery({
+    queryKey: ["childProfile", activeChild?.id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("key_information_secure")
+        .from("children_secure")
         .select("*")
-        .eq("child_id", activeChild!.id)
+        .eq("id", activeChild!.id)
         .maybeSingle();
       if (error) throw error;
       return data;
@@ -71,22 +71,22 @@ const DashboardSummaryWidgets = () => {
   if (!activeChild) return null;
 
   // Calculate profile completeness
-  const profileFields = keyInfo
+  const profileFields = childProfile
     ? [
-        keyInfo.full_name,
-        keyInfo.birth_date,
-        keyInfo.address,
-        keyInfo.phone_number,
-        keyInfo.emergency_contact,
-        keyInfo.emergency_phone,
-        keyInfo.medical_conditions,
-        keyInfo.allergies,
-        keyInfo.likes,
-        keyInfo.dislikes,
+        childProfile.full_name,
+        childProfile.birth_date,
+        childProfile.address,
+        childProfile.phone_number,
+        childProfile.emergency_contact,
+        childProfile.emergency_phone,
+        childProfile.medical_conditions,
+        childProfile.allergies,
+        childProfile.likes,
+        childProfile.dislikes,
       ]
     : [];
   const filledFields = profileFields.filter((f) => f && f.trim() !== "").length;
-  const completeness = keyInfo ? Math.round((filledFields / profileFields.length) * 100) : 0;
+  const completeness = childProfile ? Math.round((filledFields / profileFields.length) * 100) : 0;
 
   // Upcoming refills (within 14 days)
   const today = new Date();

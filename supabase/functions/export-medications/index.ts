@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
 
     // Use secure view for consistent RLS enforcement
     const { data: keyInfo } = await supabase
-      .from("key_information_secure")
+      .from("children_secure")
       .select("full_name")
       .maybeSingle();
 

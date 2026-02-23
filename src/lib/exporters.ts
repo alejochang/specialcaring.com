@@ -57,15 +57,15 @@ async function fetchExportData(
 
   // Fetch key information
   if (includeAll || sections.includes('keyInformation')) {
-    const { data: keyInfo } = await supabase
-      .from('key_information')
+    const { data: child } = await supabase
+      .from('children')
       .select('*')
-      .eq('child_id', childId)
+      .eq('id', childId)
       .single();
 
-    if (keyInfo) {
-      data.keyInformation = keyInfo;
-      data.childName = keyInfo.full_name;
+    if (child) {
+      data.keyInformation = child;
+      data.childName = child.full_name || child.name;
     }
   }
 
