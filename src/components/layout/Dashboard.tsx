@@ -39,6 +39,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import logoImg from "@/assets/logo.png";
+import logoWordmark from "@/assets/logo-wordmark.png";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -206,10 +208,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         )}
       >
         <div className="flex items-center h-16 px-4 border-b border-border">
-          {!isCollapsed && (
-            <Link to="/dashboard" className="flex items-center gap-2 flex-grow">
-              <span className="text-xl font-bold text-special-600">Special</span>
-              <span className="text-xl font-light">Caring</span>
+          {isCollapsed ? (
+            <Link to="/dashboard" className="mx-auto">
+              <img src={logoImg} alt="Special Caring" className="h-8 w-8" />
+            </Link>
+          ) : (
+            <Link to="/dashboard" className="flex items-center flex-grow">
+              <img src={logoWordmark} alt="Special Caring" className="h-8 w-auto" />
             </Link>
           )}
           <Button
@@ -251,7 +256,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <Button variant="ghost" size="icon" onClick={toggleMobileSidebar}>
           <Menu size={24} />
         </Button>
-        <span className="ml-4 text-xl font-semibold">Special Caring</span>
+        <img src={logoImg} alt="Special Caring" className="ml-3 h-7 w-7" />
+        <span className="ml-2 text-xl font-semibold">Special Caring</span>
         
         <div className="ml-auto flex items-center gap-2">
           <LanguageSwitcher />

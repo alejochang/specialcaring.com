@@ -14,6 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import logoImg from "@/assets/logo.png";
+import logoWordmark from "@/assets/logo-wordmark.png";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -69,10 +70,8 @@ const Navbar = () => {
       }`}
     >
       <div className="container flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2" onClick={closeMenu}>
-          <img src={logoImg} alt="Special Caring" className="h-9 w-9 md:h-10 md:w-10" />
-          <span className="text-3xl md:text-4xl font-bold text-special-600">Special</span>
-          <span className="text-3xl md:text-4xl font-light text-kids-600">Caring</span>
+        <Link to="/" className="flex items-center" onClick={closeMenu}>
+          <img src={logoWordmark} alt="Special Caring" className="h-10 md:h-12 w-auto" />
         </Link>
 
         <nav className="hidden md:flex items-center gap-6">

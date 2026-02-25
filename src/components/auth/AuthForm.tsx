@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Separator } from "@/components/ui/separator";
+import logoImg from "@/assets/logo.png";
 
 // Registration schema
 const registerSchema = z.object({
@@ -109,7 +110,8 @@ const AuthForm = ({ type, disabled }: AuthFormProps) => {
     <div className="w-full max-w-md mx-auto">
       <div className="bg-card rounded-2xl shadow-lg border border-border p-8 space-y-6">
         {/* Header */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-3">
+          <img src={logoImg} alt="Special Caring" className="h-12 w-12 mx-auto" />
           <h2 className="text-2xl font-bold text-foreground">
             {type === "login" ? "Welcome back" : "Create an account"}
           </h2>
