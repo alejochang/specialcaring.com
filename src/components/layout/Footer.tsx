@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import logoImg from "@/assets/logo.png";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -13,6 +14,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
           <div>
             <Link to="/" className="flex items-center gap-2 mb-4">
+              <img src={logoImg} alt="Special Caring" className="h-9 w-9" />
               <span className="text-3xl font-bold text-special-600">Special</span>
               <span className="text-3xl font-light text-kids-600">Caring</span>
             </Link>
