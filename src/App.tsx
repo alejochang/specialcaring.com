@@ -20,6 +20,8 @@ const AdminPanel = lazy(() => import("./pages/AdminPanel"));
 const AddChild = lazy(() => import("./pages/AddChild"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Help = lazy(() => import("./pages/Help"));
 
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center">
@@ -107,6 +109,8 @@ const AppContent = () => {
             }
           />
           <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/help" element={<Help />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         </Suspense>
