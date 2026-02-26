@@ -71,7 +71,7 @@ const Navbar = () => {
     >
       <div className="container flex items-center justify-between">
         <Link to="/" className="flex items-center" onClick={closeMenu}>
-          <img src={logoWordmark} alt="Special Caring" className="h-28 md:h-32 w-auto" />
+          <img src={logoWordmark} alt="Special Caring" className="h-20 md:h-24 w-auto" />
         </Link>
 
         <nav className="hidden md:flex items-center gap-6">
