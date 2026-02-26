@@ -16,10 +16,11 @@ import FinancialLegal from "@/components/sections/FinancialLegal";
 import EndOfLifeWishes from "@/components/sections/EndOfLifeWishes";
 import DocumentsSection from "@/components/sections/DocumentsSection";
 import Celebrations from "@/components/sections/Celebrations";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, AlertTriangle, Heart, Pill, Phone, Truck, Shield, Building, FileText, PartyPopper, Download } from "lucide-react";
-import DashboardSummaryWidgets from "@/components/dashboard/DashboardSummaryWidgets";
-import { ExportDialog } from "@/components/export/ExportDialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Heart, AlertTriangle, FileText, Pill, Phone, Truck, Shield, Building, Calendar, PartyPopper, Briefcase, Scale, BookHeart, FolderOpen } from "lucide-react";
+import DashboardHero from "@/components/dashboard/DashboardHero";
+import TodaySnapshot from "@/components/dashboard/TodaySnapshot";
+import QuickActions from "@/components/dashboard/QuickActions";
 
 import CareTeamManager from "@/components/CareTeamManager";
 import { useChild } from "@/contexts/ChildContext";
@@ -87,233 +88,69 @@ const Dashboard = () => {
   );
 };
 
+const sectionGroups = [
+  {
+    title: "Medical & Emergency",
+    items: [
+      { to: "/dashboard/key-information", icon: Heart, label: "Child Profile", desc: "Essential info & preferences", color: "text-special-600" },
+      { to: "/dashboard/emergency-cards", icon: AlertTriangle, label: "Emergency Cards", desc: "Digital ID & insurance cards", color: "text-special-600" },
+      { to: "/dashboard/medical-emergency-protocols", icon: FileText, label: "Emergency Protocols", desc: "Medical emergency guides", color: "text-destructive" },
+      { to: "/dashboard/medications", icon: Pill, label: "Medications", desc: "Dosages & schedules", color: "text-special-600" },
+      { to: "/dashboard/medical-contacts", icon: Phone, label: "Medical Contacts", desc: "Healthcare providers", color: "text-special-600" },
+      { to: "/dashboard/suppliers", icon: Truck, label: "Suppliers & Providers", desc: "Medicines & supplies", color: "text-special-600" },
+    ],
+  },
+  {
+    title: "Daily Life & Safety",
+    items: [
+      { to: "/dashboard/daily-log", icon: Calendar, label: "Daily Log", desc: "Activities & observations", color: "text-special-600" },
+      { to: "/dashboard/home-safety", icon: Shield, label: "Home Safety", desc: "Safety protocols & checklists", color: "text-special-600" },
+      { to: "/dashboard/celebrations", icon: PartyPopper, label: "Celebrations", desc: "Achievements & milestones", color: "text-special-600" },
+    ],
+  },
+  {
+    title: "Resources & Admin",
+    items: [
+      { to: "/dashboard/community-services", icon: Building, label: "Community Services", desc: "Local resources & support", color: "text-special-600" },
+      { to: "/dashboard/employment", icon: Briefcase, label: "Employment", desc: "Care team agreements", color: "text-special-600" },
+      { to: "/dashboard/financial-legal", icon: Scale, label: "Financial & Legal", desc: "Important documents", color: "text-special-600" },
+      { to: "/dashboard/end-of-life", icon: BookHeart, label: "End-of-Life Wishes", desc: "Advanced directives", color: "text-special-600" },
+      { to: "/dashboard/documents", icon: FolderOpen, label: "Documents", desc: "Uploaded files & records", color: "text-special-600" },
+    ],
+  },
+];
+
 const DashboardOverview = () => {
-  const { activeChild } = useChild();
-
   return (
-    <div>
-      <div className="mb-10 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome to your caregiver organizer dashboard
-          </p>
+    <div className="animate-fadeIn">
+      <DashboardHero />
+      <TodaySnapshot />
+      <QuickActions />
+
+      {sectionGroups.map((group) => (
+        <div key={group.title} className="mb-6">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+            {group.title}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {group.items.map((item) => (
+              <Link key={item.to} to={item.to} className="group">
+                <Card className="border border-border bg-card hover:shadow-md hover:border-special-200 transition-all">
+                  <CardContent className="flex items-center gap-3 p-3">
+                    <div className="w-9 h-9 rounded-lg bg-special-50 dark:bg-special-950/30 flex items-center justify-center flex-shrink-0">
+                      <item.icon className={`h-4.5 w-4.5 ${item.color}`} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">{item.label}</p>
+                      <p className="text-xs text-muted-foreground truncate">{item.desc}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
         </div>
-        {activeChild && (
-          <ExportDialog
-            childId={activeChild.id}
-            childName={activeChild.name}
-            trigger={
-              <button className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-muted transition-colors">
-                <Download className="h-4 w-4" />
-                Export Data
-              </button>
-            }
-          />
-        )}
-      </div>
-
-      <DashboardSummaryWidgets />
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-        <Link to="/dashboard/key-information" className="block transition-transform hover:scale-105">
-          <Card className="bg-white shadow-sm border border-border h-full">
-            <CardHeader className="pb-2">
-              <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center mb-1">
-                <Heart className="h-6 w-6 text-special-600" />
-              </div>
-              <CardTitle className="text-lg">Child Profile</CardTitle>
-              <CardDescription>
-                Complete snapshot of your child
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground pb-4">
-                Essential information, medical details, preferences, and everything about your special child.
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link to="/dashboard/emergency-cards" className="block transition-transform hover:scale-105">
-          <Card className="bg-white shadow-sm border border-border h-full">
-            <CardHeader className="pb-2">
-              <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center mb-1">
-                <AlertTriangle className="h-6 w-6 text-special-600" />
-              </div>
-              <CardTitle className="text-lg">Emergency Cards</CardTitle>
-              <CardDescription>
-                Digital copies of ID cards
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground pb-4">
-                Upload and store digital versions of important identification and insurance cards.
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link to="/dashboard/medical-emergency-protocols" className="block transition-transform hover:scale-105">
-          <Card className="bg-white shadow-sm border border-border h-full">
-            <CardHeader className="pb-2">
-              <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-1">
-                <FileText className="h-6 w-6 text-red-600" />
-              </div>
-              <CardTitle className="text-lg">Emergency Protocols</CardTitle>
-              <CardDescription>
-                Medical emergency response guides
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground pb-4">
-                Step-by-step protocols for handling medical emergencies and critical situations.
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-
-
-        <Link to="/dashboard/medications" className="block transition-transform hover:scale-105">
-          <Card className="bg-white shadow-sm border border-border h-full">
-            <CardHeader className="pb-2">
-              <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center mb-1">
-                <Pill className="h-6 w-6 text-special-600" />
-              </div>
-              <CardTitle className="text-lg">Medications</CardTitle>
-              <CardDescription>
-                Medication tracking and schedules
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground pb-4">
-                Manage all medications, including dosages, schedules, and special instructions.
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link to="/dashboard/home-safety" className="block transition-transform hover:scale-105">
-          <Card className="bg-white shadow-sm border border-border h-full">
-            <CardHeader className="pb-2">
-              <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center mb-1">
-                <Shield className="h-6 w-6 text-special-600" />
-              </div>
-              <CardTitle className="text-lg">Home Safety</CardTitle>
-              <CardDescription>
-                Safety protocols and emergency procedures
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground pb-4">
-                Comprehensive safety planning, emergency preparedness, and home safety checklists.
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link to="/dashboard/suppliers" className="block transition-transform hover:scale-105">
-          <Card className="bg-white shadow-sm border border-border h-full">
-            <CardHeader className="pb-2">
-              <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center mb-1">
-                <Truck className="h-6 w-6 text-special-600" />
-              </div>
-              <CardTitle className="text-lg">Suppliers & Providers</CardTitle>
-              <CardDescription>
-                Where to buy medicines and supplies
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground pb-4">
-                Track all suppliers and providers for medicines, supplements, and caregiving supplies.
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link to="/dashboard/medical-contacts" className="block transition-transform hover:scale-105">
-          <Card className="bg-white shadow-sm border border-border h-full">
-            <CardHeader className="pb-2">
-              <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center mb-1">
-                <Phone className="h-6 w-6 text-special-600" />
-              </div>
-              <CardTitle className="text-lg">Medical Contacts</CardTitle>
-              <CardDescription>
-                Healthcare providers contact list
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground pb-4">
-                Keep track of all healthcare providers, their contact information, and specialties.
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link to="/dashboard/community-services" className="block transition-transform hover:scale-105">
-          <Card className="bg-white shadow-sm border border-border h-full">
-            <CardHeader className="pb-2">
-              <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center mb-1">
-                <Building className="h-6 w-6 text-special-600" />
-              </div>
-              <CardTitle className="text-lg">Community Services</CardTitle>
-              <CardDescription>
-                Local resources and support services
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground pb-4">
-                Discover local resources, programs, and support services for special needs families.
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link to="/dashboard/daily-log" className="block transition-transform hover:scale-105">
-          <Card className="bg-white shadow-sm border border-border h-full">
-            <CardHeader className="pb-2">
-              <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center mb-1">
-                <Calendar className="h-6 w-6 text-special-600" />
-              </div>
-              <CardTitle className="text-lg">Daily Log</CardTitle>
-              <CardDescription>
-                Record of daily care activities
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground pb-4">
-                Track daily care activities, observations, and important events for better care coordination.
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link to="/dashboard/celebrations" className="block transition-transform hover:scale-105">
-          <Card className="bg-white shadow-sm border border-border h-full bg-gradient-to-br from-yellow-50 to-pink-50">
-            <CardHeader className="pb-2">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-100 to-pink-100 flex items-center justify-center mb-1">
-                <PartyPopper className="h-6 w-6 text-yellow-600" />
-              </div>
-              <CardTitle className="text-lg">Celebrations</CardTitle>
-              <CardDescription>
-                Track achievements & milestones
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground pb-4">
-                Celebrate your child's unique journey with custom milestones - every achievement matters!
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-      </div>
-      
-      <div className="text-center p-6 bg-special-50 rounded-xl">
-        <h3 className="text-xl font-medium mb-2">Getting Started</h3>
-        <p className="text-muted-foreground max-w-md mx-auto">
-          Begin by creating your child's profile with all their essential information and preferences.
-        </p>
-      </div>
+      ))}
     </div>
   );
 };
