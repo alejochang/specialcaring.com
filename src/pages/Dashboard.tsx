@@ -121,36 +121,43 @@ const sectionGroups = [
 ];
 
 const DashboardOverview = () => {
+  const { activeChild } = useChild();
+
   return (
     <div className="animate-fadeIn">
       <DashboardHero />
-      <TodaySnapshot />
-      <QuickActions />
 
-      {sectionGroups.map((group) => (
-        <div key={group.title} className="mb-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-            {group.title}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {group.items.map((item) => (
-              <Link key={item.to} to={item.to} className="group">
-                <Card className="border border-border bg-card hover:shadow-md hover:border-special-200 transition-all">
-                  <CardContent className="flex items-center gap-3 p-3">
-                    <div className="w-9 h-9 rounded-lg bg-special-50 dark:bg-special-950/30 flex items-center justify-center flex-shrink-0">
-                      <item.icon className={`h-4.5 w-4.5 ${item.color}`} />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-foreground truncate">{item.label}</p>
-                      <p className="text-xs text-muted-foreground truncate">{item.desc}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </div>
-      ))}
+      {activeChild && (
+        <>
+          <TodaySnapshot />
+          <QuickActions />
+
+          {sectionGroups.map((group) => (
+            <div key={group.title} className="mb-6">
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                {group.title}
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {group.items.map((item) => (
+                  <Link key={item.to} to={item.to} className="group">
+                    <Card className="border border-border bg-card hover:shadow-md hover:border-special-200 transition-all">
+                      <CardContent className="flex items-center gap-3 p-3">
+                        <div className="w-9 h-9 rounded-lg bg-special-50 dark:bg-special-950/30 flex items-center justify-center flex-shrink-0">
+                          <item.icon className={`h-4.5 w-4.5 ${item.color}`} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-foreground truncate">{item.label}</p>
+                          <p className="text-xs text-muted-foreground truncate">{item.desc}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+        </>
+      )}
     </div>
   );
 };
