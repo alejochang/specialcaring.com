@@ -138,6 +138,10 @@ export default {
           "0%, 100%": { transform: "rotate(-3deg)" },
           "50%": { transform: "rotate(3deg)" },
         },
+        fadeInDown: {
+          "0%": { opacity: "0", transform: "translateY(-10px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -149,6 +153,7 @@ export default {
         shimmer: "shimmer 2s infinite linear",
         bounce: "bounce 2s infinite ease-in-out",
         wiggle: "wiggle 1s ease-in-out infinite",
+        fadeInDown: "fadeInDown 0.5s ease-out forwards",
       },
       backdropFilter: {
         "none": "none",
