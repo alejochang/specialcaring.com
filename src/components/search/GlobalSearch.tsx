@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Search, X, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -26,6 +27,7 @@ interface GlobalSearchProps {
 }
 
 export function GlobalSearch({ onSelect }: GlobalSearchProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -89,12 +91,12 @@ export function GlobalSearch({ onSelect }: GlobalSearchProps) {
   }, {} as Record<string, SearchResult[]>);
 
   const typeLabels: Record<string, string> = {
-    medication: 'Medications',
-    contact: 'Medical Contacts',
-    protocol: 'Emergency Protocols',
-    log: 'Daily Logs',
-    supplier: 'Suppliers',
-    info: 'Information',
+    medication: t('search.typeLabels.medication'),
+    contact: t('search.typeLabels.contact'),
+    protocol: t('search.typeLabels.protocol'),
+    log: t('search.typeLabels.log'),
+    supplier: t('search.typeLabels.supplier'),
+    info: t('search.typeLabels.info'),
   };
 
   return (
@@ -106,8 +108,8 @@ export function GlobalSearch({ onSelect }: GlobalSearchProps) {
         onClick={() => setOpen(true)}
       >
         <Search className="mr-2 h-4 w-4" />
-        <span className="hidden lg:inline-flex">Search...</span>
-        <span className="inline-flex lg:hidden">Search</span>
+        <span className="hidden lg:inline-flex">{t('common.searchEllipsis')}</span>
+        <span className="inline-flex lg:hidden">{t('common.search')}</span>
         <kbd className="pointer-events-none absolute right-1.5 top-2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
           <span className="text-xs">⌘</span>K
         </kbd>
@@ -119,7 +121,7 @@ export function GlobalSearch({ onSelect }: GlobalSearchProps) {
           <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
           <CommandInput
             ref={inputRef}
-            placeholder="Search medications, contacts, protocols..."
+            placeholder={t('search.placeholder')}
             value={query}
             onValueChange={setQuery}
             className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
@@ -148,9 +150,9 @@ export function GlobalSearch({ onSelect }: GlobalSearchProps) {
           {!isLoading && debouncedQuery.length >= 2 && (!results || results.length === 0) && (
             <CommandEmpty>
               <div className="flex flex-col items-center py-6">
-                <p className="text-sm text-muted-foreground">No results found.</p>
+                <p className="text-sm text-muted-foreground">{t('search.noResults')}</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Try searching for a medication name, doctor, or condition.
+                  {t('search.noResultsHint')}
                 </p>
               </div>
             </CommandEmpty>
@@ -158,7 +160,7 @@ export function GlobalSearch({ onSelect }: GlobalSearchProps) {
 
           {/* Suggestions when no query */}
           {!debouncedQuery && (
-            <CommandGroup heading="Suggestions">
+            <CommandGroup heading={t('search.suggestions')}>
               {getSearchSuggestions().map((suggestion) => (
                 <CommandItem
                   key={suggestion}

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/form";
 import { useChild } from "@/contexts/ChildContext";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import type { OnboardingWizardAPI } from "../useOnboardingWizard";
 
 const schema = z.object({
@@ -30,6 +31,7 @@ interface StepEmergencyContactProps {
 const StepEmergencyContact = ({ wizard }: StepEmergencyContactProps) => {
   const { updateChildProfile } = useChild();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -62,7 +64,7 @@ const StepEmergencyContact = ({ wizard }: StepEmergencyContactProps) => {
       });
       wizard.goNext();
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t('toast.error'), description: error.message, variant: "destructive" });
     } finally {
       wizard.setSaving(null);
     }
@@ -75,10 +77,10 @@ const StepEmergencyContact = ({ wizard }: StepEmergencyContactProps) => {
           <Phone className="h-6 w-6 text-blue-600" />
         </div>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-          Who should we call in an emergency?
+          {t('onboarding.emergencyContact.title')}
         </h1>
         <p className="text-muted-foreground text-lg">
-          A primary contact for {wizard.state.childName}'s care.
+          {t('onboarding.emergencyContact.subtitle', { childName: wizard.state.childName })}
         </p>
       </div>
 
@@ -89,10 +91,10 @@ const StepEmergencyContact = ({ wizard }: StepEmergencyContactProps) => {
             name="emergencyContact"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Contact Name</FormLabel>
+                <FormLabel>{t('onboarding.emergencyContact.contactName')}</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="e.g., Jane Smith (Mother)"
+                    placeholder={t('onboarding.emergencyContact.contactNamePlaceholder')}
                     className="h-12 text-base"
                     {...field}
                   />
@@ -107,10 +109,10 @@ const StepEmergencyContact = ({ wizard }: StepEmergencyContactProps) => {
             name="emergencyPhone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone Number</FormLabel>
+                <FormLabel>{t('onboarding.emergencyContact.phoneNumber')}</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="e.g., (555) 123-4567"
+                    placeholder={t('onboarding.emergencyContact.phoneNumberPlaceholder')}
                     type="tel"
                     className="h-12 text-base"
                     {...field}
@@ -128,7 +130,7 @@ const StepEmergencyContact = ({ wizard }: StepEmergencyContactProps) => {
               className="gap-1 text-muted-foreground"
               onClick={() => wizard.goPrev()}
             >
-              <ArrowLeft className="h-4 w-4" /> Back
+              <ArrowLeft className="h-4 w-4" /> {t('common.back')}
             </Button>
             <div className="flex items-center gap-3">
               <Button
@@ -137,7 +139,7 @@ const StepEmergencyContact = ({ wizard }: StepEmergencyContactProps) => {
                 className="text-muted-foreground"
                 onClick={() => wizard.skipStep()}
               >
-                Skip for now
+                {t('common.skipForNow')}
               </Button>
               <Button
                 type="submit"
@@ -145,7 +147,7 @@ const StepEmergencyContact = ({ wizard }: StepEmergencyContactProps) => {
                 className="bg-special-600 hover:bg-special-700 px-8 h-11"
               >
                 {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                Continue
+                {t('common.continue')}
               </Button>
             </div>
           </div>

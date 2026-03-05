@@ -1,10 +1,11 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Save, Pencil, Loader2, Heart, Calendar, IdCard, Stethoscope, Pill, ThumbsUp, ThumbsDown, AlertTriangle, AlertCircle } from "lucide-react";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,26 +27,27 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useChild } from "@/contexts/ChildContext";
 import { useUserRole } from "@/hooks/useUserRole";
 
-const formSchema = z.object({
-  fullName: z.string().min(2, "Name must be at least 2 characters"),
-  birthDate: z.string().optional(),
-  healthCardNumber: z.string().optional(),
-  address: z.string().optional(),
-  phoneNumber: z.string().optional(),
-  email: z.string().email("Please enter a valid email").optional().or(z.literal("")),
-  insuranceProvider: z.string().optional(),
-  insuranceNumber: z.string().optional(),
-  emergencyContact: z.string().optional(),
-  emergencyPhone: z.string().optional(),
-  medicalConditions: z.string().optional(),
-  allergies: z.string().optional(),
-  likes: z.string().optional(),
-  dislikes: z.string().optional(),
-  doNots: z.string().optional(),
-  additionalNotes: z.string().optional(),
-});
+const createFormSchema = (t: (key: string) => string) =>
+  z.object({
+    fullName: z.string().min(2, t('validation.nameMinLength')),
+    birthDate: z.string().optional(),
+    healthCardNumber: z.string().optional(),
+    address: z.string().optional(),
+    phoneNumber: z.string().optional(),
+    email: z.string().email(t('validation.invalidEmail')).optional().or(z.literal("")),
+    insuranceProvider: z.string().optional(),
+    insuranceNumber: z.string().optional(),
+    emergencyContact: z.string().optional(),
+    emergencyPhone: z.string().optional(),
+    medicalConditions: z.string().optional(),
+    allergies: z.string().optional(),
+    likes: z.string().optional(),
+    dislikes: z.string().optional(),
+    doNots: z.string().optional(),
+    additionalNotes: z.string().optional(),
+  });
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
 
 /**
  * KeyInformation — edits profile fields directly on the children table.
@@ -60,6 +62,9 @@ const KeyInformation = () => {
   const { activeChild, updateChildProfile, refetch } = useChild();
   const { canEdit } = useUserRole();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  const formSchema = useMemo(() => createFormSchema(t), [t]);
 
   // Read from the secure view for decrypted sensitive fields
   const { data: childProfile, isLoading } = useQuery({
@@ -175,15 +180,15 @@ const KeyInformation = () => {
       setIsEditing(false);
 
       toast({
-        title: "Child profile updated",
-        description: "The child's information has been successfully updated.",
+        title: t('sections.keyInformation.toast.profileUpdated'),
+        description: t('sections.keyInformation.toast.profileUpdatedDesc'),
       });
     },
     onError: (error) => {
       console.error("Error saving child information:", error);
       toast({
-        title: "Error",
-        description: "Failed to save information. Please try again.",
+        title: t('sections.keyInformation.toast.errorSaving'),
+        description: t('sections.keyInformation.toast.errorSavingDesc'),
         variant: "destructive",
       });
     },
@@ -210,8 +215,8 @@ const KeyInformation = () => {
   if (!activeChild) {
     return (
       <div className="space-y-6">
-        <h2 className="text-3xl font-bold text-foreground">Child Profile</h2>
-        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>Please select or create a child profile first.</AlertDescription></Alert>
+        <h2 className="text-3xl font-bold text-foreground">{t('sections.keyInformation.title')}</h2>
+        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>{t('common.noChildProfile')}</AlertDescription></Alert>
       </div>
     );
   }
@@ -235,17 +240,17 @@ const KeyInformation = () => {
             {isIncompleteProfile ? (
               <>
                 <h2 className="text-3xl font-bold text-foreground">
-                  Complete {activeChild.name}'s Profile
+                  {t('sections.keyInformation.completeProfile', { childName: activeChild.name })}
                 </h2>
                 <p className="text-muted-foreground text-lg">
-                  Fill in as much as you can now — you can always come back to add more later
+                  {t('sections.keyInformation.completeProfileHelp')}
                 </p>
               </>
             ) : (
               <>
-                <h2 className="text-3xl font-bold text-foreground">Child Profile</h2>
+                <h2 className="text-3xl font-bold text-foreground">{t('sections.keyInformation.title')}</h2>
                 <p className="text-muted-foreground text-lg">
-                  Complete snapshot of your child's essential information
+                  {t('sections.keyInformation.subtitle')}
                 </p>
               </>
             )}
@@ -258,7 +263,7 @@ const KeyInformation = () => {
             className="flex items-center gap-2"
           >
             <Pencil size={16} />
-            Edit Profile
+            {t('sections.keyInformation.editProfile')}
           </Button>
         ) : null}
       </div>
@@ -280,14 +285,14 @@ const KeyInformation = () => {
                       <span className="text-muted-foreground">
                         {new Date(childProfile.birth_date).toLocaleDateString()}
                         {calculateAge(childProfile.birth_date) && (
-                          <span className="ml-2 font-medium">({calculateAge(childProfile.birth_date)} years old)</span>
+                          <span className="ml-2 font-medium">{t('sections.keyInformation.yearsOld', { age: calculateAge(childProfile.birth_date) })}</span>
                         )}
                       </span>
                     </div>
                     {childProfile.health_card_number && (
                       <div className="flex items-center gap-2">
                         <IdCard className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">Health Card: {childProfile.health_card_number}</span>
+                        <span className="text-muted-foreground">{t('sections.keyInformation.healthCard', { number: childProfile.health_card_number })}</span>
                       </div>
                     )}
                   </div>
@@ -302,26 +307,26 @@ const KeyInformation = () => {
               <CardHeader className="bg-red-50 border-b">
                 <CardTitle className="text-xl flex items-center gap-2 text-red-800">
                   <Stethoscope className="h-5 w-5" />
-                  Medical Information
+                  {t('sections.keyInformation.medicalInfo')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6 space-y-4">
                 {childProfile.medical_conditions && (
                   <div>
-                    <h4 className="text-sm font-semibold text-red-700 mb-2">Medical Conditions & Diagnoses</h4>
+                    <h4 className="text-sm font-semibold text-red-700 mb-2">{t('sections.keyInformation.fields.medicalConditions')}</h4>
                     <p className="text-gray-700 leading-relaxed">{childProfile.medical_conditions}</p>
                   </div>
                 )}
 
                 {childProfile.allergies && (
                   <div>
-                    <h4 className="text-sm font-semibold text-red-700 mb-2">Allergies</h4>
+                    <h4 className="text-sm font-semibold text-red-700 mb-2">{t('sections.keyInformation.fields.allergies')}</h4>
                     <p className="text-gray-700 leading-relaxed">{childProfile.allergies}</p>
                   </div>
                 )}
 
                 {(!childProfile.medical_conditions && !childProfile.allergies) && (
-                  <p className="text-muted-foreground italic">No medical conditions or allergies recorded.</p>
+                  <p className="text-muted-foreground italic">{t('sections.keyInformation.noMedicalInfo')}</p>
                 )}
               </CardContent>
             </Card>
@@ -331,7 +336,7 @@ const KeyInformation = () => {
               <CardHeader className="bg-blue-50 border-b">
                 <CardTitle className="text-xl flex items-center gap-2 text-blue-800">
                   <Pill className="h-5 w-5" />
-                  Current Medications
+                  {t('sections.keyInformation.currentMedications')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
@@ -344,18 +349,18 @@ const KeyInformation = () => {
                             <h5 className="font-medium text-blue-900">{medication.name}</h5>
                             <p className="text-sm text-blue-700">{medication.dosage} - {medication.frequency}</p>
                             {medication.purpose && (
-                              <p className="text-xs text-blue-600 mt-1">For: {medication.purpose}</p>
+                              <p className="text-xs text-blue-600 mt-1">{t('sections.keyInformation.forPurpose', { purpose: medication.purpose })}</p>
                             )}
                           </div>
                           <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                            Active
+                            {t('sections.keyInformation.active')}
                           </Badge>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-muted-foreground italic">No medications recorded.</p>
+                  <p className="text-muted-foreground italic">{t('sections.keyInformation.noMedicationsRecorded')}</p>
                 )}
               </CardContent>
             </Card>
@@ -365,14 +370,14 @@ const KeyInformation = () => {
               <CardHeader className="bg-green-50 border-b">
                 <CardTitle className="text-xl flex items-center gap-2 text-green-800">
                   <ThumbsUp className="h-5 w-5" />
-                  What They Love
+                  {t('sections.keyInformation.whatTheyLove')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
                 {childProfile.likes ? (
                   <p className="text-gray-700 leading-relaxed">{childProfile.likes}</p>
                 ) : (
-                  <p className="text-muted-foreground italic">No preferences recorded yet.</p>
+                  <p className="text-muted-foreground italic">{t('sections.keyInformation.noPreferencesRecorded')}</p>
                 )}
               </CardContent>
             </Card>
@@ -382,14 +387,14 @@ const KeyInformation = () => {
               <CardHeader className="bg-yellow-50 border-b">
                 <CardTitle className="text-xl flex items-center gap-2 text-yellow-800">
                   <ThumbsDown className="h-5 w-5" />
-                  What They Don't Like
+                  {t('sections.keyInformation.whatTheyDontLike')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
                 {childProfile.dislikes ? (
                   <p className="text-gray-700 leading-relaxed">{childProfile.dislikes}</p>
                 ) : (
-                  <p className="text-muted-foreground italic">No dislikes recorded yet.</p>
+                  <p className="text-muted-foreground italic">{t('sections.keyInformation.noDislikesRecorded')}</p>
                 )}
               </CardContent>
             </Card>
@@ -399,7 +404,7 @@ const KeyInformation = () => {
               <CardHeader className="bg-red-100 border-b">
                 <CardTitle className="text-xl flex items-center gap-2 text-red-800">
                   <AlertTriangle className="h-5 w-5" />
-                  Important: Do NOT Do
+                  {t('sections.keyInformation.doNots')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
@@ -408,7 +413,7 @@ const KeyInformation = () => {
                     <p className="text-red-800 leading-relaxed font-medium">{childProfile.do_nots}</p>
                   </div>
                 ) : (
-                  <p className="text-muted-foreground italic">No specific restrictions recorded.</p>
+                  <p className="text-muted-foreground italic">{t('sections.keyInformation.noRestrictionsRecorded')}</p>
                 )}
               </CardContent>
             </Card>
@@ -416,44 +421,44 @@ const KeyInformation = () => {
             {/* Contact Information */}
             <Card className="shadow-sm border border-border bg-white lg:col-span-2">
               <CardHeader className="bg-gray-50 border-b">
-                <CardTitle className="text-xl">Contact & Emergency Information</CardTitle>
+                <CardTitle className="text-xl">{t('sections.keyInformation.contactEmergency')}</CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
-                    <h4 className="text-sm font-medium text-muted-foreground mb-1">Address</h4>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('sections.keyInformation.fields.address')}</h4>
                     <p className="text-gray-700">{childProfile.address}</p>
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-medium text-muted-foreground mb-1">Phone</h4>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('sections.keyInformation.fields.phoneNumber')}</h4>
                     <p className="text-gray-700">{childProfile.phone_number}</p>
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-medium text-muted-foreground mb-1">Email</h4>
-                    <p className="text-gray-700">{childProfile.email || "Not provided"}</p>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('sections.keyInformation.fields.email')}</h4>
+                    <p className="text-gray-700">{childProfile.email || t('sections.keyInformation.notProvided')}</p>
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-medium text-muted-foreground mb-1">Emergency Contact</h4>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('sections.keyInformation.fields.emergencyContact')}</h4>
                     <p className="text-gray-700">{childProfile.emergency_contact}</p>
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-medium text-muted-foreground mb-1">Emergency Phone</h4>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('sections.keyInformation.fields.emergencyPhone')}</h4>
                     <p className="text-gray-700">{childProfile.emergency_phone}</p>
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-medium text-muted-foreground mb-1">Insurance</h4>
-                    <p className="text-gray-700">{childProfile.insurance_provider || "Not provided"}</p>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-1">{t('sections.keyInformation.fields.insuranceProvider')}</h4>
+                    <p className="text-gray-700">{childProfile.insurance_provider || t('sections.keyInformation.notProvided')}</p>
                   </div>
                 </div>
 
                 {childProfile.additional_notes && (
                   <div className="mt-6 pt-6 border-t">
-                    <h4 className="text-sm font-medium text-muted-foreground mb-2">Additional Notes</h4>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-2">{t('sections.keyInformation.additionalNotes')}</h4>
                     <p className="text-gray-700 leading-relaxed">{childProfile.additional_notes}</p>
                   </div>
                 )}
@@ -465,7 +470,7 @@ const KeyInformation = () => {
         <Card className="shadow-sm border border-border bg-white">
           <CardHeader>
             <CardTitle className="text-xl">
-              {childProfile ? "Edit Child Profile" : "Create Child Profile"}
+              {childProfile ? t('sections.keyInformation.editChildProfile') : t('sections.keyInformation.createChildProfile')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -473,16 +478,16 @@ const KeyInformation = () => {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 {/* Basic Information Section */}
                 <div className="bg-special-50 p-6 rounded-lg">
-                  <h3 className="text-lg font-medium mb-4 text-special-800">Basic Information</h3>
+                  <h3 className="text-lg font-medium mb-4 text-special-800">{t('sections.keyInformation.basicInfo')}</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
                       control={form.control}
                       name="fullName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Full Name</FormLabel>
+                          <FormLabel>{t('sections.keyInformation.fields.fullName')}</FormLabel>
                           <FormControl>
-                            <Input placeholder="Child's full name" {...field} />
+                            <Input placeholder={t('sections.keyInformation.placeholders.fullName')} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -494,7 +499,7 @@ const KeyInformation = () => {
                       name="birthDate"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Birth Date</FormLabel>
+                          <FormLabel>{t('sections.keyInformation.fields.dateOfBirth')}</FormLabel>
                           <FormControl>
                             <Input type="date" {...field} />
                           </FormControl>
@@ -508,9 +513,9 @@ const KeyInformation = () => {
                       name="healthCardNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Health Card Number (Optional)</FormLabel>
+                          <FormLabel>{t('sections.keyInformation.fields.healthCardNumberOptional')}</FormLabel>
                           <FormControl>
-                            <Input placeholder="Health card number" {...field} />
+                            <Input placeholder={t('sections.keyInformation.placeholders.healthCardNumber')} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -521,17 +526,17 @@ const KeyInformation = () => {
 
                 {/* Medical Information Section */}
                 <div className="bg-red-50 p-6 rounded-lg">
-                  <h3 className="text-lg font-medium mb-4 text-red-800">Medical Information</h3>
+                  <h3 className="text-lg font-medium mb-4 text-red-800">{t('sections.keyInformation.medicalInfo')}</h3>
                   <div className="space-y-6">
                     <FormField
                       control={form.control}
                       name="medicalConditions"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Medical Conditions & Diagnoses</FormLabel>
+                          <FormLabel>{t('sections.keyInformation.fields.medicalConditions')}</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="List any medical conditions, diagnoses, or special needs"
+                              placeholder={t('sections.keyInformation.placeholders.medicalConditions')}
                               className="min-h-[100px]"
                               {...field}
                             />
@@ -546,10 +551,10 @@ const KeyInformation = () => {
                       name="allergies"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Allergies</FormLabel>
+                          <FormLabel>{t('sections.keyInformation.fields.allergies')}</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="List any known allergies (food, environmental, medications, etc.)"
+                              placeholder={t('sections.keyInformation.placeholders.allergies')}
                               className="min-h-[80px]"
                               {...field}
                             />
@@ -563,17 +568,17 @@ const KeyInformation = () => {
 
                 {/* Preferences Section */}
                 <div className="bg-green-50 p-6 rounded-lg">
-                  <h3 className="text-lg font-medium mb-4 text-green-800">Preferences & Personality</h3>
+                  <h3 className="text-lg font-medium mb-4 text-green-800">{t('sections.keyInformation.preferencesPersonality')}</h3>
                   <div className="space-y-6">
                     <FormField
                       control={form.control}
                       name="likes"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>What They Love</FormLabel>
+                          <FormLabel>{t('sections.keyInformation.fields.likes')}</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="Activities, foods, toys, routines they enjoy..."
+                              placeholder={t('sections.keyInformation.placeholders.likes')}
                               className="min-h-[100px]"
                               {...field}
                             />
@@ -588,10 +593,10 @@ const KeyInformation = () => {
                       name="dislikes"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>What They Don't Like</FormLabel>
+                          <FormLabel>{t('sections.keyInformation.fields.dislikes')}</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="Things that upset them, triggers to avoid..."
+                              placeholder={t('sections.keyInformation.placeholders.dislikes')}
                               className="min-h-[100px]"
                               {...field}
                             />
@@ -606,10 +611,10 @@ const KeyInformation = () => {
                       name="doNots"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Important: Do NOT Do</FormLabel>
+                          <FormLabel>{t('sections.keyInformation.fields.doNots')}</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="Critical safety instructions (e.g., 'Do not give small objects - choking hazard', 'Do not force fine motor activities'...)"
+                              placeholder={t('sections.keyInformation.placeholders.doNots')}
                               className="min-h-[100px]"
                               {...field}
                             />
@@ -623,16 +628,16 @@ const KeyInformation = () => {
 
                 {/* Contact Information Section */}
                 <div className="bg-gray-50 p-6 rounded-lg">
-                  <h3 className="text-lg font-medium mb-4 text-gray-800">Contact & Emergency Information</h3>
+                  <h3 className="text-lg font-medium mb-4 text-gray-800">{t('sections.keyInformation.contactEmergency')}</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
                       control={form.control}
                       name="address"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Address</FormLabel>
+                          <FormLabel>{t('sections.keyInformation.fields.address')}</FormLabel>
                           <FormControl>
-                            <Input placeholder="Full address" {...field} />
+                            <Input placeholder={t('sections.keyInformation.placeholders.address')} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -644,9 +649,9 @@ const KeyInformation = () => {
                       name="phoneNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Phone Number</FormLabel>
+                          <FormLabel>{t('sections.keyInformation.fields.phoneNumber')}</FormLabel>
                           <FormControl>
-                            <Input placeholder="Primary phone number" {...field} />
+                            <Input placeholder={t('sections.keyInformation.placeholders.phoneNumber')} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -658,9 +663,9 @@ const KeyInformation = () => {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email (Optional)</FormLabel>
+                          <FormLabel>{t('sections.keyInformation.fields.emailOptional')}</FormLabel>
                           <FormControl>
-                            <Input type="email" placeholder="email@example.com" {...field} />
+                            <Input type="email" placeholder={t('sections.keyInformation.placeholders.email')} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -672,9 +677,9 @@ const KeyInformation = () => {
                       name="emergencyContact"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Emergency Contact Name</FormLabel>
+                          <FormLabel>{t('sections.keyInformation.fields.emergencyContact')}</FormLabel>
                           <FormControl>
-                            <Input placeholder="Emergency contact full name" {...field} />
+                            <Input placeholder={t('sections.keyInformation.placeholders.emergencyContact')} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -686,9 +691,9 @@ const KeyInformation = () => {
                       name="emergencyPhone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Emergency Contact Phone</FormLabel>
+                          <FormLabel>{t('sections.keyInformation.fields.emergencyPhone')}</FormLabel>
                           <FormControl>
-                            <Input placeholder="Emergency contact phone" {...field} />
+                            <Input placeholder={t('sections.keyInformation.placeholders.emergencyPhone')} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -700,9 +705,9 @@ const KeyInformation = () => {
                       name="insuranceProvider"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Insurance Provider (Optional)</FormLabel>
+                          <FormLabel>{t('sections.keyInformation.fields.insuranceProviderOptional')}</FormLabel>
                           <FormControl>
-                            <Input placeholder="Insurance provider name" {...field} />
+                            <Input placeholder={t('sections.keyInformation.placeholders.insuranceProvider')} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -714,9 +719,9 @@ const KeyInformation = () => {
                       name="insuranceNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Insurance Number (Optional)</FormLabel>
+                          <FormLabel>{t('sections.keyInformation.fields.insuranceNumberOptional')}</FormLabel>
                           <FormControl>
-                            <Input placeholder="Insurance policy number" {...field} />
+                            <Input placeholder={t('sections.keyInformation.placeholders.insuranceNumber')} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -730,10 +735,10 @@ const KeyInformation = () => {
                   name="additionalNotes"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Additional Notes (Optional)</FormLabel>
+                      <FormLabel>{t('sections.keyInformation.fields.additionalNotesOptional')}</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Any other important information about your child"
+                          placeholder={t('sections.keyInformation.placeholders.additionalNotes')}
                           className="min-h-[100px]"
                           {...field}
                         />
@@ -750,7 +755,7 @@ const KeyInformation = () => {
                       variant="outline"
                       onClick={() => setIsEditing(false)}
                     >
-                      Cancel
+                      {t('common.cancel')}
                     </Button>
                   )}
                   <Button
@@ -763,7 +768,7 @@ const KeyInformation = () => {
                     ) : (
                       <Save size={16} />
                     )}
-                    Save Changes
+                    {t('sections.keyInformation.saveChanges')}
                   </Button>
                 </div>
               </form>

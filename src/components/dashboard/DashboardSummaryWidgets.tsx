@@ -1,6 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Pill, Calendar, Users, Heart, AlertTriangle, ArrowRight, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useChild } from "@/contexts/ChildContext";
 
 const DashboardSummaryWidgets = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { activeChild } = useChild();
 
@@ -130,18 +132,18 @@ const DashboardSummaryWidgets = () => {
                 <div className="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center">
                   <Pill className="h-5 w-5 text-blue-700" />
                 </div>
-                <CardTitle className="text-base font-semibold">Medications</CardTitle>
+                <CardTitle className="text-base font-semibold">{t('dashboard.summary.medications')}</CardTitle>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold text-foreground">{medications.length}</p>
-            <p className="text-sm text-muted-foreground">active medications</p>
+            <p className="text-sm text-muted-foreground">{t('dashboard.summary.activeMedications')}</p>
             {upcomingRefills.length > 0 && (
               <Badge variant="secondary" className="mt-2 bg-amber-100 text-amber-800 border-amber-200">
                 <AlertTriangle className="h-3 w-3 mr-1" />
-                {upcomingRefills.length} refill{upcomingRefills.length > 1 ? "s" : ""} due soon
+                {t('dashboard.summary.refillsDueSoon', { count: upcomingRefills.length })}
               </Badge>
             )}
           </CardContent>
@@ -157,7 +159,7 @@ const DashboardSummaryWidgets = () => {
                 <div className="w-9 h-9 rounded-lg bg-green-100 flex items-center justify-center">
                   <Calendar className="h-5 w-5 text-green-700" />
                 </div>
-                <CardTitle className="text-base font-semibold">Recent Logs</CardTitle>
+                <CardTitle className="text-base font-semibold">{t('dashboard.summary.recentLogs')}</CardTitle>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
@@ -174,7 +176,7 @@ const DashboardSummaryWidgets = () => {
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-muted-foreground italic">No daily logs recorded yet.</p>
+              <p className="text-sm text-muted-foreground italic">{t('dashboard.summary.noLogsYet')}</p>
             )}
           </CardContent>
         </Card>
@@ -189,14 +191,14 @@ const DashboardSummaryWidgets = () => {
                 <div className="w-9 h-9 rounded-lg bg-purple-100 flex items-center justify-center">
                   <Users className="h-5 w-5 text-purple-700" />
                 </div>
-                <CardTitle className="text-base font-semibold">Care Team</CardTitle>
+                <CardTitle className="text-base font-semibold">{t('dashboard.summary.careTeam')}</CardTitle>
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold text-foreground">{careTeam.length}</p>
             <p className="text-sm text-muted-foreground">
-              team member{careTeam.length !== 1 ? "s" : ""} with access
+              {t('dashboard.summary.teamMembers', { count: careTeam.length })}
             </p>
             <div className="flex gap-1.5 mt-2">
               {careTeam.map((member, i) => (
@@ -218,7 +220,7 @@ const DashboardSummaryWidgets = () => {
                 <div className="w-9 h-9 rounded-lg bg-special-100 flex items-center justify-center">
                   <Heart className="h-5 w-5 text-special-600" />
                 </div>
-                <CardTitle className="text-base font-semibold">Profile</CardTitle>
+                <CardTitle className="text-base font-semibold">{t('dashboard.summary.profile')}</CardTitle>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
@@ -226,7 +228,7 @@ const DashboardSummaryWidgets = () => {
           <CardContent>
             <div className="flex items-end gap-2">
               <p className="text-3xl font-bold text-foreground">{completeness}%</p>
-              <p className="text-sm text-muted-foreground pb-1">complete</p>
+              <p className="text-sm text-muted-foreground pb-1">{t('dashboard.summary.complete')}</p>
             </div>
             <div className="w-full bg-muted rounded-full h-2 mt-2">
               <div
@@ -236,7 +238,7 @@ const DashboardSummaryWidgets = () => {
             </div>
             {completeness < 100 && (
               <p className="text-xs text-muted-foreground mt-2">
-                Fill in {profileFields.length - filledFields} more field{profileFields.length - filledFields > 1 ? "s" : ""} for a complete profile
+                {t('dashboard.summary.fillMoreFields', { count: profileFields.length - filledFields })}
               </p>
             )}
           </CardContent>

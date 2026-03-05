@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChild } from "@/contexts/ChildContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +16,7 @@ interface RedeemInviteProps {
 }
 
 const RedeemInvite = ({ open, onOpenChange }: RedeemInviteProps) => {
+  const { t } = useTranslation();
   const [code, setCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
@@ -35,7 +37,7 @@ const RedeemInvite = ({ open, onOpenChange }: RedeemInviteProps) => {
 
       const parsed = result as { success: boolean; error?: string; child_id?: string };
       if (!parsed.success) {
-        toast({ title: "Error", description: parsed.error || "Could not redeem invite.", variant: "destructive" });
+        toast({ title: t('common.error'), description: parsed.error || t('toast.inviteRedeemFailed'), variant: "destructive" });
         setIsSubmitting(false);
         return;
       }
@@ -43,9 +45,9 @@ const RedeemInvite = ({ open, onOpenChange }: RedeemInviteProps) => {
       await refetch();
       setCode("");
       onOpenChange(false);
-      toast({ title: "Success!", description: "You now have access to this child's care information." });
+      toast({ title: t('toast.inviteRedeemed'), description: t('toast.inviteRedeemedDesc') });
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t('common.error'), description: error.message, variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
@@ -56,23 +58,23 @@ const RedeemInvite = ({ open, onOpenChange }: RedeemInviteProps) => {
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Ticket className="h-5 w-5" /> Redeem Invite Code
+            <Ticket className="h-5 w-5" /> {t('redeemInvite.title')}
           </DialogTitle>
           <DialogDescription>
-            Enter the invite code shared by another caregiver to access their child's care information.
+            {t('redeemInvite.description')}
           </DialogDescription>
         </DialogHeader>
         <Input
-          placeholder="Enter invite code"
+          placeholder={t('redeemInvite.placeholder')}
           value={code}
           onChange={(e) => setCode(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleRedeem()}
           className="font-mono text-center text-lg tracking-wider"
         />
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>{t('redeemInvite.cancel')}</Button>
           <Button onClick={handleRedeem} disabled={!code.trim() || isSubmitting}>
-            {isSubmitting ? "Redeeming..." : "Redeem"}
+            {isSubmitting ? t('redeemInvite.redeeming') : t('redeemInvite.redeem')}
           </Button>
         </DialogFooter>
       </DialogContent>

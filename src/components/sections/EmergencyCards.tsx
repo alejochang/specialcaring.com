@@ -1,5 +1,6 @@
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,16 +38,16 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useChild } from "@/contexts/ChildContext";
 import { useUserRole } from "@/hooks/useUserRole";
 
-const formSchema = z.object({
+const createFormSchema = (t: (key: string) => string) => z.object({
   frontImage: z.string().optional(),
   backImage: z.string().optional(),
-  idType: z.string().min(1, "ID type is required"),
-  idNumber: z.string().min(1, "ID number is required"),
+  idType: z.string().min(1, t('validation.idTypeRequired')),
+  idNumber: z.string().min(1, t('validation.idNumberRequired')),
   issueDate: z.string().optional(),
   expiryDate: z.string().optional(),
 });
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
 
 interface DbCard {
   id: string;
@@ -61,6 +62,7 @@ interface DbCard {
 const SIGNED_URL_EXPIRY = 3600; // 1 hour
 
 const EmergencyCards = () => {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [uploadingFront, setUploadingFront] = useState(false);
   const [uploadingBack, setUploadingBack] = useState(false);
@@ -72,6 +74,8 @@ const EmergencyCards = () => {
   const { activeChild } = useChild();
   const { canEdit } = useUserRole();
   const queryClient = useQueryClient();
+
+  const formSchema = useMemo(() => createFormSchema(t), [t]);
 
   // Generate a signed URL for a private bucket file path.
   // Legacy data may contain full http URLs from when the bucket was public — pass those through.
@@ -155,9 +159,9 @@ const EmergencyCards = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['emergencyCards', activeChild?.id] });
       setIsEditing(false);
-      toast({ title: "Information saved", description: "Emergency card information has been successfully updated." });
+      toast({ title: t('sections.emergencyCards.informationSaved'), description: t('sections.emergencyCards.informationSavedDesc') });
     },
-    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+    onError: (error: any) => toast({ title: t('toast.error'), description: error.message, variant: "destructive" }),
   });
 
   const deleteMutation = useMutation({
@@ -168,9 +172,9 @@ const EmergencyCards = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['emergencyCards', activeChild?.id] });
       form.reset({ frontImage: '', backImage: '', idType: '', idNumber: '', issueDate: '', expiryDate: '' });
-      toast({ title: "Card deleted", description: "Emergency card information has been removed." });
+      toast({ title: t('sections.emergencyCards.cardDeleted'), description: t('sections.emergencyCards.cardDeletedDesc') });
     },
-    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+    onError: (error: any) => toast({ title: t('toast.error'), description: error.message, variant: "destructive" }),
   });
 
   const handleDeleteCard = () => {
@@ -181,7 +185,7 @@ const EmergencyCards = () => {
   const handleImageUpload = async (file: File, side: 'front' | 'back') => {
     if (!user || !activeChild) return;
     if (!file.type.startsWith('image/')) {
-      toast({ title: "Invalid file", description: "Please select an image file.", variant: "destructive" });
+      toast({ title: t('sections.emergencyCards.invalidFile'), description: t('sections.emergencyCards.invalidFileDesc'), variant: "destructive" });
       return;
     }
     const setUploading = side === 'front' ? setUploadingFront : setUploadingBack;
@@ -199,7 +203,7 @@ const EmergencyCards = () => {
       const signedUrl = await getSignedImageUrl(filePath);
       setSignedUrls((prev) => ({ ...prev, [side === 'front' ? 'front' : 'back']: signedUrl }));
     } catch (error: any) {
-      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+      toast({ title: t('toast.uploadFailed'), description: error.message, variant: "destructive" });
     } finally {
       setUploading(false);
     }
@@ -219,8 +223,8 @@ const EmergencyCards = () => {
   if (!activeChild) {
     return (
       <div className="space-y-6">
-        <h2 className="text-3xl font-bold text-foreground">Emergency Identification Cards</h2>
-        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>Please select or create a child profile first.</AlertDescription></Alert>
+        <h2 className="text-3xl font-bold text-foreground">{t('sections.emergencyCards.title')}</h2>
+        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>{t('common.noChildProfile')}</AlertDescription></Alert>
       </div>
     );
   }
@@ -237,9 +241,9 @@ const EmergencyCards = () => {
     <div className="animate-fadeIn">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Emergency Identification Cards</h2>
+          <h2 className="text-2xl font-bold">{t('sections.emergencyCards.title')}</h2>
           <p className="text-muted-foreground">
-            Store digital copies of important identification cards
+            {t('sections.emergencyCards.subtitle')}
           </p>
         </div>
         {savedData && !isEditing ? (
@@ -257,7 +261,7 @@ const EmergencyCards = () => {
                 className="flex items-center gap-2"
               >
                 <Pencil size={16} />
-                Edit Cards
+                {t('sections.emergencyCards.editCards')}
               </Button>
             )}
             {canEdit && (
@@ -265,23 +269,23 @@ const EmergencyCards = () => {
                 <AlertDialogTrigger asChild>
                   <Button variant="outline" className="flex items-center gap-2 text-destructive hover:text-destructive border-destructive/30 hover:bg-destructive/10">
                     <Trash2 size={16} />
-                    Delete
+                    {t('common.delete')}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Emergency Card?</AlertDialogTitle>
+                    <AlertDialogTitle>{t('sections.emergencyCards.deleteCard')}</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This will permanently delete all emergency card information and uploaded images. This action cannot be undone.
+                      {t('sections.emergencyCards.deleteConfirm')}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
                     <AlertDialogAction
                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                       onClick={handleDeleteCard}
                     >
-                      Delete
+                      {t('common.delete')}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -294,13 +298,13 @@ const EmergencyCards = () => {
       {savedData && !isEditing ? (
         <Tabs defaultValue="front" className="w-full">
           <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="front">Front Side</TabsTrigger>
-            <TabsTrigger value="back">Back Side</TabsTrigger>
+            <TabsTrigger value="front">{t('sections.emergencyCards.tabs.front')}</TabsTrigger>
+            <TabsTrigger value="back">{t('sections.emergencyCards.tabs.back')}</TabsTrigger>
           </TabsList>
           <TabsContent value="front" className="mt-4">
             <Card className="bg-white">
               <CardHeader>
-                <CardTitle className="text-xl">ID Card Front</CardTitle>
+                <CardTitle className="text-xl">{t('sections.emergencyCards.idCardFront')}</CardTitle>
                 <CardDescription>
                   {savedData.idType} - {savedData.idNumber}
                 </CardDescription>
@@ -309,18 +313,18 @@ const EmergencyCards = () => {
                 <div className="flex flex-col items-center">
                   <div className="w-full max-w-md h-56 bg-muted rounded-md overflow-hidden mb-4">
                     {savedData.frontImage && signedUrls.front ? (
-                      <img src={signedUrls.front} alt="ID Card Front" className="w-full h-full object-contain" />
+                      <img src={signedUrls.front} alt={t('sections.emergencyCards.idCardFront')} className="w-full h-full object-contain" />
                     ) : savedData.frontImage ? (
                       <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin" /></div>
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">No image uploaded</div>
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">{t('sections.emergencyCards.noImageUploaded')}</div>
                     )}
                   </div>
                   <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                    <div><h4 className="text-sm font-medium text-muted-foreground">ID Type</h4><p>{savedData.idType}</p></div>
-                    <div><h4 className="text-sm font-medium text-muted-foreground">ID Number</h4><p>{savedData.idNumber}</p></div>
-                    {savedData.issueDate && (<div><h4 className="text-sm font-medium text-muted-foreground">Issue Date</h4><p>{savedData.issueDate}</p></div>)}
-                    {savedData.expiryDate && (<div><h4 className="text-sm font-medium text-muted-foreground">Expiry Date</h4><p>{savedData.expiryDate}</p></div>)}
+                    <div><h4 className="text-sm font-medium text-muted-foreground">{t('sections.emergencyCards.fields.idType')}</h4><p>{savedData.idType}</p></div>
+                    <div><h4 className="text-sm font-medium text-muted-foreground">{t('sections.emergencyCards.fields.idNumber')}</h4><p>{savedData.idNumber}</p></div>
+                    {savedData.issueDate && (<div><h4 className="text-sm font-medium text-muted-foreground">{t('sections.emergencyCards.fields.issueDate')}</h4><p>{savedData.issueDate}</p></div>)}
+                    {savedData.expiryDate && (<div><h4 className="text-sm font-medium text-muted-foreground">{t('sections.emergencyCards.fields.expiryDate')}</h4><p>{savedData.expiryDate}</p></div>)}
                   </div>
                 </div>
               </CardContent>
@@ -329,18 +333,18 @@ const EmergencyCards = () => {
           <TabsContent value="back" className="mt-4">
             <Card className="bg-white">
               <CardHeader>
-                <CardTitle className="text-xl">ID Card Back</CardTitle>
+                <CardTitle className="text-xl">{t('sections.emergencyCards.idCardBack')}</CardTitle>
                 <CardDescription>{savedData.idType} - {savedData.idNumber}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col items-center">
                   <div className="w-full max-w-md h-56 bg-muted rounded-md overflow-hidden mb-4">
                     {savedData.backImage && signedUrls.back ? (
-                      <img src={signedUrls.back} alt="ID Card Back" className="w-full h-full object-contain" />
+                      <img src={signedUrls.back} alt={t('sections.emergencyCards.idCardBack')} className="w-full h-full object-contain" />
                     ) : savedData.backImage ? (
                       <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin" /></div>
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">No image uploaded</div>
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">{t('sections.emergencyCards.noImageUploaded')}</div>
                     )}
                   </div>
                 </div>
@@ -351,27 +355,27 @@ const EmergencyCards = () => {
       ) : (
         <Card className="shadow-sm border border-border bg-white">
           <CardHeader>
-            <CardTitle className="text-xl">{savedData ? "Edit Emergency ID Cards" : "Add Emergency ID Cards"}</CardTitle>
-            <CardDescription>Upload images of identification cards and add relevant details</CardDescription>
+            <CardTitle className="text-xl">{savedData ? t('sections.emergencyCards.editEmergencyCards') : t('sections.emergencyCards.addEmergencyCards')}</CardTitle>
+            <CardDescription>{t('sections.emergencyCards.uploadDescription')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-4">
-                    <h3 className="font-medium">Front Side</h3>
+                    <h3 className="font-medium">{t('sections.emergencyCards.tabs.front')}</h3>
                     <div className="w-full h-48 bg-muted rounded-md relative overflow-hidden flex items-center justify-center">
                       {form.watch('frontImage') ? (
                         signedUrls.front ? (
                           <>
-                            <img src={signedUrls.front} alt="ID Front Preview" className="w-full h-full object-contain" />
+                            <img src={signedUrls.front} alt={t('sections.emergencyCards.idCardFront')} className="w-full h-full object-contain" />
                             <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 opacity-70 hover:opacity-100" onClick={() => handleRemoveImage('front')}><Trash2 size={16} /></Button>
                           </>
                         ) : (
                           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                         )
                       ) : (
-                        <div className="text-center p-4"><Camera size={32} className="mx-auto mb-2 text-muted-foreground" /><p className="text-sm text-muted-foreground">Upload front image</p></div>
+                        <div className="text-center p-4"><Camera size={32} className="mx-auto mb-2 text-muted-foreground" /><p className="text-sm text-muted-foreground">{t('sections.emergencyCards.uploadFrontImage')}</p></div>
                       )}
                     </div>
                     <input
@@ -389,23 +393,23 @@ const EmergencyCards = () => {
                       disabled={uploadingFront}
                     >
                       {uploadingFront ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
-                      {uploadingFront ? 'Uploading...' : 'Upload Front Image'}
+                      {uploadingFront ? t('sections.emergencyCards.uploading') : t('sections.emergencyCards.uploadFront')}
                     </Button>
                   </div>
                   <div className="space-y-4">
-                    <h3 className="font-medium">Back Side</h3>
+                    <h3 className="font-medium">{t('sections.emergencyCards.tabs.back')}</h3>
                     <div className="w-full h-48 bg-muted rounded-md relative overflow-hidden flex items-center justify-center">
                       {form.watch('backImage') ? (
                         signedUrls.back ? (
                           <>
-                            <img src={signedUrls.back} alt="ID Back Preview" className="w-full h-full object-contain" />
+                            <img src={signedUrls.back} alt={t('sections.emergencyCards.idCardBack')} className="w-full h-full object-contain" />
                             <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 opacity-70 hover:opacity-100" onClick={() => handleRemoveImage('back')}><Trash2 size={16} /></Button>
                           </>
                         ) : (
                           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                         )
                       ) : (
-                        <div className="text-center p-4"><Camera size={32} className="mx-auto mb-2 text-muted-foreground" /><p className="text-sm text-muted-foreground">Upload back image</p></div>
+                        <div className="text-center p-4"><Camera size={32} className="mx-auto mb-2 text-muted-foreground" /><p className="text-sm text-muted-foreground">{t('sections.emergencyCards.uploadBackImage')}</p></div>
                       )}
                     </div>
                     <input
@@ -423,21 +427,21 @@ const EmergencyCards = () => {
                       disabled={uploadingBack}
                     >
                       {uploadingBack ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
-                      {uploadingBack ? 'Uploading...' : 'Upload Back Image'}
+                      {uploadingBack ? t('sections.emergencyCards.uploading') : t('sections.emergencyCards.uploadBack')}
                     </Button>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-                  <FormField control={form.control} name="idType" render={({ field }) => (<FormItem><FormLabel>ID Type</FormLabel><FormControl><Input placeholder="e.g., Driver's License, Medicare Card" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                  <FormField control={form.control} name="idNumber" render={({ field }) => (<FormItem><FormLabel>ID Number</FormLabel><FormControl><Input placeholder="Card/ID Number" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                  <FormField control={form.control} name="issueDate" render={({ field }) => (<FormItem><FormLabel>Issue Date (Optional)</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                  <FormField control={form.control} name="expiryDate" render={({ field }) => (<FormItem><FormLabel>Expiry Date (Optional)</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="idType" render={({ field }) => (<FormItem><FormLabel>{t('sections.emergencyCards.fields.idType')}</FormLabel><FormControl><Input placeholder={t('sections.emergencyCards.placeholders.idType')} {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="idNumber" render={({ field }) => (<FormItem><FormLabel>{t('sections.emergencyCards.fields.idNumber')}</FormLabel><FormControl><Input placeholder={t('sections.emergencyCards.placeholders.idNumber')} {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="issueDate" render={({ field }) => (<FormItem><FormLabel>{t('sections.emergencyCards.fields.issueDateOptional')}</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="expiryDate" render={({ field }) => (<FormItem><FormLabel>{t('sections.emergencyCards.fields.expiryDateOptional')}</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 </div>
                 <div className="flex justify-end gap-3 mt-8">
-                  {isEditing && (<Button type="button" variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>)}
+                  {isEditing && (<Button type="button" variant="outline" onClick={() => setIsEditing(false)}>{t('common.cancel')}</Button>)}
                   <Button type="submit" className="bg-caregiver-600 hover:bg-caregiver-700 flex items-center gap-2">
                     {savedData ? <Save size={16} /> : <PlusCircle size={16} />}
-                    {savedData ? "Save Changes" : "Save Card Information"}
+                    {savedData ? t('common.saveChanges') : t('sections.emergencyCards.saveCardInfo')}
                   </Button>
                 </div>
               </form>

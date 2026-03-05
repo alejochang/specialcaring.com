@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Plus, Pill, AlertTriangle, Download } from "lucide-react";
 import { useChild } from "@/contexts/ChildContext";
 import { ExportDialog } from "@/components/export/ExportDialog";
 
 const QuickActions = () => {
+  const { t } = useTranslation();
   const { activeChild } = useChild();
 
   if (!activeChild) return null;
@@ -15,21 +17,21 @@ const QuickActions = () => {
         className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-accent transition-colors shadow-sm"
       >
         <Plus className="h-3.5 w-3.5" />
-        Daily Log
+        {t('dashboard.quickActions.dailyLog')}
       </Link>
       <Link
         to="/dashboard/medications"
         className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-accent transition-colors shadow-sm"
       >
         <Pill className="h-3.5 w-3.5" />
-        Medication
+        {t('dashboard.quickActions.medication')}
       </Link>
       <Link
         to="/dashboard/emergency-cards"
         className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-accent transition-colors shadow-sm"
       >
         <AlertTriangle className="h-3.5 w-3.5" />
-        Emergency Card
+        {t('dashboard.quickActions.emergencyCard')}
       </Link>
       <ExportDialog
         childId={activeChild.id}
@@ -37,7 +39,7 @@ const QuickActions = () => {
         trigger={
           <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-accent transition-colors shadow-sm">
             <Download className="h-3.5 w-3.5" />
-            Export
+            {t('dashboard.quickActions.export')}
           </button>
         }
       />

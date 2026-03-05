@@ -1,5 +1,6 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,7 +34,7 @@ interface EndOfLife {
   additional_notes: string;
 }
 
-const eolSchema = z.object({
+const createEolSchema = (t: (key: string) => string) => z.object({
   medical_directives: z.string().optional(),
   preferred_hospital: z.string().optional(),
   preferred_physician: z.string().optional(),
@@ -46,15 +47,18 @@ const eolSchema = z.object({
   additional_notes: z.string().optional(),
 });
 
-type EolFormValues = z.infer<typeof eolSchema>;
+type EolFormValues = z.infer<ReturnType<typeof createEolSchema>>;
 
 const EndOfLifeWishes = () => {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const { user } = useAuth();
   const { activeChild } = useChild();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { canEdit } = useUserRole();
+
+  const eolSchema = useMemo(() => createEolSchema(t), [t]);
 
   const form = useForm<EolFormValues>({
     resolver: zodResolver(eolSchema),
@@ -104,10 +108,10 @@ const EndOfLifeWishes = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['endOfLifeWishes', activeChild?.id] });
-      toast({ title: "Saved successfully" });
+      toast({ title: t('toast.saved') });
       setIsEditing(false);
     },
-    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+    onError: (error: any) => toast({ title: t('toast.error'), description: error.message, variant: "destructive" }),
   });
 
   const onSubmit = (values: EolFormValues) => {
@@ -118,8 +122,8 @@ const EndOfLifeWishes = () => {
   if (!activeChild) {
     return (
       <div className="space-y-6">
-        <h2 className="text-3xl font-bold text-foreground">End-of-Life Wishes</h2>
-        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>Please select or create a child profile first.</AlertDescription></Alert>
+        <h2 className="text-3xl font-bold text-foreground">{t('sections.endOfLifeWishes.title')}</h2>
+        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>{t('common.noChildProfile')}</AlertDescription></Alert>
       </div>
     );
   }
@@ -141,16 +145,16 @@ const EndOfLifeWishes = () => {
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center"><FileCheck className="h-6 w-6 text-special-600" /></div>
           <div>
-            <h2 className="text-3xl font-bold text-foreground">End-of-Life Wishes</h2>
-            <p className="text-muted-foreground">Document advanced directives and preferences</p>
+            <h2 className="text-3xl font-bold text-foreground">{t('sections.endOfLifeWishes.title')}</h2>
+            <p className="text-muted-foreground">{t('sections.endOfLifeWishes.subtitle')}</p>
           </div>
         </div>
         <Card className="text-center py-12 bg-white">
           <CardContent>
             <FileCheck className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">No Information Recorded</h3>
-            <p className="text-muted-foreground mb-4 max-w-md mx-auto">Document important end-of-life preferences, medical directives, and guardianship information.</p>
-            {canEdit && <Button onClick={() => setIsEditing(true)} className="bg-special-600 hover:bg-special-700">Begin Documentation</Button>}
+            <h3 className="text-lg font-medium mb-2">{t('sections.endOfLifeWishes.noInfo')}</h3>
+            <p className="text-muted-foreground mb-4 max-w-md mx-auto">{t('sections.endOfLifeWishes.noInfoDesc')}</p>
+            {canEdit && <Button onClick={() => setIsEditing(true)} className="bg-special-600 hover:bg-special-700">{t('sections.endOfLifeWishes.beginDocumentation')}</Button>}
           </CardContent>
         </Card>
       </div>
@@ -164,63 +168,63 @@ const EndOfLifeWishes = () => {
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center"><FileCheck className="h-6 w-6 text-special-600" /></div>
             <div>
-              <h2 className="text-3xl font-bold text-foreground">End-of-Life Wishes</h2>
-              <p className="text-muted-foreground">Document advanced directives and preferences</p>
+              <h2 className="text-3xl font-bold text-foreground">{t('sections.endOfLifeWishes.title')}</h2>
+              <p className="text-muted-foreground">{t('sections.endOfLifeWishes.subtitle')}</p>
             </div>
           </div>
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <Section title="Medical Directives" icon={Heart}>
+            <Section title={t('sections.endOfLifeWishes.sections.medicalDirectives')} icon={Heart}>
               <div className="space-y-4">
                 <FormField control={form.control} name="medical_directives" render={({ field }) => (
-                  <FormItem><FormLabel>Advanced Medical Directives</FormLabel><FormControl><Textarea {...field} className="min-h-[120px]" placeholder="Document any advanced medical directives, DNR orders, or treatment preferences..." /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t('sections.endOfLifeWishes.fields.medicalDirectives')}</FormLabel><FormControl><Textarea {...field} className="min-h-[120px]" placeholder={t('sections.endOfLifeWishes.placeholders.medicalDirectives')} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField control={form.control} name="preferred_hospital" render={({ field }) => (
-                    <FormItem><FormLabel>Preferred Hospital</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>{t('sections.endOfLifeWishes.fields.preferredHospital')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="preferred_physician" render={({ field }) => (
-                    <FormItem><FormLabel>Preferred Physician</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>{t('sections.endOfLifeWishes.fields.preferredPhysician')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
                 </div>
                 <FormField control={form.control} name="organ_donation" render={({ field }) => (
-                  <FormItem><FormLabel>Organ Donation</FormLabel><FormControl><Select onValueChange={field.onChange} value={field.value}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="yes">Yes - Organ Donor</SelectItem><SelectItem value="no">No</SelectItem><SelectItem value="not_specified">Not Specified</SelectItem></SelectContent></Select></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t('sections.endOfLifeWishes.fields.organDonation')}</FormLabel><FormControl><Select onValueChange={field.onChange} value={field.value}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="yes">{t('sections.endOfLifeWishes.organDonationOptions.yes')}</SelectItem><SelectItem value="no">{t('sections.endOfLifeWishes.organDonationOptions.no')}</SelectItem><SelectItem value="not_specified">{t('sections.endOfLifeWishes.organDonationOptions.notSpecified')}</SelectItem></SelectContent></Select></FormControl><FormMessage /></FormItem>
                 )} />
               </div>
             </Section>
 
-            <Section title="Legal & Guardianship" icon={Shield}>
+            <Section title={t('sections.endOfLifeWishes.sections.legalGuardianship')} icon={Shield}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField control={form.control} name="legal_guardian" render={({ field }) => (
-                  <FormItem><FormLabel>Legal Guardian</FormLabel><FormControl><Input {...field} placeholder="Name and contact" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t('sections.endOfLifeWishes.fields.legalGuardian')}</FormLabel><FormControl><Input {...field} placeholder={t('sections.endOfLifeWishes.placeholders.nameAndContact')} /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="power_of_attorney" render={({ field }) => (
-                  <FormItem><FormLabel>Power of Attorney</FormLabel><FormControl><Input {...field} placeholder="Name and contact" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t('sections.endOfLifeWishes.fields.powerOfAttorney')}</FormLabel><FormControl><Input {...field} placeholder={t('sections.endOfLifeWishes.placeholders.nameAndContact')} /></FormControl><FormMessage /></FormItem>
                 )} />
               </div>
             </Section>
 
-            <Section title="Personal Wishes" icon={BookOpen}>
+            <Section title={t('sections.endOfLifeWishes.sections.personalWishes')} icon={BookOpen}>
               <div className="space-y-4">
                 <FormField control={form.control} name="funeral_preferences" render={({ field }) => (
-                  <FormItem><FormLabel>Funeral Preferences</FormLabel><FormControl><Textarea {...field} className="min-h-[80px]" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t('sections.endOfLifeWishes.fields.funeralPreferences')}</FormLabel><FormControl><Textarea {...field} className="min-h-[80px]" /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="religious_cultural_wishes" render={({ field }) => (
-                  <FormItem><FormLabel>Religious/Cultural Wishes</FormLabel><FormControl><Textarea {...field} className="min-h-[80px]" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t('sections.endOfLifeWishes.fields.religiousCulturalWishes')}</FormLabel><FormControl><Textarea {...field} className="min-h-[80px]" /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="special_instructions" render={({ field }) => (
-                  <FormItem><FormLabel>Special Instructions</FormLabel><FormControl><Textarea {...field} className="min-h-[80px]" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t('sections.endOfLifeWishes.fields.specialInstructions')}</FormLabel><FormControl><Textarea {...field} className="min-h-[80px]" /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="additional_notes" render={({ field }) => (
-                  <FormItem><FormLabel>Additional Notes</FormLabel><FormControl><Textarea {...field} className="min-h-[80px]" /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>{t('sections.endOfLifeWishes.fields.additionalNotes')}</FormLabel><FormControl><Textarea {...field} className="min-h-[80px]" /></FormControl><FormMessage /></FormItem>
                 )} />
               </div>
             </Section>
 
             <div className="flex justify-end gap-3">
-              <Button type="button" variant="outline" onClick={() => { setIsEditing(false); if (data) form.reset(); }}>Cancel</Button>
-              <Button type="submit" className="bg-special-600 hover:bg-special-700"><Save className="h-4 w-4 mr-2" />Save</Button>
+              <Button type="button" variant="outline" onClick={() => { setIsEditing(false); if (data) form.reset(); }}>{t('common.cancel')}</Button>
+              <Button type="submit" className="bg-special-600 hover:bg-special-700"><Save className="h-4 w-4 mr-2" />{t('common.save')}</Button>
             </div>
           </form>
         </Form>
@@ -235,42 +239,42 @@ const EndOfLifeWishes = () => {
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full bg-special-50 flex items-center justify-center"><FileCheck className="h-6 w-6 text-special-600" /></div>
           <div>
-            <h2 className="text-3xl font-bold text-foreground">End-of-Life Wishes</h2>
-            <p className="text-muted-foreground">Advanced directives and preferences</p>
+            <h2 className="text-3xl font-bold text-foreground">{t('sections.endOfLifeWishes.title')}</h2>
+            <p className="text-muted-foreground">{t('sections.endOfLifeWishes.subtitle')}</p>
           </div>
         </div>
-        {canEdit && <Button variant="outline" onClick={() => setIsEditing(true)}><Pencil className="h-4 w-4 mr-2" />Edit</Button>}
+        {canEdit && <Button variant="outline" onClick={() => setIsEditing(true)}><Pencil className="h-4 w-4 mr-2" />{t('common.edit')}</Button>}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Section title="Medical Directives" icon={Heart} className="md:col-span-2">
-          {data?.medical_directives ? <p className="whitespace-pre-line">{data.medical_directives}</p> : <p className="text-muted-foreground italic">No directives recorded.</p>}
+        <Section title={t('sections.endOfLifeWishes.sections.medicalDirectives')} icon={Heart} className="md:col-span-2">
+          {data?.medical_directives ? <p className="whitespace-pre-line">{data.medical_directives}</p> : <p className="text-muted-foreground italic">{t('sections.endOfLifeWishes.noDirectives')}</p>}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t">
-            <div><h4 className="text-sm font-medium text-muted-foreground">Preferred Hospital</h4><p>{data?.preferred_hospital || "Not specified"}</p></div>
-            <div><h4 className="text-sm font-medium text-muted-foreground">Preferred Physician</h4><p>{data?.preferred_physician || "Not specified"}</p></div>
-            <div><h4 className="text-sm font-medium text-muted-foreground">Organ Donation</h4><p>{data?.organ_donation === 'yes' ? 'Yes' : data?.organ_donation === 'no' ? 'No' : 'Not specified'}</p></div>
+            <div><h4 className="text-sm font-medium text-muted-foreground">{t('sections.endOfLifeWishes.fields.preferredHospital')}</h4><p>{data?.preferred_hospital || t('sections.endOfLifeWishes.notSpecified')}</p></div>
+            <div><h4 className="text-sm font-medium text-muted-foreground">{t('sections.endOfLifeWishes.fields.preferredPhysician')}</h4><p>{data?.preferred_physician || t('sections.endOfLifeWishes.notSpecified')}</p></div>
+            <div><h4 className="text-sm font-medium text-muted-foreground">{t('sections.endOfLifeWishes.fields.organDonation')}</h4><p>{data?.organ_donation === 'yes' ? t('common.yes') : data?.organ_donation === 'no' ? t('common.no') : t('sections.endOfLifeWishes.notSpecified')}</p></div>
           </div>
         </Section>
 
-        <Section title="Legal & Guardianship" icon={Shield}>
+        <Section title={t('sections.endOfLifeWishes.sections.legalGuardianship')} icon={Shield}>
           <div className="space-y-3">
-            <div><h4 className="text-sm font-medium text-muted-foreground">Legal Guardian</h4><p>{data?.legal_guardian || "Not specified"}</p></div>
-            <div><h4 className="text-sm font-medium text-muted-foreground">Power of Attorney</h4><p>{data?.power_of_attorney || "Not specified"}</p></div>
+            <div><h4 className="text-sm font-medium text-muted-foreground">{t('sections.endOfLifeWishes.fields.legalGuardian')}</h4><p>{data?.legal_guardian || t('sections.endOfLifeWishes.notSpecified')}</p></div>
+            <div><h4 className="text-sm font-medium text-muted-foreground">{t('sections.endOfLifeWishes.fields.powerOfAttorney')}</h4><p>{data?.power_of_attorney || t('sections.endOfLifeWishes.notSpecified')}</p></div>
           </div>
         </Section>
 
-        <Section title="Personal Wishes" icon={BookOpen}>
+        <Section title={t('sections.endOfLifeWishes.sections.personalWishes')} icon={BookOpen}>
           <div className="space-y-3">
-            {data?.funeral_preferences && <div><h4 className="text-sm font-medium text-muted-foreground">Funeral Preferences</h4><p className="whitespace-pre-line">{data.funeral_preferences}</p></div>}
-            {data?.religious_cultural_wishes && <div><h4 className="text-sm font-medium text-muted-foreground">Religious/Cultural Wishes</h4><p className="whitespace-pre-line">{data.religious_cultural_wishes}</p></div>}
-            {data?.special_instructions && <div><h4 className="text-sm font-medium text-muted-foreground">Special Instructions</h4><p className="whitespace-pre-line">{data.special_instructions}</p></div>}
+            {data?.funeral_preferences && <div><h4 className="text-sm font-medium text-muted-foreground">{t('sections.endOfLifeWishes.fields.funeralPreferences')}</h4><p className="whitespace-pre-line">{data.funeral_preferences}</p></div>}
+            {data?.religious_cultural_wishes && <div><h4 className="text-sm font-medium text-muted-foreground">{t('sections.endOfLifeWishes.fields.religiousCulturalWishes')}</h4><p className="whitespace-pre-line">{data.religious_cultural_wishes}</p></div>}
+            {data?.special_instructions && <div><h4 className="text-sm font-medium text-muted-foreground">{t('sections.endOfLifeWishes.fields.specialInstructions')}</h4><p className="whitespace-pre-line">{data.special_instructions}</p></div>}
           </div>
         </Section>
       </div>
 
       {data?.additional_notes && (
         <Card className="bg-white">
-          <CardHeader className="pb-3"><CardTitle className="text-lg">Additional Notes</CardTitle></CardHeader>
+          <CardHeader className="pb-3"><CardTitle className="text-lg">{t('sections.endOfLifeWishes.fields.additionalNotes')}</CardTitle></CardHeader>
           <CardContent><p className="whitespace-pre-line">{data.additional_notes}</p></CardContent>
         </Card>
       )}

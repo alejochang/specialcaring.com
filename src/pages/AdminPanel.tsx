@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Loader2, Shield, CheckCircle, XCircle, UserCheck, Users, Clock, Trash2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole, AppRole } from "@/hooks/useUserRole";
@@ -23,6 +24,7 @@ interface UserWithRole {
 }
 
 const AdminPanel = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { isAdmin, isLoading: roleLoading } = useUserRole();
   const navigate = useNavigate();
@@ -59,7 +61,7 @@ const AdminPanel = () => {
         const profile = profiles?.find((p: any) => p.id === r.user_id);
         return {
           ...r,
-          full_name: profile?.full_name || "Unknown User",
+          full_name: profile?.full_name || t("common.unknown"),
         };
       });
 
@@ -79,10 +81,10 @@ const AdminPanel = () => {
         .eq("user_id", userId);
 
       if (error) throw error;
-      toast({ title: "Role updated", description: `User role changed to ${newRole}` });
+      toast({ title: t("toast.roleUpdated"), description: t("toast.roleUpdatedDesc", { role: newRole }) });
       fetchUsers();
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      toast({ title: t("toast.error"), description: err.message, variant: "destructive" });
     }
   };
 
@@ -95,14 +97,14 @@ const AdminPanel = () => {
 
       if (error) throw error;
       toast({
-        title: approve ? "User Approved" : "Access Revoked",
+        title: approve ? t("toast.userApproved") : t("toast.accessRevoked"),
         description: approve
-          ? "User can now access the platform."
-          : "User access has been revoked.",
+          ? t("toast.userApprovedDesc")
+          : t("toast.accessRevokedDesc"),
       });
       fetchUsers();
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      toast({ title: t("toast.error"), description: err.message, variant: "destructive" });
     }
   };
 
@@ -127,10 +129,10 @@ const AdminPanel = () => {
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || "Failed to delete user");
 
-      toast({ title: "User Deleted", description: `${userName} has been permanently removed.` });
+      toast({ title: t("toast.userDeleted"), description: t("toast.userDeletedDesc", { name: userName }) });
       fetchUsers();
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      toast({ title: t("toast.error"), description: err.message, variant: "destructive" });
     }
   };
 
@@ -164,9 +166,9 @@ const AdminPanel = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
             <Shield className="h-8 w-8 text-special-600" />
-            Admin Panel
+            {t("pages.admin.title")}
           </h1>
-          <p className="text-muted-foreground mt-1">Manage users, roles, and onboarding approvals</p>
+          <p className="text-muted-foreground mt-1">{t("pages.admin.subtitle")}</p>
         </div>
 
         {/* Stats Cards */}
@@ -179,7 +181,7 @@ const AdminPanel = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{users.length}</p>
-                  <p className="text-sm text-muted-foreground">Total Users</p>
+                  <p className="text-sm text-muted-foreground">{t("pages.admin.totalUsers")}</p>
                 </div>
               </div>
             </CardContent>
@@ -192,7 +194,7 @@ const AdminPanel = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{pendingUsers.length}</p>
-                  <p className="text-sm text-muted-foreground">Pending Approval</p>
+                  <p className="text-sm text-muted-foreground">{t("pages.admin.pendingApproval")}</p>
                 </div>
               </div>
             </CardContent>
@@ -205,7 +207,7 @@ const AdminPanel = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{approvedUsers.length}</p>
-                  <p className="text-sm text-muted-foreground">Approved Users</p>
+                  <p className="text-sm text-muted-foreground">{t("pages.admin.approvedUsers")}</p>
                 </div>
               </div>
             </CardContent>
@@ -216,7 +218,7 @@ const AdminPanel = () => {
           <TabsList>
             <TabsTrigger value="pending" className="flex items-center gap-2">
               <Clock className="h-4 w-4" />
-              Pending
+              {t("pages.admin.tabs.pending")}
               {pendingUsers.length > 0 && (
                 <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs rounded-full">
                   {pendingUsers.length}
@@ -225,15 +227,15 @@ const AdminPanel = () => {
             </TabsTrigger>
             <TabsTrigger value="all" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
-              All Users
+              {t("pages.admin.tabs.allUsers")}
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="pending">
             <Card>
               <CardHeader>
-                <CardTitle>Pending Onboarding Approvals</CardTitle>
-                <CardDescription>New users waiting for access approval</CardDescription>
+                <CardTitle>{t("pages.admin.pendingTitle")}</CardTitle>
+                <CardDescription>{t("pages.admin.pendingSubtitle")}</CardDescription>
               </CardHeader>
               <CardContent>
                 {isLoadingUsers ? (
@@ -243,17 +245,17 @@ const AdminPanel = () => {
                 ) : pendingUsers.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
                     <UserCheck className="h-12 w-12 mx-auto mb-3 text-green-400" />
-                    <p className="text-lg font-medium">All caught up!</p>
-                    <p className="text-sm">No pending approvals at this time.</p>
+                    <p className="text-lg font-medium">{t("pages.admin.allCaughtUp")}</p>
+                    <p className="text-sm">{t("pages.admin.allCaughtUpDesc")}</p>
                   </div>
                 ) : (
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Registered</TableHead>
-                        <TableHead>Actions</TableHead>
+                        <TableHead>{t("pages.admin.tableHeaders.name")}</TableHead>
+                        <TableHead>{t("pages.admin.tableHeaders.role")}</TableHead>
+                        <TableHead>{t("pages.admin.tableHeaders.registered")}</TableHead>
+                        <TableHead>{t("pages.admin.tableHeaders.actions")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -274,7 +276,7 @@ const AdminPanel = () => {
                                 onClick={() => toggleApproval(u.user_id, true)}
                               >
                                 <CheckCircle className="h-4 w-4 mr-1" />
-                                Approve
+                                {t("pages.admin.approve")}
                               </Button>
                               <Select
                                 value={u.role}
@@ -284,9 +286,9 @@ const AdminPanel = () => {
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="admin">Admin</SelectItem>
-                                  <SelectItem value="caregiver">Caregiver</SelectItem>
-                                  <SelectItem value="viewer">Viewer</SelectItem>
+                                  <SelectItem value="admin">{t("pages.admin.roles.admin")}</SelectItem>
+                                  <SelectItem value="caregiver">{t("pages.admin.roles.caregiver")}</SelectItem>
+                                  <SelectItem value="viewer">{t("pages.admin.roles.viewer")}</SelectItem>
                                 </SelectContent>
                               </Select>
                               <AlertDialog>
@@ -297,15 +299,15 @@ const AdminPanel = () => {
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
-                                    <AlertDialogTitle>Delete User</AlertDialogTitle>
+                                    <AlertDialogTitle>{t("pages.admin.deleteUser")}</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                      Are you sure you want to permanently delete <strong>{u.full_name}</strong>? This action cannot be undone and will remove all their data.
+                                      {t("pages.admin.deleteUserConfirm", { name: u.full_name })}
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                                     <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={() => deleteUser(u.user_id, u.full_name || "User")}>
-                                      Delete
+                                      {t("common.delete")}
                                     </AlertDialogAction>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
@@ -324,8 +326,8 @@ const AdminPanel = () => {
           <TabsContent value="all">
             <Card>
               <CardHeader>
-                <CardTitle>All Users</CardTitle>
-                <CardDescription>Manage user roles and access</CardDescription>
+                <CardTitle>{t("pages.admin.allUsersTitle")}</CardTitle>
+                <CardDescription>{t("pages.admin.allUsersSubtitle")}</CardDescription>
               </CardHeader>
               <CardContent>
                 {isLoadingUsers ? (
@@ -336,11 +338,11 @@ const AdminPanel = () => {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Joined</TableHead>
-                        <TableHead>Actions</TableHead>
+                        <TableHead>{t("pages.admin.tableHeaders.name")}</TableHead>
+                        <TableHead>{t("pages.admin.tableHeaders.role")}</TableHead>
+                        <TableHead>{t("pages.admin.tableHeaders.status")}</TableHead>
+                        <TableHead>{t("pages.admin.tableHeaders.joined")}</TableHead>
+                        <TableHead>{t("pages.admin.tableHeaders.actions")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -349,7 +351,7 @@ const AdminPanel = () => {
                           <TableCell className="font-medium">
                             {u.full_name}
                             {u.user_id === user?.id && (
-                              <Badge variant="outline" className="ml-2 text-xs">You</Badge>
+                              <Badge variant="outline" className="ml-2 text-xs">{t("common.you")}</Badge>
                             )}
                           </TableCell>
                           <TableCell>
@@ -359,12 +361,12 @@ const AdminPanel = () => {
                             {u.is_approved ? (
                               <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
                                 <CheckCircle className="h-3 w-3 mr-1" />
-                                Approved
+                                {t("common.approved")}
                               </Badge>
                             ) : (
                               <Badge variant="outline" className="text-amber-600 border-amber-200 bg-amber-50">
                                 <Clock className="h-3 w-3 mr-1" />
-                                Pending
+                                {t("common.pending")}
                               </Badge>
                             )}
                           </TableCell>
@@ -382,7 +384,7 @@ const AdminPanel = () => {
                                     onClick={() => toggleApproval(u.user_id, false)}
                                   >
                                     <XCircle className="h-4 w-4 mr-1" />
-                                    Revoke
+                                    {t("pages.admin.revoke")}
                                   </Button>
                                 ) : (
                                   <Button
@@ -391,7 +393,7 @@ const AdminPanel = () => {
                                     onClick={() => toggleApproval(u.user_id, true)}
                                   >
                                     <CheckCircle className="h-4 w-4 mr-1" />
-                                    Approve
+                                    {t("pages.admin.approve")}
                                   </Button>
                                 )}
                                 <Select
@@ -402,9 +404,9 @@ const AdminPanel = () => {
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="admin">Admin</SelectItem>
-                                    <SelectItem value="caregiver">Caregiver</SelectItem>
-                                    <SelectItem value="viewer">Viewer</SelectItem>
+                                    <SelectItem value="admin">{t("pages.admin.roles.admin")}</SelectItem>
+                                    <SelectItem value="caregiver">{t("pages.admin.roles.caregiver")}</SelectItem>
+                                    <SelectItem value="viewer">{t("pages.admin.roles.viewer")}</SelectItem>
                                   </SelectContent>
                                 </Select>
                                 <AlertDialog>
@@ -415,22 +417,22 @@ const AdminPanel = () => {
                                   </AlertDialogTrigger>
                                   <AlertDialogContent>
                                     <AlertDialogHeader>
-                                      <AlertDialogTitle>Delete User</AlertDialogTitle>
+                                      <AlertDialogTitle>{t("pages.admin.deleteUser")}</AlertDialogTitle>
                                       <AlertDialogDescription>
-                                        Are you sure you want to permanently delete <strong>{u.full_name}</strong>? This action cannot be undone and will remove all their data.
+                                        {t("pages.admin.deleteUserConfirm", { name: u.full_name })}
                                       </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
-                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
                                       <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={() => deleteUser(u.user_id, u.full_name || "User")}>
-                                        Delete
+                                        {t("common.delete")}
                                       </AlertDialogAction>
                                     </AlertDialogFooter>
                                   </AlertDialogContent>
                                 </AlertDialog>
                               </div>
                             ) : (
-                              <span className="text-sm text-muted-foreground">—</span>
+                              <span className="text-sm text-muted-foreground">&mdash;</span>
                             )}
                           </TableCell>
                         </TableRow>

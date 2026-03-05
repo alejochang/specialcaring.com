@@ -18,8 +18,7 @@ const Footer = () => {
               <img src={logoWordmark} alt="Special Caring" className="h-10 w-auto" />
             </Link>
             <p className="text-muted-foreground">
-              A central hub for managing care information and tasks for special-needs children,
-              designed to make caregiving responsibilities easier for parents and guardians.
+              {t('footer.description')}
             </p>
           </div>
           

@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,19 +32,18 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useChild } from "@/contexts/ChildContext";
 import { useUserRole } from "@/hooks/useUserRole";
 
-
-const contactSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  type: z.string().min(1, "Contact type is required"),
+const createContactSchema = (t: (key: string) => string) => z.object({
+  name: z.string().min(2, t('validation.nameMinLength')),
+  type: z.string().min(1, t('validation.fieldRequired')),
   specialty: z.string().optional(),
-  phoneNumber: z.string().min(1, "Phone number is required"),
-  email: z.string().email("Invalid email").optional().or(z.string().length(0)),
+  phoneNumber: z.string().min(1, t('validation.fieldRequired')),
+  email: z.string().email(t('validation.invalidEmail')).optional().or(z.string().length(0)),
   address: z.string().optional(),
   notes: z.string().optional(),
   isPrimary: z.boolean().default(false),
 });
 
-type ContactForm = z.infer<typeof contactSchema>;
+type ContactForm = z.infer<ReturnType<typeof createContactSchema>>;
 
 interface DbContact {
   id: string;
@@ -58,6 +58,7 @@ interface DbContact {
 }
 
 const MedicalContacts = () => {
+  const { t } = useTranslation();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -66,6 +67,8 @@ const MedicalContacts = () => {
   const { activeChild } = useChild();
   const { canEdit } = useUserRole();
   const queryClient = useQueryClient();
+
+  const contactSchema = useMemo(() => createContactSchema(t), [t]);
 
   const form = useForm<ContactForm>({
     resolver: zodResolver(contactSchema),
@@ -106,12 +109,12 @@ const MedicalContacts = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['medicalContacts', activeChild?.id] });
-      toast({ title: editingId ? "Contact updated" : "Contact added" });
+      toast({ title: editingId ? t('sections.medicalContacts.toast.contactUpdated') : t('sections.medicalContacts.toast.contactAdded') });
       form.reset();
       setEditingId(null);
       setIsAddDialogOpen(false);
     },
-    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+    onError: (error: any) => toast({ title: t('toast.error'), description: error.message, variant: "destructive" }),
   });
 
   const deleteMutation = useMutation({
@@ -121,11 +124,11 @@ const MedicalContacts = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['medicalContacts', activeChild?.id] });
-      toast({ title: "Contact removed" });
+      toast({ title: t('sections.medicalContacts.toast.contactRemoved') });
       setDeletingId(null);
     },
     onError: (error: any) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t('toast.error'), description: error.message, variant: "destructive" });
       setDeletingId(null);
     },
   });
@@ -143,15 +146,14 @@ const MedicalContacts = () => {
   const getInitials = (name: string) => name.split(' ').map(p => p.charAt(0)).join('').toUpperCase().substring(0, 2);
 
   const formatContactType = (type: string) => {
-    const mapping: Record<string, string> = { primary_physician: "Primary Care Physician", specialist: "Specialist", pharmacy: "Pharmacy", hospital: "Hospital", emergency: "Emergency Contact", other: "Other" };
-    return mapping[type] || type;
+    return t(`sections.medicalContacts.contactTypes.${type}`, type);
   };
 
   if (!activeChild) {
     return (
       <div className="space-y-6">
-        <h2 className="text-3xl font-bold text-foreground">Medical Contacts</h2>
-        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>Please select or create a child profile first.</AlertDescription></Alert>
+        <h2 className="text-3xl font-bold text-foreground">{t('sections.medicalContacts.title')}</h2>
+        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>{t('common.noChildProfile')}</AlertDescription></Alert>
       </div>
     );
   }
@@ -164,35 +166,35 @@ const MedicalContacts = () => {
     <div className="animate-fadeIn">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Medical Contacts</h2>
-          <p className="text-muted-foreground">Manage healthcare providers and important medical contacts</p>
+          <h2 className="text-2xl font-bold">{t('sections.medicalContacts.title')}</h2>
+          <p className="text-muted-foreground">{t('sections.medicalContacts.subtitle')}</p>
         </div>
         {canEdit && (
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
               <Button className="bg-special-600 hover:bg-special-700 flex items-center gap-2" onClick={resetForm}>
-                <Plus size={16} />Add Contact
+                <Plus size={16} />{t('sections.medicalContacts.addNew')}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
-                <DialogTitle>{editingId ? "Edit Contact" : "Add New Contact"}</DialogTitle>
+                <DialogTitle>{editingId ? t('sections.medicalContacts.editContact') : t('sections.medicalContacts.addNew')}</DialogTitle>
               </DialogHeader>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Name*</FormLabel><FormControl><Input placeholder="Dr. John Smith" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="type" render={({ field }) => (<FormItem><FormLabel>Type*</FormLabel><FormControl><Select onValueChange={field.onChange} value={field.value}><SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger><SelectContent><SelectItem value="primary_physician">Primary Care Physician</SelectItem><SelectItem value="specialist">Specialist</SelectItem><SelectItem value="pharmacy">Pharmacy</SelectItem><SelectItem value="hospital">Hospital</SelectItem><SelectItem value="emergency">Emergency Contact</SelectItem><SelectItem value="other">Other</SelectItem></SelectContent></Select></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="specialty" render={({ field }) => (<FormItem><FormLabel>Specialty</FormLabel><FormControl><Input placeholder="e.g., Cardiology" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="phoneNumber" render={({ field }) => (<FormItem><FormLabel>Phone Number*</FormLabel><FormControl><Input placeholder="(555) 123-4567" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="email" render={({ field }) => (<FormItem><FormLabel>Email</FormLabel><FormControl><Input placeholder="email@example.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="address" render={({ field }) => (<FormItem><FormLabel>Address</FormLabel><FormControl><Input placeholder="123 Medical Center Dr" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                    <FormField control={form.control} name="isPrimary" render={({ field }) => (<FormItem className="flex flex-row items-center gap-2 space-y-0 mt-6"><FormControl><input type="checkbox" checked={field.value} onChange={field.onChange} className="w-4 h-4 rounded border-gray-300" /></FormControl><FormLabel className="m-0">Primary Contact</FormLabel></FormItem>)} />
+                    <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>{t('sections.medicalContacts.fields.name')}*</FormLabel><FormControl><Input placeholder={t('sections.medicalContacts.placeholders.name')} {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="type" render={({ field }) => (<FormItem><FormLabel>{t('common.type')}*</FormLabel><FormControl><Select onValueChange={field.onChange} value={field.value}><SelectTrigger><SelectValue placeholder={t('common.type')} /></SelectTrigger><SelectContent><SelectItem value="primary_physician">{t('sections.medicalContacts.contactTypes.primary_physician')}</SelectItem><SelectItem value="specialist">{t('sections.medicalContacts.contactTypes.specialist')}</SelectItem><SelectItem value="pharmacy">{t('sections.medicalContacts.contactTypes.pharmacy')}</SelectItem><SelectItem value="hospital">{t('sections.medicalContacts.contactTypes.hospital')}</SelectItem><SelectItem value="emergency">{t('sections.medicalContacts.contactTypes.emergency')}</SelectItem><SelectItem value="other">{t('sections.medicalContacts.contactTypes.other')}</SelectItem></SelectContent></Select></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="specialty" render={({ field }) => (<FormItem><FormLabel>{t('sections.medicalContacts.fields.specialty')}</FormLabel><FormControl><Input placeholder={t('sections.medicalContacts.placeholders.specialty')} {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="phoneNumber" render={({ field }) => (<FormItem><FormLabel>{t('sections.medicalContacts.fields.phoneNumber')}*</FormLabel><FormControl><Input placeholder={t('sections.medicalContacts.placeholders.phone')} {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="email" render={({ field }) => (<FormItem><FormLabel>{t('sections.medicalContacts.fields.email')}</FormLabel><FormControl><Input placeholder={t('sections.medicalContacts.placeholders.email')} {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="address" render={({ field }) => (<FormItem><FormLabel>{t('sections.medicalContacts.fields.address')}</FormLabel><FormControl><Input placeholder={t('sections.medicalContacts.placeholders.address')} {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="isPrimary" render={({ field }) => (<FormItem className="flex flex-row items-center gap-2 space-y-0 mt-6"><FormControl><input type="checkbox" checked={field.value} onChange={field.onChange} className="w-4 h-4 rounded border-gray-300" /></FormControl><FormLabel className="m-0">{t('sections.medicalContacts.fields.isPrimary')}</FormLabel></FormItem>)} />
                   </div>
-                  <FormField control={form.control} name="notes" render={({ field }) => (<FormItem><FormLabel>Notes</FormLabel><FormControl><Textarea placeholder="Additional notes" className="min-h-[80px]" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                  <FormField control={form.control} name="notes" render={({ field }) => (<FormItem><FormLabel>{t('sections.medicalContacts.fields.notes')}</FormLabel><FormControl><Textarea placeholder={t('sections.medicalContacts.placeholders.notes')} className="min-h-[80px]" {...field} /></FormControl><FormMessage /></FormItem>)} />
                   <DialogFooter>
-                    <DialogClose asChild><Button type="button" variant="outline">Cancel</Button></DialogClose>
-                    <Button type="submit" className="bg-special-600 hover:bg-special-700">{editingId ? "Update Contact" : "Add Contact"}</Button>
+                    <DialogClose asChild><Button type="button" variant="outline">{t('common.cancel')}</Button></DialogClose>
+                    <Button type="submit" className="bg-special-600 hover:bg-special-700">{editingId ? t('sections.medicalContacts.editContact') : t('sections.medicalContacts.addNew')}</Button>
                   </DialogFooter>
                 </form>
               </Form>
@@ -244,10 +246,10 @@ const MedicalContacts = () => {
           <CardContent>
             <div className="flex flex-col items-center justify-center">
               <div className="bg-muted rounded-full p-3 mb-4"><PlusCircle size={32} className="text-muted-foreground" /></div>
-              <h3 className="text-xl font-medium mb-2">No contacts added yet</h3>
-              <p className="text-muted-foreground max-w-md mx-auto mb-6">Add your medical contacts for easy access to important healthcare providers.</p>
+              <h3 className="text-xl font-medium mb-2">{t('sections.medicalContacts.noContacts')}</h3>
+              <p className="text-muted-foreground max-w-md mx-auto mb-6">{t('sections.medicalContacts.noContactsDesc')}</p>
               {canEdit && (
-                <Button onClick={() => setIsAddDialogOpen(true)} className="bg-special-600 hover:bg-special-700">Add Your First Contact</Button>
+                <Button onClick={() => setIsAddDialogOpen(true)} className="bg-special-600 hover:bg-special-700">{t('sections.medicalContacts.addFirstContact')}</Button>
               )}
             </div>
           </CardContent>
@@ -257,18 +259,18 @@ const MedicalContacts = () => {
       <AlertDialog open={deletingId !== null} onOpenChange={(open) => { if (!open) setDeletingId(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Contact?</AlertDialogTitle>
+            <AlertDialogTitle>{t('sections.medicalContacts.deleteContact')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove this contact from your list. This action cannot be undone.
+              {t('sections.medicalContacts.deleteConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => { if (deletingId) deleteMutation.mutate(deletingId); }}
             >
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

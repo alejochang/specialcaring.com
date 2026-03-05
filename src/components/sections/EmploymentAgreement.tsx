@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,8 +39,8 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { Briefcase, Plus, Pencil, Trash2, Loader2, DollarSign, Clock, FileText, AlertCircle } from "lucide-react";
 
 /* ---------- Zod schema ---------- */
-const agreementSchema = z.object({
-  caregiver_name: z.string().min(1, "Caregiver name is required"),
+const createAgreementSchema = (t: (key: string) => string) => z.object({
+  caregiver_name: z.string().min(1, t('validation.caregiverNameRequired')),
   position_title: z.string().optional().default(""),
   start_date: z.string().optional().default(""),
   end_date: z.string().optional().default(""),
@@ -54,7 +55,7 @@ const agreementSchema = z.object({
   status: z.string().min(1).default("active"),
 });
 
-type AgreementForm = z.infer<typeof agreementSchema>;
+type AgreementForm = z.infer<ReturnType<typeof createAgreementSchema>>;
 
 interface Agreement {
   id: string;
@@ -90,6 +91,7 @@ const defaultValues: AgreementForm = {
 };
 
 const EmploymentAgreement = () => {
+  const { t } = useTranslation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -98,6 +100,13 @@ const EmploymentAgreement = () => {
   const { toast } = useToast();
   const { canEdit } = useUserRole();
   const queryClient = useQueryClient();
+
+  const agreementSchema = useMemo(() => createAgreementSchema(t), [t]);
+
+  const getStatusLabel = (status: string) => {
+    const key = status as 'active' | 'draft' | 'terminated' | 'expired';
+    return t(`sections.employmentAgreement.statuses.${key}`);
+  };
 
   const form = useForm<AgreementForm>({
     resolver: zodResolver(agreementSchema),
@@ -134,12 +143,12 @@ const EmploymentAgreement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employmentAgreements", activeChild?.id] });
-      toast({ title: editingId ? "Agreement updated" : "Agreement added" });
+      toast({ title: editingId ? t('sections.employmentAgreement.toast.agreementUpdated') : t('sections.employmentAgreement.toast.agreementAdded') });
       setIsDialogOpen(false);
       setEditingId(null);
       form.reset(defaultValues);
     },
-    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+    onError: (error: any) => toast({ title: t('toast.error'), description: error.message, variant: "destructive" }),
   });
 
   const deleteMutation = useMutation({
@@ -149,9 +158,9 @@ const EmploymentAgreement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employmentAgreements", activeChild?.id] });
-      toast({ title: "Agreement removed" });
+      toast({ title: t('sections.employmentAgreement.toast.agreementDeleted') });
     },
-    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+    onError: (error: any) => toast({ title: t('toast.error'), description: error.message, variant: "destructive" }),
   });
 
   /* ---------- Handlers ---------- */
@@ -203,10 +212,10 @@ const EmploymentAgreement = () => {
   if (!activeChild) {
     return (
       <div className="space-y-6">
-        <h2 className="text-3xl font-bold text-foreground">Employment Agreements</h2>
+        <h2 className="text-3xl font-bold text-foreground">{t('sections.employmentAgreement.title')}</h2>
         <Alert>
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>Please select or create a child profile first.</AlertDescription>
+          <AlertDescription>{t('common.noChildProfile')}</AlertDescription>
         </Alert>
       </div>
     );
@@ -228,8 +237,8 @@ const EmploymentAgreement = () => {
             <Briefcase className="h-6 w-6 text-special-600" />
           </div>
           <div>
-            <h2 className="text-3xl font-bold text-foreground">Employment Agreements</h2>
-            <p className="text-muted-foreground">Manage caregiver employment details and contracts</p>
+            <h2 className="text-3xl font-bold text-foreground">{t('sections.employmentAgreement.title')}</h2>
+            <p className="text-muted-foreground">{t('sections.employmentAgreement.subtitle')}</p>
           </div>
         </div>
         {canEdit && (
@@ -242,7 +251,7 @@ const EmploymentAgreement = () => {
             }}
           >
             <Plus className="h-4 w-4 mr-2" />
-            Add Agreement
+            {t('sections.employmentAgreement.addNew')}
           </Button>
         )}
       </div>
@@ -258,7 +267,7 @@ const EmploymentAgreement = () => {
                     <CardDescription>{a.position_title}</CardDescription>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge className={statusColor(a.status)}>{a.status}</Badge>
+                    <Badge className={statusColor(a.status)}>{getStatusLabel(a.status)}</Badge>
                     {canEdit && (
                       <>
                         <Button variant="outline" size="icon" onClick={() => handleEdit(a)}>
@@ -284,7 +293,7 @@ const EmploymentAgreement = () => {
                     <div className="flex items-center gap-2">
                       <DollarSign className="h-4 w-4 text-muted-foreground" />
                       <span>
-                        {a.hourly_rate} ({a.payment_frequency || "N/A"})
+                        {a.hourly_rate} ({a.payment_frequency || t('sections.employmentAgreement.notAvailable')})
                       </span>
                     </div>
                   )}
@@ -293,14 +302,14 @@ const EmploymentAgreement = () => {
                       <FileText className="h-4 w-4 text-muted-foreground" />
                       <span>
                         {a.start_date}
-                        {a.end_date ? ` - ${a.end_date}` : " - Present"}
+                        {a.end_date ? ` - ${a.end_date}` : ` - ${t('sections.employmentAgreement.present')}`}
                       </span>
                     </div>
                   )}
                 </div>
                 {a.duties && (
                   <div className="mt-4 pt-4 border-t">
-                    <h4 className="text-sm font-medium mb-1">Duties</h4>
+                    <h4 className="text-sm font-medium mb-1">{t('sections.employmentAgreement.fields.duties')}</h4>
                     <p className="text-sm text-muted-foreground whitespace-pre-line">{a.duties}</p>
                   </div>
                 )}
@@ -312,8 +321,8 @@ const EmploymentAgreement = () => {
         <Card className="text-center py-12 bg-white">
           <CardContent>
             <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">No Employment Agreements</h3>
-            <p className="text-muted-foreground mb-4">Add employment agreements for caregivers.</p>
+            <h3 className="text-lg font-medium mb-2">{t('sections.employmentAgreement.noAgreements')}</h3>
+            <p className="text-muted-foreground mb-4">{t('sections.employmentAgreement.noAgreementsDesc')}</p>
             {canEdit && (
               <Button
                 onClick={() => {
@@ -324,7 +333,7 @@ const EmploymentAgreement = () => {
                 className="bg-special-600 hover:bg-special-700"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add First Agreement
+                {t('sections.employmentAgreement.addFirstAgreement')}
               </Button>
             )}
           </CardContent>
@@ -335,7 +344,7 @@ const EmploymentAgreement = () => {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingId ? "Edit Agreement" : "New Employment Agreement"}</DialogTitle>
+            <DialogTitle>{editingId ? t('sections.employmentAgreement.editAgreement') : t('sections.employmentAgreement.newAgreement')}</DialogTitle>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -345,7 +354,7 @@ const EmploymentAgreement = () => {
                   name="caregiver_name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Caregiver Name *</FormLabel>
+                      <FormLabel>{t('sections.employmentAgreement.fields.caregiverNameRequired')}</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -358,7 +367,7 @@ const EmploymentAgreement = () => {
                   name="position_title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Position Title</FormLabel>
+                      <FormLabel>{t('sections.employmentAgreement.fields.positionTitle')}</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -371,7 +380,7 @@ const EmploymentAgreement = () => {
                   name="start_date"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Start Date</FormLabel>
+                      <FormLabel>{t('sections.employmentAgreement.fields.startDate')}</FormLabel>
                       <FormControl>
                         <Input type="date" {...field} />
                       </FormControl>
@@ -384,7 +393,7 @@ const EmploymentAgreement = () => {
                   name="end_date"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>End Date</FormLabel>
+                      <FormLabel>{t('sections.employmentAgreement.fields.endDate')}</FormLabel>
                       <FormControl>
                         <Input type="date" {...field} />
                       </FormControl>
@@ -397,9 +406,9 @@ const EmploymentAgreement = () => {
                   name="work_schedule"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Work Schedule</FormLabel>
+                      <FormLabel>{t('sections.employmentAgreement.fields.workSchedule')}</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Mon-Fri 8AM-5PM" {...field} />
+                        <Input placeholder={t('sections.employmentAgreement.placeholders.workSchedule')} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -410,9 +419,9 @@ const EmploymentAgreement = () => {
                   name="hourly_rate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Hourly Rate</FormLabel>
+                      <FormLabel>{t('sections.employmentAgreement.fields.hourlyRate')}</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., $25/hr" {...field} />
+                        <Input placeholder={t('sections.employmentAgreement.placeholders.hourlyRate')} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -423,17 +432,17 @@ const EmploymentAgreement = () => {
                   name="payment_frequency"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Payment Frequency</FormLabel>
+                      <FormLabel>{t('sections.employmentAgreement.fields.paymentFrequency')}</FormLabel>
                       <Select value={field.value} onValueChange={field.onChange}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select" />
+                            <SelectValue placeholder={t('sections.employmentAgreement.placeholders.select')} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="weekly">Weekly</SelectItem>
-                          <SelectItem value="biweekly">Bi-weekly</SelectItem>
-                          <SelectItem value="monthly">Monthly</SelectItem>
+                          <SelectItem value="weekly">{t('sections.employmentAgreement.paymentFrequencies.weekly')}</SelectItem>
+                          <SelectItem value="biweekly">{t('sections.employmentAgreement.paymentFrequencies.biweekly')}</SelectItem>
+                          <SelectItem value="monthly">{t('sections.employmentAgreement.paymentFrequencies.monthly')}</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -445,7 +454,7 @@ const EmploymentAgreement = () => {
                   name="status"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Status</FormLabel>
+                      <FormLabel>{t('sections.employmentAgreement.fields.status')}</FormLabel>
                       <Select value={field.value} onValueChange={field.onChange}>
                         <FormControl>
                           <SelectTrigger>
@@ -453,10 +462,10 @@ const EmploymentAgreement = () => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="draft">Draft</SelectItem>
-                          <SelectItem value="terminated">Terminated</SelectItem>
-                          <SelectItem value="expired">Expired</SelectItem>
+                          <SelectItem value="active">{t('sections.employmentAgreement.statuses.active')}</SelectItem>
+                          <SelectItem value="draft">{t('sections.employmentAgreement.statuses.draft')}</SelectItem>
+                          <SelectItem value="terminated">{t('sections.employmentAgreement.statuses.terminated')}</SelectItem>
+                          <SelectItem value="expired">{t('sections.employmentAgreement.statuses.expired')}</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -470,7 +479,7 @@ const EmploymentAgreement = () => {
                 name="duties"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Duties & Responsibilities</FormLabel>
+                    <FormLabel>{t('sections.employmentAgreement.fields.duties')}</FormLabel>
                     <FormControl>
                       <Textarea className="min-h-[100px]" {...field} />
                     </FormControl>
@@ -483,7 +492,7 @@ const EmploymentAgreement = () => {
                 name="emergency_procedures"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Emergency Procedures</FormLabel>
+                    <FormLabel>{t('sections.employmentAgreement.fields.emergencyProcedures')}</FormLabel>
                     <FormControl>
                       <Textarea className="min-h-[80px]" {...field} />
                     </FormControl>
@@ -496,7 +505,7 @@ const EmploymentAgreement = () => {
                 name="confidentiality_terms"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confidentiality Terms</FormLabel>
+                    <FormLabel>{t('sections.employmentAgreement.fields.confidentialityTerms')}</FormLabel>
                     <FormControl>
                       <Textarea className="min-h-[80px]" {...field} />
                     </FormControl>
@@ -509,7 +518,7 @@ const EmploymentAgreement = () => {
                 name="termination_terms"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Termination Terms</FormLabel>
+                    <FormLabel>{t('sections.employmentAgreement.fields.terminationTerms')}</FormLabel>
                     <FormControl>
                       <Textarea className="min-h-[80px]" {...field} />
                     </FormControl>
@@ -522,7 +531,7 @@ const EmploymentAgreement = () => {
                 name="additional_terms"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Additional Terms</FormLabel>
+                    <FormLabel>{t('sections.employmentAgreement.fields.additionalTerms')}</FormLabel>
                     <FormControl>
                       <Textarea className="min-h-[80px]" {...field} />
                     </FormControl>
@@ -533,10 +542,10 @@ const EmploymentAgreement = () => {
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button type="submit" className="bg-special-600 hover:bg-special-700">
-                  {editingId ? "Update" : "Create"} Agreement
+                  {editingId ? t('sections.employmentAgreement.updateAgreement') : t('sections.employmentAgreement.createAgreement')}
                 </Button>
               </DialogFooter>
             </form>
@@ -548,18 +557,18 @@ const EmploymentAgreement = () => {
       <AlertDialog open={deletingId !== null} onOpenChange={(open) => !open && setDeletingId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Employment Agreement?</AlertDialogTitle>
+            <AlertDialogTitle>{t('sections.employmentAgreement.deleteAgreement')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this employment agreement. This action cannot be undone.
+              {t('sections.employmentAgreement.deleteConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={confirmDelete}
             >
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

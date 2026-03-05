@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { STEP_ORDER, STEP_LABELS, type WizardStep } from "./useOnboardingWizard";
+import { useTranslation } from "react-i18next";
 
 interface OnboardingProgressProps {
   currentStep: WizardStep;
@@ -15,16 +16,17 @@ const OnboardingProgress = ({
   progressPercent,
 }: OnboardingProgressProps) => {
   const isMobile = useIsMobile();
+  const { t } = useTranslation();
 
   return (
     <div className="mb-8 md:mb-12">
       {/* Step label */}
       <div className="flex items-center justify-between mb-3">
         <p className="text-sm text-muted-foreground">
-          Step {currentStepIndex + 1} of {STEP_ORDER.length}
+          {t('onboarding.progress', { current: currentStepIndex + 1, total: STEP_ORDER.length })}
         </p>
         <p className="text-sm font-medium text-foreground">
-          {STEP_LABELS[currentStep]}
+          {t(STEP_LABELS[currentStep])}
         </p>
       </div>
 

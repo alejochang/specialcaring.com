@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Pill, Calendar, AlertTriangle, Heart, CheckCircle2, Circle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +20,7 @@ const moodEmoji: Record<string, string> = {
 };
 
 const TodaySnapshot = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { activeChild } = useChild();
 
@@ -106,14 +108,14 @@ const TodaySnapshot = () => {
       <CardHeader className="pb-3">
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
           <Calendar className="h-5 w-5 text-special-600" />
-          Today's Snapshot
+          {t('dashboard.todaySnapshot.title')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Medications checklist */}
         <div>
           <h4 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-1.5">
-            <Pill className="h-3.5 w-3.5" /> Medications ({medications.length})
+            <Pill className="h-3.5 w-3.5" /> {t('dashboard.todaySnapshot.medications', { count: medications.length })}
           </h4>
           {medications.length > 0 ? (
             <ul className="space-y-1.5">
@@ -128,12 +130,12 @@ const TodaySnapshot = () => {
               ))}
               {medications.length > 5 && (
                 <li className="text-xs text-muted-foreground">
-                  + {medications.length - 5} more
+                  + {medications.length - 5} {t('common.more', { defaultValue: 'more' })}
                 </li>
               )}
             </ul>
           ) : (
-            <p className="text-sm text-muted-foreground italic">No medications recorded yet.</p>
+            <p className="text-sm text-muted-foreground italic">{t('dashboard.todaySnapshot.noMedications')}</p>
           )}
         </div>
 
@@ -142,7 +144,7 @@ const TodaySnapshot = () => {
           <div className="flex items-center gap-2 rounded-lg bg-destructive/10 px-3 py-2">
             <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0" />
             <span className="text-sm text-foreground">
-              {upcomingRefills.length} refill{upcomingRefills.length > 1 ? "s" : ""} due soon:{" "}
+              {t('dashboard.todaySnapshot.refillsDueSoon', { count: upcomingRefills.length })}{" "}
               <span className="font-medium">
                 {upcomingRefills.map((r) => r.name).join(", ")}
               </span>
@@ -154,7 +156,7 @@ const TodaySnapshot = () => {
         {latestLog && (
           <div className="flex items-center gap-2 text-sm">
             <span className="text-lg">{moodEmoji[latestLog.mood] || "📝"}</span>
-            <span className="text-muted-foreground">Last log:</span>
+            <span className="text-muted-foreground">{t('dashboard.todaySnapshot.lastLog')}</span>
             <span className="font-medium text-foreground truncate">{latestLog.title}</span>
             <span className="text-xs text-muted-foreground ml-auto">{latestLog.date}</span>
           </div>
@@ -167,10 +169,10 @@ const TodaySnapshot = () => {
               <div className="flex items-center justify-between text-sm">
                 <span className="flex items-center gap-1.5 text-special-700 dark:text-special-300 font-medium">
                   <Heart className="h-3.5 w-3.5" />
-                  Profile {completeness}% complete
+                  {t('dashboard.todaySnapshot.profileComplete', { percent: completeness })}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {profileFields.length - filledFields} fields remaining
+                  {t('dashboard.todaySnapshot.fieldsRemaining', { count: profileFields.length - filledFields })}
                 </span>
               </div>
               <Progress value={completeness} className="h-1.5" />

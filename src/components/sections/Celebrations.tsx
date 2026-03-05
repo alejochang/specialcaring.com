@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -94,12 +95,12 @@ interface Moment {
   created_at: string;
 }
 
-/* ---------- Stage configuration ---------- */
-const stages = {
-  emerging: { icon: Sprout, label: "Emerging", color: "bg-amber-100 text-amber-700", emoji: "\uD83C\uDF31" },
-  growing: { icon: Leaf, label: "Growing", color: "bg-green-100 text-green-700", emoji: "\uD83C\uDF3F" },
-  blooming: { icon: Flower2, label: "Blooming", color: "bg-pink-100 text-pink-700", emoji: "\uD83C\uDF38" },
-  shining: { icon: Star, label: "Shining", color: "bg-yellow-100 text-yellow-700", emoji: "\u2B50" },
+/* ---------- Stage configuration (visual only - labels come from i18n) ---------- */
+const stageMeta = {
+  emerging: { icon: Sprout, color: "bg-amber-100 text-amber-700", emoji: "\uD83C\uDF31" },
+  growing: { icon: Leaf, color: "bg-green-100 text-green-700", emoji: "\uD83C\uDF3F" },
+  blooming: { icon: Flower2, color: "bg-pink-100 text-pink-700", emoji: "\uD83C\uDF38" },
+  shining: { icon: Star, color: "bg-yellow-100 text-yellow-700", emoji: "\u2B50" },
 };
 
 /* ---------- Icon & color mappings ---------- */
@@ -123,31 +124,23 @@ const colorMap: Record<string, string> = {
 };
 
 /* ---------- Zod schemas ---------- */
-const journeySchema = z.object({
-  title: z.string().min(1, "Title is required"),
+const createJourneySchema = (t: (key: string) => string) => z.object({
+  title: z.string().min(1, t('validation.titleRequired')),
   description: z.string().optional().default(""),
   category_id: z.string().optional().default(""),
   stage: z.enum(["emerging", "growing", "blooming", "shining"]).default("emerging"),
-  started_at: z.string().min(1, "Start date is required"),
+  started_at: z.string().min(1, t('validation.startDateRequired')),
 });
 
-const momentSchema = z.object({
-  title: z.string().min(1, "Title is required"),
+const createMomentSchema = (t: (key: string) => string) => z.object({
+  title: z.string().min(1, t('validation.titleRequired')),
   notes: z.string().optional().default(""),
   how_we_celebrated: z.string().optional().default(""),
-  moment_date: z.string().min(1, "Date is required"),
+  moment_date: z.string().min(1, t('validation.dateRequired')),
 });
 
-const editMomentSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  notes: z.string().optional().default(""),
-  how_we_celebrated: z.string().optional().default(""),
-  moment_date: z.string().min(1, "Date is required"),
-});
-
-type JourneyForm = z.infer<typeof journeySchema>;
-type MomentForm = z.infer<typeof momentSchema>;
-type EditMomentForm = z.infer<typeof editMomentSchema>;
+type JourneyForm = z.infer<ReturnType<typeof createJourneySchema>>;
+type MomentForm = z.infer<ReturnType<typeof createMomentSchema>>;
 
 const journeyDefaults: JourneyForm = {
   title: "",
@@ -164,15 +157,9 @@ const momentDefaults: MomentForm = {
   moment_date: format(new Date(), "yyyy-MM-dd"),
 };
 
-const editMomentDefaults: EditMomentForm = {
-  title: "",
-  notes: "",
-  how_we_celebrated: "",
-  moment_date: format(new Date(), "yyyy-MM-dd"),
-};
-
 /* ---------- Component ---------- */
 const Celebrations = () => {
+  const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [expandedJourneys, setExpandedJourneys] = useState<Set<string>>(new Set());
 
@@ -194,6 +181,16 @@ const Celebrations = () => {
   const { canEdit } = useUserRole();
   const queryClient = useQueryClient();
 
+  const journeySchema = useMemo(() => createJourneySchema(t), [t]);
+  const momentSchema = useMemo(() => createMomentSchema(t), [t]);
+
+  const stages = useMemo(() => ({
+    emerging: { ...stageMeta.emerging, label: t('sections.celebrations.stages.emerging') },
+    growing: { ...stageMeta.growing, label: t('sections.celebrations.stages.growing') },
+    blooming: { ...stageMeta.blooming, label: t('sections.celebrations.stages.blooming') },
+    shining: { ...stageMeta.shining, label: t('sections.celebrations.stages.shining') },
+  }), [t]);
+
   /* ---------- React Hook Form instances ---------- */
   const journeyForm = useForm<JourneyForm>({
     resolver: zodResolver(journeySchema),
@@ -205,9 +202,9 @@ const Celebrations = () => {
     defaultValues: momentDefaults,
   });
 
-  const editMomentForm = useForm<EditMomentForm>({
-    resolver: zodResolver(editMomentSchema),
-    defaultValues: editMomentDefaults,
+  const editMomentForm = useForm<MomentForm>({
+    resolver: zodResolver(momentSchema),
+    defaultValues: momentDefaults,
   });
 
   /* ---------- Categories query (seeds defaults if empty) ---------- */
@@ -308,14 +305,14 @@ const Celebrations = () => {
     onSuccess: () => {
       invalidateJourneys();
       toast({
-        title: editingJourney ? "Journey updated! \uD83C\uDF1F" : "New journey started! \uD83C\uDF89",
-        description: editingJourney ? undefined : "Every step forward is a celebration!",
+        title: editingJourney ? t('sections.celebrations.toast.journeyUpdated') : t('sections.celebrations.toast.journeyStarted'),
+        description: editingJourney ? undefined : t('sections.celebrations.toast.journeyStartedDesc'),
       });
       setIsJourneyDialogOpen(false);
       setEditingJourney(null);
       journeyForm.reset(journeyDefaults);
     },
-    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+    onError: (error: any) => toast({ title: t('toast.error'), description: error.message, variant: "destructive" }),
   });
 
   const momentMutation = useMutation({
@@ -334,14 +331,14 @@ const Celebrations = () => {
     },
     onSuccess: () => {
       invalidateJourneys();
-      toast({ title: "Moment captured! \u2728", description: "What a wonderful achievement to remember!" });
+      toast({ title: t('sections.celebrations.toast.momentCaptured'), description: t('sections.celebrations.toast.momentCapturedDesc') });
       if (selectedJourneyForMoment)
         setExpandedJourneys((prev) => new Set(prev).add(selectedJourneyForMoment.id));
       setIsMomentDialogOpen(false);
       setSelectedJourneyForMoment(null);
       momentForm.reset(momentDefaults);
     },
-    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+    onError: (error: any) => toast({ title: t('toast.error'), description: error.message, variant: "destructive" }),
   });
 
   const deleteJourneyMutation = useMutation({
@@ -351,9 +348,9 @@ const Celebrations = () => {
     },
     onSuccess: () => {
       invalidateJourneys();
-      toast({ title: "Journey removed" });
+      toast({ title: t('sections.celebrations.toast.journeyRemoved') });
     },
-    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+    onError: (error: any) => toast({ title: t('toast.error'), description: error.message, variant: "destructive" }),
   });
 
   const stageMutation = useMutation({
@@ -365,9 +362,9 @@ const Celebrations = () => {
     onSuccess: (stage) => {
       invalidateJourneys();
       const stageInfo = stages[stage as keyof typeof stages];
-      toast({ title: `${stageInfo.emoji} Now ${stageInfo.label}!` });
+      toast({ title: t('sections.celebrations.toast.stageUpdated', { stage: stageInfo.label }) });
     },
-    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+    onError: (error: any) => toast({ title: t('toast.error'), description: error.message, variant: "destructive" }),
   });
 
   const deleteMomentMutation = useMutation({
@@ -377,13 +374,13 @@ const Celebrations = () => {
     },
     onSuccess: () => {
       invalidateJourneys();
-      toast({ title: "Moment removed" });
+      toast({ title: t('sections.celebrations.toast.momentRemoved') });
     },
-    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+    onError: (error: any) => toast({ title: t('toast.error'), description: error.message, variant: "destructive" }),
   });
 
   const updateMomentMutation = useMutation({
-    mutationFn: async (formValues: EditMomentForm) => {
+    mutationFn: async (formValues: MomentForm) => {
       const { error } = await supabase
         .from("journey_moments")
         .update({
@@ -397,11 +394,11 @@ const Celebrations = () => {
     },
     onSuccess: () => {
       invalidateJourneys();
-      toast({ title: "Moment updated! \u2728" });
+      toast({ title: t('sections.celebrations.toast.momentUpdated') });
       setIsMomentEditDialogOpen(false);
       setEditingMoment(null);
     },
-    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+    onError: (error: any) => toast({ title: t('toast.error'), description: error.message, variant: "destructive" }),
   });
 
   /* ---------- Handlers ---------- */
@@ -430,7 +427,7 @@ const Celebrations = () => {
     setIsMomentEditDialogOpen(true);
   };
 
-  const handleUpdateMoment = (values: EditMomentForm) => {
+  const handleUpdateMoment = (values: MomentForm) => {
     if (!editingMoment) return;
     updateMomentMutation.mutate(values);
   };
@@ -463,10 +460,10 @@ const Celebrations = () => {
   if (!activeChild) {
     return (
       <div className="space-y-6">
-        <h2 className="text-3xl font-bold text-foreground">Celebrations</h2>
+        <h2 className="text-3xl font-bold text-foreground">{t('sections.celebrations.title')}</h2>
         <Alert>
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>Please select or create a child profile first.</AlertDescription>
+          <AlertDescription>{t('common.noChildProfile')}</AlertDescription>
         </Alert>
       </div>
     );
@@ -489,8 +486,8 @@ const Celebrations = () => {
             <PartyPopper className="h-6 w-6 text-yellow-600" />
           </div>
           <div>
-            <h2 className="text-3xl font-bold text-foreground">Celebrations</h2>
-            <p className="text-muted-foreground">Every achievement is a journey worth celebrating</p>
+            <h2 className="text-3xl font-bold text-foreground">{t('sections.celebrations.title')}</h2>
+            <p className="text-muted-foreground">{t('sections.celebrations.subtitle')}</p>
           </div>
         </div>
         {canEdit && (
@@ -506,7 +503,7 @@ const Celebrations = () => {
             }}
           >
             <Plus className="h-4 w-4 mr-2" />
-            Start a Journey
+            {t('sections.celebrations.startJourney')}
           </Button>
         )}
       </div>
@@ -517,7 +514,7 @@ const Celebrations = () => {
           <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
             <CardContent className="p-4 text-center">
               <p className="text-3xl font-bold text-yellow-700">{journeys.length}</p>
-              <p className="text-sm text-yellow-600">Journeys</p>
+              <p className="text-sm text-yellow-600">{t('sections.celebrations.stats.journeys')}</p>
             </CardContent>
           </Card>
           <Card className="bg-gradient-to-br from-pink-50 to-pink-100 border-pink-200">
@@ -525,7 +522,7 @@ const Celebrations = () => {
               <p className="text-3xl font-bold text-pink-700">
                 {journeys.reduce((sum, j) => sum + (j.moments?.length || 0), 0)}
               </p>
-              <p className="text-sm text-pink-600">Moments</p>
+              <p className="text-sm text-pink-600">{t('sections.celebrations.stats.moments')}</p>
             </CardContent>
           </Card>
           <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
@@ -533,7 +530,7 @@ const Celebrations = () => {
               <p className="text-3xl font-bold text-green-700">
                 {journeys.filter((j) => j.stage === "shining").length}
               </p>
-              <p className="text-sm text-green-600">Shining \u2B50</p>
+              <p className="text-sm text-green-600">{t('sections.celebrations.stats.shining')} {stageMeta.shining.emoji}</p>
             </CardContent>
           </Card>
           <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
@@ -541,7 +538,7 @@ const Celebrations = () => {
               <p className="text-3xl font-bold text-purple-700">
                 {journeys.filter((j) => j.stage === "emerging" || j.stage === "growing").length}
               </p>
-              <p className="text-sm text-purple-600">In Progress</p>
+              <p className="text-sm text-purple-600">{t('sections.celebrations.stats.inProgress')}</p>
             </CardContent>
           </Card>
         </div>
@@ -555,7 +552,7 @@ const Celebrations = () => {
               value="all"
               className="data-[state=active]:bg-special-100 data-[state=active]:text-special-700 rounded-full px-4"
             >
-              All
+              {t('common.all')}
             </TabsTrigger>
             {categories.map((cat) => {
               const IconComponent = getCategoryIcon(cat.icon);
@@ -603,7 +600,7 @@ const Celebrations = () => {
                             </Badge>
                           )}
                           <Badge className={stageInfo.color}>
-                            {stageInfo.emoji} {stageInfo.label}
+                            {stageMeta[journey.stage].emoji} {stageInfo.label}
                           </Badge>
                         </div>
                         <CardTitle className="text-lg">{journey.title}</CardTitle>
@@ -611,8 +608,8 @@ const Celebrations = () => {
                           <CardDescription className="mt-1">{journey.description}</CardDescription>
                         )}
                         <p className="text-xs text-muted-foreground mt-1">
-                          Started {format(new Date(journey.started_at), "MMM d, yyyy")} \u2022{" "}
-                          {journey.moments?.length || 0} moments
+                          {t('sections.celebrations.started', { date: format(new Date(journey.started_at), "MMM d, yyyy") })} {"\u2022"}{" "}
+                          {t('sections.celebrations.moments', { count: journey.moments?.length || 0 })}
                         </p>
                       </div>
                     </div>
@@ -630,14 +627,14 @@ const Celebrations = () => {
                           <SelectContent>
                             {Object.entries(stages).map(([key, info]) => (
                               <SelectItem key={key} value={key}>
-                                {info.emoji} {info.label}
+                                {stageMeta[key as keyof typeof stageMeta].emoji} {info.label}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       ) : (
                         <Badge className={stageInfo.color}>
-                          {stageInfo.emoji} {stageInfo.label}
+                          {stageMeta[journey.stage].emoji} {stageInfo.label}
                         </Badge>
                       )}
 
@@ -693,7 +690,7 @@ const Celebrations = () => {
                         }}
                       >
                         <Plus className="h-4 w-4 mr-1" />
-                        Add Moment
+                        {t('sections.celebrations.addMoment')}
                       </Button>
                     )}
 
@@ -702,13 +699,12 @@ const Celebrations = () => {
                         {isExpanded ? (
                           <>
                             <ChevronUp className="h-4 w-4 mr-1" />
-                            Hide Moments
+                            {t('sections.celebrations.hideMoments')}
                           </>
                         ) : (
                           <>
                             <ChevronDown className="h-4 w-4 mr-1" />
-                            Show {journey.moments?.length} Moment
-                            {journey.moments?.length !== 1 ? "s" : ""}
+                            {t(journey.moments?.length === 1 ? 'sections.celebrations.showMoments_one' : 'sections.celebrations.showMoments_other', { count: journey.moments?.length })}
                           </>
                         )}
                       </Button>
@@ -780,11 +776,10 @@ const Celebrations = () => {
               <Sparkles className="h-10 w-10 text-yellow-500" />
             </div>
             <h3 className="text-2xl font-bold mb-2 bg-gradient-to-r from-yellow-600 to-pink-600 bg-clip-text text-transparent">
-              Start Celebrating!
+              {t('sections.celebrations.startCelebrating')}
             </h3>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              Every achievement matters - big or small. Start a journey to track progress and celebrate the moments that
-              make your child shine.
+              {t('sections.celebrations.emptyDescription')}
             </p>
             {canEdit && (
               <Button
@@ -799,7 +794,7 @@ const Celebrations = () => {
                 }}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Start Your First Journey
+                {t('sections.celebrations.startFirstJourney')}
               </Button>
             )}
           </CardContent>
@@ -812,12 +807,12 @@ const Celebrations = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-yellow-500" />
-              {editingJourney ? "Edit Journey" : "Start a New Journey"}
+              {editingJourney ? t('sections.celebrations.journeyDialog.editTitle') : t('sections.celebrations.journeyDialog.createTitle')}
             </DialogTitle>
             <DialogDescription>
               {editingJourney
-                ? "Update this journey's details"
-                : "What skill or achievement would you like to track?"}
+                ? t('sections.celebrations.journeyDialog.editSubtitle')
+                : t('sections.celebrations.journeyDialog.createSubtitle')}
             </DialogDescription>
           </DialogHeader>
 
@@ -828,10 +823,10 @@ const Celebrations = () => {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>What are you celebrating? *</FormLabel>
+                    <FormLabel>{t('sections.celebrations.journeyDialog.whatCelebrating')}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="e.g., Learning to use a spoon, Making eye contact, First words..."
+                        placeholder={t('sections.celebrations.journeyDialog.whatCelebratingPlaceholder')}
                         {...field}
                       />
                     </FormControl>
@@ -845,10 +840,10 @@ const Celebrations = () => {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description (optional)</FormLabel>
+                    <FormLabel>{t('sections.celebrations.journeyDialog.descriptionLabel')}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Any context or goals for this journey..."
+                        placeholder={t('sections.celebrations.journeyDialog.descriptionPlaceholder')}
                         className="min-h-[80px]"
                         {...field}
                       />
@@ -864,11 +859,11 @@ const Celebrations = () => {
                   name="category_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Category</FormLabel>
+                      <FormLabel>{t('sections.celebrations.journeyDialog.category')}</FormLabel>
                       <Select value={field.value} onValueChange={field.onChange}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select category" />
+                            <SelectValue placeholder={t('sections.celebrations.journeyDialog.categoryPlaceholder')} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -895,7 +890,7 @@ const Celebrations = () => {
                   name="stage"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Current Stage</FormLabel>
+                      <FormLabel>{t('sections.celebrations.journeyDialog.currentStage')}</FormLabel>
                       <Select value={field.value} onValueChange={field.onChange}>
                         <FormControl>
                           <SelectTrigger>
@@ -905,7 +900,7 @@ const Celebrations = () => {
                         <SelectContent>
                           {Object.entries(stages).map(([key, info]) => (
                             <SelectItem key={key} value={key}>
-                              {info.emoji} {info.label}
+                              {stageMeta[key as keyof typeof stageMeta].emoji} {info.label}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -921,7 +916,7 @@ const Celebrations = () => {
                 name="started_at"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>When did this journey start?</FormLabel>
+                    <FormLabel>{t('sections.celebrations.journeyDialog.whenStarted')}</FormLabel>
                     <FormControl>
                       <Input type="date" {...field} />
                     </FormControl>
@@ -932,13 +927,13 @@ const Celebrations = () => {
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsJourneyDialogOpen(false)}>
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   type="submit"
                   className="bg-gradient-to-r from-yellow-500 to-pink-500 hover:from-yellow-600 hover:to-pink-600"
                 >
-                  {editingJourney ? "Save Changes" : "Start Journey"} \uD83C\uDF1F
+                  {editingJourney ? t('sections.celebrations.journeyDialog.saveChanges') : t('sections.celebrations.journeyDialog.startJourney')}
                 </Button>
               </DialogFooter>
             </form>
@@ -952,12 +947,12 @@ const Celebrations = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <PartyPopper className="h-5 w-5 text-pink-500" />
-              Capture a Moment
+              {t('sections.celebrations.momentDialog.captureTitle')}
             </DialogTitle>
             <DialogDescription>
               {selectedJourneyForMoment && (
                 <>
-                  Record a progress moment for <strong>{selectedJourneyForMoment.title}</strong>
+                  {t('sections.celebrations.momentDialog.captureSubtitle', { journeyTitle: selectedJourneyForMoment.title })}
                 </>
               )}
             </DialogDescription>
@@ -970,10 +965,10 @@ const Celebrations = () => {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>What happened? *</FormLabel>
+                    <FormLabel>{t('sections.celebrations.momentDialog.whatHappened')}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="e.g., Held the spoon by herself!, Said 'mama' clearly..."
+                        placeholder={t('sections.celebrations.momentDialog.whatHappenedPlaceholder')}
                         {...field}
                       />
                     </FormControl>
@@ -987,10 +982,10 @@ const Celebrations = () => {
                 name="notes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>The story (optional)</FormLabel>
+                    <FormLabel>{t('sections.celebrations.momentDialog.storyLabel')}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="What led to this moment? How did it happen?"
+                        placeholder={t('sections.celebrations.momentDialog.storyPlaceholder')}
                         className="min-h-[80px]"
                         {...field}
                       />
@@ -1005,9 +1000,9 @@ const Celebrations = () => {
                 name="how_we_celebrated"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>How did you celebrate? (optional)</FormLabel>
+                    <FormLabel>{t('sections.celebrations.momentDialog.howCelebrated')}</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Big hugs and happy dance!, Ice cream treat..." {...field} />
+                      <Input placeholder={t('sections.celebrations.momentDialog.howCelebratedPlaceholder')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -1019,7 +1014,7 @@ const Celebrations = () => {
                 name="moment_date"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>When did this happen?</FormLabel>
+                    <FormLabel>{t('sections.celebrations.momentDialog.whenHappened')}</FormLabel>
                     <FormControl>
                       <Input type="date" {...field} />
                     </FormControl>
@@ -1030,13 +1025,13 @@ const Celebrations = () => {
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsMomentDialogOpen(false)}>
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   type="submit"
                   className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
                 >
-                  Save Moment \u2728
+                  {t('sections.celebrations.momentDialog.saveMoment')}
                 </Button>
               </DialogFooter>
             </form>
@@ -1050,9 +1045,9 @@ const Celebrations = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Pencil className="h-5 w-5 text-special-500" />
-              Edit Moment
+              {t('sections.celebrations.momentDialog.editTitle')}
             </DialogTitle>
-            <DialogDescription>Update the details of this moment</DialogDescription>
+            <DialogDescription>{t('sections.celebrations.momentDialog.editSubtitle')}</DialogDescription>
           </DialogHeader>
 
           <Form {...editMomentForm}>
@@ -1062,9 +1057,9 @@ const Celebrations = () => {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>What happened? *</FormLabel>
+                    <FormLabel>{t('sections.celebrations.momentDialog.whatHappened')}</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Held the spoon by herself!..." {...field} />
+                      <Input placeholder={t('sections.celebrations.momentDialog.whatHappenedPlaceholder')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -1076,10 +1071,10 @@ const Celebrations = () => {
                 name="notes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>The story (optional)</FormLabel>
+                    <FormLabel>{t('sections.celebrations.momentDialog.storyLabel')}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="What led to this moment? How did it happen?"
+                        placeholder={t('sections.celebrations.momentDialog.storyPlaceholder')}
                         className="min-h-[80px]"
                         {...field}
                       />
@@ -1094,9 +1089,9 @@ const Celebrations = () => {
                 name="how_we_celebrated"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>How did you celebrate? (optional)</FormLabel>
+                    <FormLabel>{t('sections.celebrations.momentDialog.howCelebrated')}</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Big hugs and happy dance!..." {...field} />
+                      <Input placeholder={t('sections.celebrations.momentDialog.howCelebratedPlaceholder')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -1108,7 +1103,7 @@ const Celebrations = () => {
                 name="moment_date"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>When did this happen?</FormLabel>
+                    <FormLabel>{t('sections.celebrations.momentDialog.whenHappened')}</FormLabel>
                     <FormControl>
                       <Input type="date" {...field} />
                     </FormControl>
@@ -1119,13 +1114,13 @@ const Celebrations = () => {
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsMomentEditDialogOpen(false)}>
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   type="submit"
                   className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
                 >
-                  Save Changes \u2728
+                  {t('sections.celebrations.momentDialog.saveChanges')}
                 </Button>
               </DialogFooter>
             </form>
@@ -1137,18 +1132,18 @@ const Celebrations = () => {
       <AlertDialog open={deletingJourneyId !== null} onOpenChange={(open) => !open && setDeletingJourneyId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Journey?</AlertDialogTitle>
+            <AlertDialogTitle>{t('sections.celebrations.deleteJourney.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this journey and all its moments. This action cannot be undone.
+              {t('sections.celebrations.deleteJourney.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={confirmDeleteJourney}
             >
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1158,18 +1153,18 @@ const Celebrations = () => {
       <AlertDialog open={deletingMomentId !== null} onOpenChange={(open) => !open && setDeletingMomentId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Moment?</AlertDialogTitle>
+            <AlertDialogTitle>{t('sections.celebrations.deleteMoment.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this moment. This action cannot be undone.
+              {t('sections.celebrations.deleteMoment.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={confirmDeleteMoment}
             >
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

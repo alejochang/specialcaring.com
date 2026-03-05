@@ -22,13 +22,13 @@ export const STEP_ORDER: WizardStep[] = [
 ];
 
 export const STEP_LABELS: Record<WizardStep, string> = {
-  name: "Child's Name",
-  birthDate: "Birth Date",
-  medical: "Medical Info",
-  emergency: "Emergency Contact",
-  medication: "Medications",
-  protocol: "Emergency Protocol",
-  completion: "All Done",
+  name: "onboarding.stepLabels.name",
+  birthDate: "onboarding.stepLabels.birthDate",
+  medical: "onboarding.stepLabels.medical",
+  emergency: "onboarding.stepLabels.emergency",
+  medication: "onboarding.stepLabels.medication",
+  protocol: "onboarding.stepLabels.protocol",
+  completion: "onboarding.stepLabels.completion",
 };
 
 export interface StepData {

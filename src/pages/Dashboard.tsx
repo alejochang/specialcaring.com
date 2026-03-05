@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import DashboardLayout from "@/components/layout/Dashboard";
 import KeyInformation from "@/components/sections/KeyInformation";
 import EmergencyCards from "@/components/sections/EmergencyCards";
@@ -90,38 +91,39 @@ const Dashboard = () => {
 
 const sectionGroups = [
   {
-    title: "Medical & Emergency",
+    titleKey: "dashboard.sectionGroups.medicalAndEmergency",
     items: [
-      { to: "/dashboard/key-information", icon: Heart, label: "Child Profile", desc: "Essential info & preferences", color: "text-special-600" },
-      { to: "/dashboard/emergency-cards", icon: AlertTriangle, label: "Emergency Cards", desc: "Digital ID & insurance cards", color: "text-special-600" },
-      { to: "/dashboard/medical-emergency-protocols", icon: FileText, label: "Emergency Protocols", desc: "Medical emergency guides", color: "text-destructive" },
-      { to: "/dashboard/medications", icon: Pill, label: "Medications", desc: "Dosages & schedules", color: "text-special-600" },
-      { to: "/dashboard/medical-contacts", icon: Phone, label: "Medical Contacts", desc: "Healthcare providers", color: "text-special-600" },
-      { to: "/dashboard/suppliers", icon: Truck, label: "Suppliers & Providers", desc: "Medicines & supplies", color: "text-special-600" },
+      { to: "/dashboard/key-information", icon: Heart, labelKey: "dashboard.sectionCards.childProfile.label", descKey: "dashboard.sectionCards.childProfile.desc", color: "text-special-600" },
+      { to: "/dashboard/emergency-cards", icon: AlertTriangle, labelKey: "dashboard.sectionCards.emergencyCards.label", descKey: "dashboard.sectionCards.emergencyCards.desc", color: "text-special-600" },
+      { to: "/dashboard/medical-emergency-protocols", icon: FileText, labelKey: "dashboard.sectionCards.emergencyProtocols.label", descKey: "dashboard.sectionCards.emergencyProtocols.desc", color: "text-destructive" },
+      { to: "/dashboard/medications", icon: Pill, labelKey: "dashboard.sectionCards.medications.label", descKey: "dashboard.sectionCards.medications.desc", color: "text-special-600" },
+      { to: "/dashboard/medical-contacts", icon: Phone, labelKey: "dashboard.sectionCards.medicalContacts.label", descKey: "dashboard.sectionCards.medicalContacts.desc", color: "text-special-600" },
+      { to: "/dashboard/suppliers", icon: Truck, labelKey: "dashboard.sectionCards.suppliers.label", descKey: "dashboard.sectionCards.suppliers.desc", color: "text-special-600" },
     ],
   },
   {
-    title: "Daily Life & Safety",
+    titleKey: "dashboard.sectionGroups.dailyLifeAndSafety",
     items: [
-      { to: "/dashboard/daily-log", icon: Calendar, label: "Daily Log", desc: "Activities & observations", color: "text-special-600" },
-      { to: "/dashboard/home-safety", icon: Shield, label: "Home Safety", desc: "Safety protocols & checklists", color: "text-special-600" },
-      { to: "/dashboard/celebrations", icon: PartyPopper, label: "Celebrations", desc: "Achievements & milestones", color: "text-special-600" },
+      { to: "/dashboard/daily-log", icon: Calendar, labelKey: "dashboard.sectionCards.dailyLog.label", descKey: "dashboard.sectionCards.dailyLog.desc", color: "text-special-600" },
+      { to: "/dashboard/home-safety", icon: Shield, labelKey: "dashboard.sectionCards.homeSafety.label", descKey: "dashboard.sectionCards.homeSafety.desc", color: "text-special-600" },
+      { to: "/dashboard/celebrations", icon: PartyPopper, labelKey: "dashboard.sectionCards.celebrations.label", descKey: "dashboard.sectionCards.celebrations.desc", color: "text-special-600" },
     ],
   },
   {
-    title: "Resources & Admin",
+    titleKey: "dashboard.sectionGroups.resourcesAndAdmin",
     items: [
-      { to: "/dashboard/community-services", icon: Building, label: "Community Services", desc: "Local resources & support", color: "text-special-600" },
-      { to: "/dashboard/employment", icon: Briefcase, label: "Employment", desc: "Care team agreements", color: "text-special-600" },
-      { to: "/dashboard/financial-legal", icon: Scale, label: "Financial & Legal", desc: "Important documents", color: "text-special-600" },
-      { to: "/dashboard/end-of-life", icon: BookHeart, label: "End-of-Life Wishes", desc: "Advanced directives", color: "text-special-600" },
-      { to: "/dashboard/documents", icon: FolderOpen, label: "Documents", desc: "Uploaded files & records", color: "text-special-600" },
+      { to: "/dashboard/community-services", icon: Building, labelKey: "dashboard.sectionCards.communityServices.label", descKey: "dashboard.sectionCards.communityServices.desc", color: "text-special-600" },
+      { to: "/dashboard/employment", icon: Briefcase, labelKey: "dashboard.sectionCards.employment.label", descKey: "dashboard.sectionCards.employment.desc", color: "text-special-600" },
+      { to: "/dashboard/financial-legal", icon: Scale, labelKey: "dashboard.sectionCards.financialLegal.label", descKey: "dashboard.sectionCards.financialLegal.desc", color: "text-special-600" },
+      { to: "/dashboard/end-of-life", icon: BookHeart, labelKey: "dashboard.sectionCards.endOfLife.label", descKey: "dashboard.sectionCards.endOfLife.desc", color: "text-special-600" },
+      { to: "/dashboard/documents", icon: FolderOpen, labelKey: "dashboard.sectionCards.documents.label", descKey: "dashboard.sectionCards.documents.desc", color: "text-special-600" },
     ],
   },
 ];
 
 const DashboardOverview = () => {
   const { activeChild } = useChild();
+  const { t } = useTranslation();
 
   return (
     <div className="animate-fadeIn">
@@ -133,9 +135,9 @@ const DashboardOverview = () => {
           <QuickActions />
 
           {sectionGroups.map((group) => (
-            <div key={group.title} className="mb-6">
+            <div key={group.titleKey} className="mb-6">
               <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                {group.title}
+                {t(group.titleKey)}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {group.items.map((item) => (
@@ -146,8 +148,8 @@ const DashboardOverview = () => {
                           <item.icon className={`h-4.5 w-4.5 ${item.color}`} />
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold text-foreground truncate">{item.label}</p>
-                          <p className="text-xs text-muted-foreground truncate">{item.desc}</p>
+                          <p className="text-sm font-semibold text-foreground truncate">{t(item.labelKey)}</p>
+                          <p className="text-xs text-muted-foreground truncate">{t(item.descKey)}</p>
                         </div>
                       </CardContent>
                     </Card>

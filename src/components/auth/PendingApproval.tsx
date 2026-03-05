@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const PendingApproval = () => {
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleSignOut = async () => {
     await signOut();
@@ -20,18 +22,18 @@ const PendingApproval = () => {
           <div className="w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-4">
             <Clock className="h-8 w-8 text-amber-600" />
           </div>
-          <CardTitle className="text-2xl">Account Pending Approval</CardTitle>
+          <CardTitle className="text-2xl">{t('auth.pendingApproval.title')}</CardTitle>
           <CardDescription className="text-base mt-2">
-            Your account has been created successfully. An administrator needs to approve your access before you can use the platform.
+            {t('auth.pendingApproval.message')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            You'll be able to access all features once your account is approved. Please check back later or contact your administrator.
+            {t('auth.pendingApproval.instruction')}
           </p>
           <Button variant="outline" onClick={handleSignOut} className="w-full">
             <LogOut className="h-4 w-4 mr-2" />
-            Sign Out
+            {t('auth.pendingApproval.signOut')}
           </Button>
         </CardContent>
       </Card>

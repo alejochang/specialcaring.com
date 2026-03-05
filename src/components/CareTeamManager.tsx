@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useChild } from "@/contexts/ChildContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,6 +34,7 @@ interface Invite {
 }
 
 const CareTeamManager = () => {
+  const { t } = useTranslation();
   const { activeChild, isOwner } = useChild();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -119,9 +121,9 @@ const CareTeamManager = () => {
       setGeneratedCode((data as Invite).invite_code);
       setInviteEmail("");
       fetchTeam();
-      toast({ title: "Invite created", description: "Share the invite code with the caregiver." });
+      toast({ title: t('toast.inviteCreated'), description: t('toast.inviteCreatedDesc') });
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t('common.error'), description: error.message, variant: "destructive" });
     }
   };
 
@@ -136,9 +138,9 @@ const CareTeamManager = () => {
       if (error) throw error;
       setRemoveId(null);
       fetchTeam();
-      toast({ title: "Member removed" });
+      toast({ title: t('toast.memberRemoved') });
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t('common.error'), description: error.message, variant: "destructive" });
     }
   };
 
@@ -151,15 +153,15 @@ const CareTeamManager = () => {
 
       if (error) throw error;
       fetchTeam();
-      toast({ title: "Invite revoked" });
+      toast({ title: t('toast.inviteRevoked', { defaultValue: 'Invite revoked' }) });
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t('common.error'), description: error.message, variant: "destructive" });
     }
   };
 
   const copyCode = (code: string) => {
     navigator.clipboard.writeText(code);
-    toast({ title: "Copied!", description: "Invite code copied to clipboard." });
+    toast({ title: t('toast.codeCopied'), description: t('toast.codeCopiedDesc') });
   };
 
   const roleColor = (role: string) => {
@@ -178,11 +180,11 @@ const CareTeamManager = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-3">
           <CardTitle className="text-base flex items-center gap-2">
-            <Users className="h-4 w-4" /> Care Team
+            <Users className="h-4 w-4" /> {t('careTeam.title')}
           </CardTitle>
           {isCurrentOwner && (
             <Button size="sm" variant="outline" onClick={() => { setIsInviteOpen(true); setGeneratedCode(null); }} className="gap-1">
-              <UserPlus className="h-4 w-4" /> Invite
+              <UserPlus className="h-4 w-4" /> {t('careTeam.invite')}
             </Button>
           )}
         </CardHeader>
@@ -197,8 +199,8 @@ const CareTeamManager = () => {
                 <div key={m.id} className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="font-medium text-sm truncate">
-                      {m.profile?.full_name || "Unknown user"}
-                      {m.user_id === user?.id && " (You)"}
+                      {m.profile?.full_name || t('careTeam.unknownUser')}
+                      {m.user_id === user?.id && ` ${t('careTeam.youLabel')}`}
                     </span>
                     <Badge variant="secondary" className={`text-xs ${roleColor(m.role)}`}>
                       {m.role}
@@ -219,14 +221,14 @@ const CareTeamManager = () => {
 
               {invites.length > 0 && isCurrentOwner && (
                 <div className="pt-3 border-t">
-                  <p className="text-xs font-medium text-muted-foreground mb-2">Pending Invites</p>
+                  <p className="text-xs font-medium text-muted-foreground mb-2">{t('careTeam.pendingInvites')}</p>
                   {invites.map(inv => (
                     <div key={inv.id} className="flex items-center justify-between gap-2 py-1">
                       <div className="flex items-center gap-2 min-w-0 text-sm">
                         {inv.invited_email ? (
                           <span className="flex items-center gap-1 truncate"><Mail className="h-3 w-3" /> {inv.invited_email}</span>
                         ) : (
-                          <span className="flex items-center gap-1"><Key className="h-3 w-3" /> Code only</span>
+                          <span className="flex items-center gap-1"><Key className="h-3 w-3" /> {t('careTeam.codeOnly')}</span>
                         )}
                         <Badge variant="outline" className="text-xs">{inv.role}</Badge>
                       </div>
@@ -251,45 +253,45 @@ const CareTeamManager = () => {
       <Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Invite Caregiver</DialogTitle>
+            <DialogTitle>{t('careTeam.inviteDialog.title')}</DialogTitle>
             <DialogDescription>
-              Create an invite code to share with another caregiver. Optionally add their email to help them find the invite.
+              {t('careTeam.inviteDialog.description')}
             </DialogDescription>
           </DialogHeader>
 
           {generatedCode ? (
             <div className="space-y-4">
               <div className="bg-muted rounded-lg p-4 text-center">
-                <p className="text-xs text-muted-foreground mb-1">Share this invite code</p>
+                <p className="text-xs text-muted-foreground mb-1">{t('careTeam.inviteDialog.shareCode')}</p>
                 <p className="text-2xl font-mono font-bold tracking-wider">{generatedCode}</p>
               </div>
               <Button className="w-full" variant="outline" onClick={() => copyCode(generatedCode)}>
-                <Copy className="h-4 w-4 mr-2" /> Copy Code
+                <Copy className="h-4 w-4 mr-2" /> {t('careTeam.inviteDialog.copyCode')}
               </Button>
               <p className="text-xs text-muted-foreground text-center">
-                This code expires in 7 days. The recipient can redeem it from their dashboard.
+                {t('careTeam.inviteDialog.codeExpiry')}
               </p>
             </div>
           ) : (
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-1 block">Email (optional)</label>
+                <label className="text-sm font-medium mb-1 block">{t('careTeam.inviteDialog.emailLabel')}</label>
                 <Input
-                  placeholder="caregiver@email.com"
+                  placeholder={t('careTeam.inviteDialog.emailPlaceholder')}
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                   type="email"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">Role</label>
+                <label className="text-sm font-medium mb-1 block">{t('careTeam.inviteDialog.roleLabel')}</label>
                 <Select value={inviteRole} onValueChange={setInviteRole}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="caregiver">Caregiver (read & write)</SelectItem>
-                    <SelectItem value="viewer">Viewer (read only)</SelectItem>
+                    <SelectItem value="caregiver">{t('careTeam.inviteDialog.roles.caregiver')}</SelectItem>
+                    <SelectItem value="viewer">{t('careTeam.inviteDialog.roles.viewer')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -298,10 +300,10 @@ const CareTeamManager = () => {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsInviteOpen(false)}>
-              {generatedCode ? "Done" : "Cancel"}
+              {generatedCode ? t('common.done') : t('common.cancel')}
             </Button>
             {!generatedCode && (
-              <Button onClick={handleInvite}>Create Invite</Button>
+              <Button onClick={handleInvite}>{t('careTeam.inviteDialog.createInvite')}</Button>
             )}
           </DialogFooter>
         </DialogContent>
@@ -311,15 +313,15 @@ const CareTeamManager = () => {
       <AlertDialog open={!!removeId} onOpenChange={(open) => !open && setRemoveId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove Team Member</AlertDialogTitle>
+            <AlertDialogTitle>{t('careTeam.removeDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This person will lose access to this child's data. They can be re-invited later.
+              {t('careTeam.removeDialog.description', { name: members.find(m => m.id === removeId)?.profile?.full_name || '' })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleRemoveMember} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Remove
+              {t('careTeam.removeDialog.removeButton')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

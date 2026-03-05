@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Download, FileText, FileSpreadsheet, FileJson, Loader2 } from 'lucide-react';
 import {
   Dialog,
@@ -22,44 +23,45 @@ interface ExportDialogProps {
   trigger?: React.ReactNode;
 }
 
-const SECTIONS: { id: ExportSection; label: string; description: string }[] = [
-  { id: 'keyInformation', label: 'Key Information', description: 'Basic profile, contact info, medical conditions' },
-  { id: 'medications', label: 'Medications', description: 'Current medications, dosages, schedules' },
-  { id: 'medicalContacts', label: 'Medical Contacts', description: 'Doctors, specialists, healthcare providers' },
-  { id: 'emergencyProtocols', label: 'Emergency Protocols', description: 'Emergency procedures and instructions' },
-  { id: 'emergencyCards', label: 'Emergency Cards', description: 'ID cards and insurance documents' },
-  { id: 'dailyLogs', label: 'Daily Logs', description: 'Recent daily care logs and notes' },
-  { id: 'suppliers', label: 'Suppliers', description: 'Medical equipment and supply providers' },
-  { id: 'employmentAgreements', label: 'Employment Agreements', description: 'Care team employment details' },
-  { id: 'financialLegal', label: 'Financial & Legal', description: 'Financial and legal documents' },
-  { id: 'endOfLifeWishes', label: 'End-of-Life Wishes', description: 'Advanced directives and preferences' },
-  { id: 'homeSafety', label: 'Home Safety', description: 'Safety checks and protocols' },
-  { id: 'celebrations', label: 'Celebrations', description: 'Milestones and journey moments' },
-  { id: 'documents', label: 'Documents', description: 'Uploaded document metadata' },
+const SECTIONS: { id: ExportSection; labelKey: string; descKey: string }[] = [
+  { id: 'keyInformation', labelKey: 'export.sections.keyInformation.label', descKey: 'export.sections.keyInformation.description' },
+  { id: 'medications', labelKey: 'export.sections.medications.label', descKey: 'export.sections.medications.description' },
+  { id: 'medicalContacts', labelKey: 'export.sections.medicalContacts.label', descKey: 'export.sections.medicalContacts.description' },
+  { id: 'emergencyProtocols', labelKey: 'export.sections.emergencyProtocols.label', descKey: 'export.sections.emergencyProtocols.description' },
+  { id: 'emergencyCards', labelKey: 'export.sections.emergencyCards.label', descKey: 'export.sections.emergencyCards.description' },
+  { id: 'dailyLogs', labelKey: 'export.sections.dailyLogs.label', descKey: 'export.sections.dailyLogs.description' },
+  { id: 'suppliers', labelKey: 'export.sections.suppliers.label', descKey: 'export.sections.suppliers.description' },
+  { id: 'employmentAgreements', labelKey: 'export.sections.employmentAgreements.label', descKey: 'export.sections.employmentAgreements.description' },
+  { id: 'financialLegal', labelKey: 'export.sections.financialLegal.label', descKey: 'export.sections.financialLegal.description' },
+  { id: 'endOfLifeWishes', labelKey: 'export.sections.endOfLifeWishes.label', descKey: 'export.sections.endOfLifeWishes.description' },
+  { id: 'homeSafety', labelKey: 'export.sections.homeSafety.label', descKey: 'export.sections.homeSafety.description' },
+  { id: 'celebrations', labelKey: 'export.sections.celebrations.label', descKey: 'export.sections.celebrations.description' },
+  { id: 'documents', labelKey: 'export.sections.documents.label', descKey: 'export.sections.documents.description' },
 ];
 
-const FORMATS: { id: ExportFormat; label: string; icon: React.ReactNode; description: string }[] = [
+const FORMATS: { id: ExportFormat; labelKey: string; icon: React.ReactNode; descKey: string }[] = [
   {
     id: 'pdf',
-    label: 'PDF Document',
+    labelKey: 'export.formats.pdf.label',
     icon: <FileText className="h-5 w-5" />,
-    description: 'Best for printing and sharing',
+    descKey: 'export.formats.pdf.description',
   },
   {
     id: 'csv',
-    label: 'CSV Spreadsheet',
+    labelKey: 'export.formats.csv.label',
     icon: <FileSpreadsheet className="h-5 w-5" />,
-    description: 'For Excel, Google Sheets',
+    descKey: 'export.formats.csv.description',
   },
   {
     id: 'json',
-    label: 'JSON Data',
+    labelKey: 'export.formats.json.label',
     icon: <FileJson className="h-5 w-5" />,
-    description: 'Machine-readable backup',
+    descKey: 'export.formats.json.description',
   },
 ];
 
 export function ExportDialog({ childId, childName, trigger }: ExportDialogProps) {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [format, setFormat] = useState<ExportFormat>('pdf');
@@ -86,8 +88,8 @@ export function ExportDialog({ childId, childName, trigger }: ExportDialogProps)
   const handleExport = async () => {
     if (selectedSections.length === 0) {
       toast({
-        title: 'Select sections',
-        description: 'Please select at least one section to export',
+        title: t('toast.selectSections'),
+        description: t('toast.selectSectionsDesc'),
         variant: 'destructive',
       });
       return;
@@ -103,16 +105,16 @@ export function ExportDialog({ childId, childName, trigger }: ExportDialogProps)
       });
 
       toast({
-        title: 'Export complete',
-        description: 'Your data has been exported successfully',
+        title: t('toast.exportComplete'),
+        description: t('toast.exportCompleteDesc'),
       });
 
       setOpen(false);
     } catch (error) {
       console.error('Export error:', error);
       toast({
-        title: 'Export failed',
-        description: error instanceof Error ? error.message : 'Failed to export data',
+        title: t('toast.exportFailed'),
+        description: error instanceof Error ? error.message : t('toast.exportFailedDesc'),
         variant: 'destructive',
       });
     } finally {
@@ -126,24 +128,24 @@ export function ExportDialog({ childId, childName, trigger }: ExportDialogProps)
         {trigger || (
           <Button variant="outline" size="sm">
             <Download className="mr-2 h-4 w-4" />
-            Export
+            {t('common.export')}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Export Data</DialogTitle>
+          <DialogTitle>{t('export.title')}</DialogTitle>
           <DialogDescription>
             {childName
-              ? `Export care data for ${childName}`
-              : 'Export care data in your preferred format'}
+              ? t('export.descriptionWithName', { childName })
+              : t('export.descriptionGeneric')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
           {/* Format Selection */}
           <div className="space-y-3">
-            <Label className="text-base font-semibold">Export Format</Label>
+            <Label className="text-base font-semibold">{t('export.format')}</Label>
             <RadioGroup
               value={format}
               onValueChange={(v) => setFormat(v as ExportFormat)}
@@ -161,19 +163,19 @@ export function ExportDialog({ childId, childName, trigger }: ExportDialogProps)
                     className="flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-3 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
                   >
                     {f.icon}
-                    <span className="mt-2 text-xs font-medium">{f.label}</span>
+                    <span className="mt-2 text-xs font-medium">{t(f.labelKey)}</span>
                   </Label>
                 </div>
               ))}
             </RadioGroup>
             <p className="text-xs text-muted-foreground">
-              {FORMATS.find((f) => f.id === format)?.description}
+              {t(FORMATS.find((f) => f.id === format)?.descKey || '')}
             </p>
           </div>
 
           {/* Section Selection */}
           <div className="space-y-3">
-            <Label className="text-base font-semibold">Sections to Include</Label>
+            <Label className="text-base font-semibold">{t('export.sectionsToInclude')}</Label>
             <div className="space-y-2">
               {/* All sections option */}
               <div className="flex items-start space-x-3 rounded-md border p-3">
@@ -186,10 +188,10 @@ export function ExportDialog({ childId, childName, trigger }: ExportDialogProps)
                 />
                 <div className="grid gap-0.5 leading-none">
                   <Label htmlFor="section-all" className="font-medium cursor-pointer">
-                    All Sections
+                    {t('export.allSections')}
                   </Label>
                   <p className="text-xs text-muted-foreground">
-                    Export everything
+                    {t('export.exportEverything')}
                   </p>
                 </div>
               </div>
@@ -213,10 +215,10 @@ export function ExportDialog({ childId, childName, trigger }: ExportDialogProps)
                           isAllSelected ? 'text-muted-foreground' : ''
                         }`}
                       >
-                        {section.label}
+                        {t(section.labelKey)}
                       </Label>
                       <p className="text-xs text-muted-foreground">
-                        {section.description}
+                        {t(section.descKey)}
                       </p>
                     </div>
                   </div>
@@ -228,18 +230,18 @@ export function ExportDialog({ childId, childName, trigger }: ExportDialogProps)
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button onClick={handleExport} disabled={isExporting || selectedSections.length === 0}>
             {isExporting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Exporting...
+                {t('common.exporting')}
               </>
             ) : (
               <>
                 <Download className="mr-2 h-4 w-4" />
-                Export
+                {t('common.export')}
               </>
             )}
           </Button>

@@ -1,20 +1,23 @@
+import { useTranslation } from "react-i18next";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
 const Privacy = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
       <main className="flex-1 container py-16 px-4 mt-16 max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Privacy Policy</h1>
+        <h1 className="text-3xl font-bold mb-8">{t("pages.privacy.title")}</h1>
         <p className="text-sm text-muted-foreground mb-6">
-          Last updated: February 23, 2026 &middot; Version 1.0
+          {t("pages.privacy.lastUpdated", { date: "February 23, 2026", version: "1.0" })}
         </p>
 
         <div className="prose prose-sm max-w-none space-y-6 text-foreground">
           <section>
-            <h2 className="text-xl font-semibold mt-6 mb-3">1. Information We Collect</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3">{t("pages.privacy.sections.infoCollect.title")}</h2>
             <p>
               Special Caring collects only the information strictly necessary to provide care
               coordination services. This includes:
@@ -27,7 +30,7 @@ const Privacy = () => {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-6 mb-3">2. How We Protect Your Data</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3">{t("pages.privacy.sections.protectData.title")}</h2>
             <p>
               We take the security of your child&rsquo;s data extremely seriously:
             </p>
@@ -49,7 +52,7 @@ const Privacy = () => {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-6 mb-3">3. Data Minimization</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3">{t("pages.privacy.sections.dataMinimization.title")}</h2>
             <p>
               We only store what is strictly necessary for care coordination. When you export
               your data, internal system identifiers are stripped so only meaningful care
@@ -58,7 +61,7 @@ const Privacy = () => {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-6 mb-3">4. Data Portability</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3">{t("pages.privacy.sections.dataPortability.title")}</h2>
             <p>
               You can export all of your child&rsquo;s care data at any time in PDF, CSV, or
               JSON format from your dashboard. This ensures you can take your data with you if
@@ -67,7 +70,7 @@ const Privacy = () => {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-6 mb-3">5. Right to Erasure</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3">{t("pages.privacy.sections.rightToErasure.title")}</h2>
             <p>
               You can delete your account and all associated data at any time from your Profile
               page. This action is irreversible and will permanently remove all children
@@ -76,7 +79,7 @@ const Privacy = () => {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-6 mb-3">6. Children&rsquo;s Privacy (COPPA)</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3">{t("pages.privacy.sections.childrenPrivacy.title")}</h2>
             <p>
               Special Caring is designed for use by parents and caregivers of children. We do
               not collect information directly from children. All data is entered and managed
@@ -85,7 +88,7 @@ const Privacy = () => {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-6 mb-3">7. Data Sharing</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3">{t("pages.privacy.sections.dataSharing.title")}</h2>
             <p>
               We do not sell, rent, or share your personal data with third parties. Data is
               only shared with care team members you explicitly invite to your child&rsquo;s
@@ -94,7 +97,7 @@ const Privacy = () => {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-6 mb-3">8. Contact Us</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3">{t("pages.privacy.sections.contactUs.title")}</h2>
             <p>
               If you have questions about this privacy policy or your data, please contact us
               at <a href="mailto:privacy@specialcaring.com" className="text-special-600 hover:underline">privacy@specialcaring.com</a>.

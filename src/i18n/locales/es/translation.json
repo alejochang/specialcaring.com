@@ -1,9 +1,8 @@
-
 {
   "home": {
     "hero": {
-      "title": "Gestión de cuidados especiales para niños especiales",
-      "subtitle": "Un centro para organizar toda la información esencial de cuidado para su niño con necesidades especiales, accesible exactamente cuando lo necesite.",
+      "title": "Gestión de Cuidados Especiales Para Niños Especiales",
+      "subtitle": "Un centro para organizar toda la información esencial del cuidado de tu hijo con necesidades especiales, accesible exactamente cuando la necesitas.",
       "getStarted": "Comenzar",
       "signIn": "Iniciar sesión",
       "features": {
@@ -13,45 +12,45 @@
       }
     },
     "featuresSection": {
-      "title": "Todo lo que necesita en un solo lugar",
-      "subtitle": "Special Caring proporciona todas las herramientas que necesita para gestionar la información de cuidado de su niño con necesidades especiales.",
-      "learnMore": "Saber más",
+      "title": "Todo Lo Que Necesitas En Un Solo Lugar",
+      "subtitle": "Special Caring te brinda todas las herramientas que necesitas para gestionar la información de cuidado de tu hijo con necesidades especiales.",
+      "learnMore": "Más información",
       "features": {
         "essentialInfo": {
-          "title": "Información esencial",
-          "description": "Almacene de forma segura datos personales, contactos de emergencia e información de identificación."
+          "title": "Información Esencial",
+          "description": "Almacena datos personales, contactos de emergencia e información de identificación de forma segura."
         },
         "medicalManagement": {
-          "title": "Gestión médica",
-          "description": "Realice seguimiento de medicamentos, contactos médicos y citas de atención médica para su hijo."
+          "title": "Gestión Médica",
+          "description": "Registra medicamentos, contactos médicos y citas de salud de tu hijo."
         },
         "specialNeeds": {
-          "title": "Apoyo para necesidades especiales",
-          "description": "Registre requisitos específicos, terapias y adaptaciones para las necesidades especiales de su hijo."
+          "title": "Apoyo para Necesidades Especiales",
+          "description": "Registra requisitos específicos, terapias y adaptaciones para las necesidades especiales de tu hijo."
         },
         "dailyLogs": {
-          "title": "Registros diarios",
-          "description": "Registre actividades diarias, comportamientos y observaciones importantes para la continuidad del cuidado."
+          "title": "Registros Diarios",
+          "description": "Documenta actividades diarias, comportamientos y observaciones importantes para la continuidad del cuidado."
         },
         "careTeam": {
-          "title": "Contactos del equipo de cuidado",
-          "description": "Gestione información de todos los cuidadores, terapeutas y familiares involucrados en el cuidado."
+          "title": "Contactos del Equipo de Cuidado",
+          "description": "Gestiona la información de todos los cuidadores, terapeutas y familiares involucrados en el cuidado."
         },
         "celebrations": {
           "title": "Celebraciones",
-          "description": "Siga los logros únicos de su hijo - cada hito es un viaje que vale la pena celebrar."
+          "description": "Registra los logros únicos de tu hijo — cada hito es un camino que vale la pena celebrar."
         }
       }
     },
     "ctaSection": {
-      "title": "¿Listo para simplificar su camino de cuidado especial?",
-      "subtitle": "Únase a otras familias con necesidades especiales que han encontrado alivio a través de una mejor organización del cuidado.",
+      "title": "¿Listo para simplificar tu camino como cuidador especial?",
+      "subtitle": "Únete a otras familias con necesidades especiales que han encontrado alivio a través de una mejor organización del cuidado.",
       "benefits": {
-        "saveTime": "Ahorre tiempo con acceso fácil a la información",
-        "reduceStress": "Reduzca el estrés con mejor organización",
-        "improveCare": "Mejore la coordinación del cuidado con todos los miembros del equipo"
+        "saveTime": "Ahorra tiempo con acceso fácil a la información",
+        "reduceStress": "Reduce el estrés con mejor organización",
+        "improveCare": "Mejora la coordinación del cuidado con todos los miembros del equipo"
       },
-      "getStartedFree": "Comenzar gratis"
+      "getStartedFree": "Comenzar Gratis"
     }
   },
   "navigation": {
@@ -70,11 +69,1687 @@
     "privacy": "Política de privacidad",
     "terms": "Términos de servicio",
     "copyright": "© {{year}} Special Caring. Todos los derechos reservados.",
-    "madeWith": "Hecho con amor para familias con necesidades especiales"
+    "madeWith": "Hecho con amor para familias con necesidades especiales",
+    "description": "Un centro para gestionar la información de cuidado y las tareas de niños con necesidades especiales. Nuestra plataforma asegura que los datos esenciales estén siempre al alcance de tu mano."
   },
   "language": {
     "en": "English",
     "fr-CA": "Français (Canada)",
     "es": "Español"
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "add": "Agregar",
+    "remove": "Eliminar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "continue": "Continuar",
+    "skip": "Omitir",
+    "skipForNow": "Omitir por ahora",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "loading": "Cargando...",
+    "saving": "Guardando...",
+    "deleting": "Eliminando...",
+    "submitting": "Enviando...",
+    "exporting": "Exportando...",
+    "uploading": "Subiendo...",
+    "search": "Buscar",
+    "searchEllipsis": "Buscar...",
+    "noResults": "No se encontraron resultados.",
+    "error": "Error",
+    "success": "Éxito",
+    "required": "Obligatorio",
+    "optional": "Opcional",
+    "yes": "Sí",
+    "no": "No",
+    "or": "o",
+    "all": "Todos",
+    "none": "Ninguno",
+    "view": "Ver",
+    "download": "Descargar",
+    "export": "Exportar",
+    "email": "Correo electrónico",
+    "send": "Enviar",
+    "copy": "Copiar",
+    "done": "Listo",
+    "actions": "Acciones",
+    "status": "Estado",
+    "date": "Fecha",
+    "name": "Nombre",
+    "description": "Descripción",
+    "notes": "Notas",
+    "phone": "Teléfono",
+    "address": "Dirección",
+    "type": "Tipo",
+    "category": "Categoría",
+    "title": "Título",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "pending": "Pendiente",
+    "approved": "Aprobado",
+    "you": "Tú",
+    "unknown": "Desconocido",
+    "later": "Más tarde",
+    "saveChanges": "Guardar cambios",
+    "specialCaring": "Special Caring",
+    "noChildProfile": "Por favor selecciona o crea un perfil de niño primero."
+  },
+  "validation": {
+    "nameMinLength": "El nombre debe tener al menos 2 caracteres",
+    "nameMaxLength": "El nombre debe tener menos de 100 caracteres",
+    "invalidEmail": "Por favor ingresa una dirección de correo electrónico válida",
+    "passwordMinLength": "La contraseña debe tener al menos 8 caracteres",
+    "passwordsDoNotMatch": "Las contraseñas no coinciden",
+    "passwordRequired": "La contraseña es obligatoria",
+    "titleRequired": "El título es obligatorio",
+    "startDateRequired": "La fecha de inicio es obligatoria",
+    "dateRequired": "La fecha es obligatoria",
+    "medicationNameRequired": "El nombre del medicamento es obligatorio",
+    "fieldRequired": "Este campo es obligatorio",
+    "idTypeRequired": "El tipo de ID es obligatorio",
+    "idNumberRequired": "El número de ID es obligatorio",
+    "categoryRequired": "La categoría es obligatoria",
+    "itemNameRequired": "El nombre del artículo es obligatorio",
+    "dosageOrSizeRequired": "La dosis/tamaño es obligatoria",
+    "providerNameRequired": "El nombre del proveedor es obligatorio",
+    "contactPhoneRequired": "El teléfono de contacto es obligatorio",
+    "caregiverNameRequired": "El nombre del cuidador es obligatorio"
+  },
+  "toast": {
+    "success": "¡Éxito!",
+    "error": "Error",
+    "signInSuccess": "Has iniciado sesión correctamente.",
+    "accountCreated": "Cuenta creada exitosamente. Por favor revisa tu correo electrónico para verificar tu cuenta.",
+    "profileUpdated": "Tu información de perfil se ha actualizado correctamente.",
+    "profileUpdateFailed": "Error al actualizar el perfil. Por favor intenta de nuevo.",
+    "profileLoadFailed": "Error al cargar la información del perfil.",
+    "exportSuccessful": "Exportación exitosa",
+    "exportComplete": "Exportación completada",
+    "exportCompleteDesc": "Tus datos se han exportado exitosamente",
+    "exportFailed": "Error en la exportación",
+    "exportFailedDesc": "Error al exportar los datos",
+    "fileDownloaded": "{{filename}} se ha descargado.",
+    "emailSent": "¡Correo enviado!",
+    "emailSentDesc": "Enviado exitosamente a {{email}}",
+    "emailFailed": "Error al enviar el correo",
+    "pleaseSignInExport": "Por favor inicia sesión para exportar",
+    "pleaseSignInEmail": "Por favor inicia sesión para enviar correos",
+    "documentUploaded": "Documento subido",
+    "documentUploadedDesc": "Tu documento se ha subido exitosamente.",
+    "uploadFailed": "Error al subir",
+    "uploadFailedDesc": "Error al subir el documento",
+    "documentDeleted": "Documento eliminado",
+    "documentDeletedDesc": "El documento ha sido eliminado.",
+    "deleteFailed": "Error al eliminar",
+    "deleteFailedDesc": "Error al eliminar el documento",
+    "downloadFailed": "Error en la descarga",
+    "downloadFailedDesc": "Error al descargar el documento",
+    "fileSizeExceeded": "El archivo excede el límite de {{size}}MB",
+    "fileTypeNotSupported": "Tipo de archivo no soportado",
+    "selectSections": "Seleccionar secciones",
+    "selectSectionsDesc": "Por favor selecciona al menos una sección para exportar",
+    "photoUploadFailed": "Error al subir la foto.",
+    "journeyCreated": "¡Nuevo camino iniciado!",
+    "journeyUpdated": "¡Camino actualizado!",
+    "journeyCreatedDesc": "¡Cada paso adelante es una celebración!",
+    "journeyRemoved": "Camino eliminado",
+    "momentCaptured": "¡Momento capturado!",
+    "momentCapturedDesc": "¡Qué maravilloso logro para recordar!",
+    "momentRemoved": "Momento eliminado",
+    "momentUpdated": "¡Momento actualizado!",
+    "roleUpdated": "Rol actualizado",
+    "roleUpdatedDesc": "El rol del usuario se cambió a {{role}}",
+    "userApproved": "Usuario aprobado",
+    "userApprovedDesc": "El usuario ahora puede acceder a la plataforma.",
+    "accessRevoked": "Acceso revocado",
+    "accessRevokedDesc": "El acceso del usuario ha sido revocado.",
+    "userDeleted": "Usuario eliminado",
+    "userDeletedDesc": "{{name}} ha sido eliminado permanentemente.",
+    "accountDeleted": "Cuenta eliminada",
+    "accountDeletedDesc": "Tu cuenta y todos los datos han sido eliminados permanentemente.",
+    "accountDeleteFailed": "Error al eliminar la cuenta. Por favor intenta de nuevo.",
+    "inviteCreated": "¡Invitación creada!",
+    "inviteCreatedDesc": "Comparte el código con el cuidador.",
+    "codeCopied": "¡Copiado!",
+    "codeCopiedDesc": "Código de invitación copiado al portapapeles.",
+    "memberRemoved": "Miembro del equipo eliminado",
+    "inviteRedeemed": "¡Invitación canjeada!",
+    "inviteRedeemedDesc": "Ahora tienes acceso a la información de cuidado de este niño.",
+    "inviteRedeemFailed": "Error al canjear el código de invitación.",
+    "fieldCopied": "{{field}} copiado al portapapeles",
+    "copyFailed": "Error al copiar",
+    "copyFailedDesc": "Por favor copia manualmente",
+    "saved": "Guardado",
+    "savedDesc": "Cambios guardados exitosamente.",
+    "deletedSuccessfully": "Eliminado exitosamente"
+  },
+  "auth": {
+    "welcomeBack": "Bienvenido de nuevo",
+    "createAccount": "Crear una cuenta",
+    "signInSubtitle": "Inicia sesión en tu panel de cuidado",
+    "signUpSubtitle": "Comienza con Special Caring",
+    "continueWithGoogle": "Continuar con Google",
+    "signUpWithGoogle": "Registrarse con Google",
+    "fullName": "Nombre completo",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "signingIn": "Iniciando sesión...",
+    "creatingAccount": "Creando cuenta...",
+    "signIn": "Iniciar sesión",
+    "createAccountBtn": "Crear cuenta",
+    "noAccount": "¿No tienes una cuenta?",
+    "signUp": "Regístrate",
+    "haveAccount": "¿Ya tienes una cuenta?",
+    "signInLink": "Inicia sesión",
+    "login": {
+      "title": "Bienvenido de nuevo a Special Caring",
+      "subtitle": "Inicia sesión para acceder a tu panel de información de cuidado y continuar gestionando tus datos de atención.",
+      "centralizedAccess": "Acceso centralizado",
+      "centralizedAccessDesc": "Accede a toda tu información de cuidado desde cualquier lugar, en cualquier momento.",
+      "secureStorage": "Almacenamiento seguro",
+      "secureStorageDesc": "Tu información se almacena de forma segura y solo es accesible para usuarios autorizados.",
+      "easyUpdates": "Actualizaciones fáciles",
+      "easyUpdatesDesc": "Actualiza la información rápidamente a medida que cambian las necesidades de cuidado."
+    },
+    "register": {
+      "title": "Crea Tu Cuenta de Cuidador",
+      "subtitle": "Únete a miles de cuidadores que usan nuestra plataforma para organizar y gestionar la información esencial de cuidado de sus seres queridos.",
+      "step1Title": "Crea una cuenta",
+      "step1Desc": "Regístrate con tu correo electrónico y establece una contraseña segura.",
+      "step2Title": "Configura tu perfil",
+      "step2Desc": "Agrega información esencial sobre la persona que recibe cuidado.",
+      "step3Title": "Comienza a organizar",
+      "step3Desc": "Empieza a agregar información médica, contactos y otros datos importantes.",
+      "privacyConsent": "Al crear una cuenta, aceptas nuestros Términos de servicio y reconoces nuestra",
+      "privacyPolicy": "Política de privacidad"
+    },
+    "pendingApproval": {
+      "title": "Cuenta pendiente de aprobación",
+      "message": "Tu cuenta ha sido creada exitosamente. Un administrador necesita aprobar tu acceso antes de que puedas usar la plataforma.",
+      "instruction": "Podrás acceder a todas las funciones una vez que tu cuenta sea aprobada. Por favor revisa más tarde o contacta a tu administrador.",
+      "signOut": "Cerrar sesión"
+    },
+    "reviewMode": {
+      "title": "Modo de revisión",
+      "active": "Activo",
+      "devOnly": "SOLO DEV",
+      "description": "Explora la aplicación con datos de ejemplo sin crear una cuenta",
+      "whatYouSee": "Lo que verás en el modo de revisión:",
+      "bullet1": "Perfil de ejemplo de un niño con información médica",
+      "bullet2": "Medicamentos y horarios de cuidado precargados",
+      "bullet3": "Registros diarios y de actividades de ejemplo",
+      "bullet4": "Contactos de emergencia y protocolos de demostración",
+      "startButton": "Iniciar modo de revisión",
+      "activeMessage": "Actualmente estás explorando con datos de ejemplo. Los cambios no se guardarán.",
+      "exitButton": "Salir del modo de revisión"
+    },
+    "testMode": {
+      "title": "Modo de prueba",
+      "active": "Activo",
+      "description": "Usa autenticación simulada para probar la aplicación sin Supabase",
+      "enableButton": "Activar modo de prueba",
+      "testEmail": "Correo de prueba:",
+      "testPassword": "Contraseña de prueba:",
+      "switchToReal": "Cambiar a autenticación real"
+    }
+  },
+  "onboarding": {
+    "stepLabels": {
+      "name": "Nombre del niño",
+      "birthDate": "Fecha de nacimiento",
+      "medical": "Información médica",
+      "emergency": "Contacto de emergencia",
+      "medication": "Medicamentos",
+      "protocol": "Protocolo de emergencia",
+      "completion": "¡Listo!"
+    },
+    "progress": "Paso {{current}} de {{total}}",
+    "childName": {
+      "title": "¿Cómo se llama tu hijo?",
+      "subtitle": "Tu hijo es la estrella de este sistema — comencemos.",
+      "placeholder": "Ingresa el nombre completo de tu hijo",
+      "continueBtn": "Continuar",
+      "createdToast": "¡Se ha creado el perfil de {{name}}!",
+      "alreadyAdded": "Ya agregaste a {{childName}}",
+      "alreadyAddedSubtitle": "Continuemos configurando su perfil."
+    },
+    "birthDate": {
+      "title": "¿Cuándo nació {{childName}}?",
+      "subtitle": "Esto nos ayuda a calcular su edad para los cuidadores.",
+      "label": "Fecha de nacimiento"
+    },
+    "medicalInfo": {
+      "title": "Cuéntanos sobre la salud de {{childName}}",
+      "subtitle": "Esta es información crítica para cualquier persona que cuide a tu hijo.",
+      "medicalConditions": "Condiciones médicas",
+      "medicalConditionsPlaceholder": "ej., Trastorno del Espectro Autista, Epilepsia, Parálisis Cerebral...",
+      "medicalConditionsDesc": "Enumera cualquier condición diagnosticada, síndrome o problema de salud en curso.",
+      "allergies": "Alergias",
+      "allergiesPlaceholder": "ej., Maní, Penicilina, Látex...",
+      "allergiesDesc": "Incluye alergias alimentarias, a medicamentos y ambientales."
+    },
+    "emergencyContact": {
+      "title": "¿A quién debemos llamar en caso de emergencia?",
+      "subtitle": "Un contacto principal para el cuidado de {{childName}}.",
+      "contactName": "Nombre del contacto",
+      "contactNamePlaceholder": "ej., Abuela María",
+      "phoneNumber": "Número de teléfono",
+      "phoneNumberPlaceholder": "ej., (555) 123-4567"
+    },
+    "medication": {
+      "title": "¿{{childName}} toma algún medicamento?",
+      "subtitle": "Agrega el más importante ahora — puedes agregar más después.",
+      "medicationName": "Nombre del medicamento",
+      "medicationNamePlaceholder": "ej., Lisinopril",
+      "dosage": "Dosis",
+      "dosagePlaceholder": "ej., 10mg",
+      "frequency": "Frecuencia",
+      "frequencyPlaceholder": "¿Con qué frecuencia?",
+      "frequencies": {
+        "once_daily": "Una vez al día",
+        "twice_daily": "Dos veces al día",
+        "three_daily": "Tres veces al día",
+        "four_daily": "Cuatro veces al día",
+        "as_needed": "Según sea necesario",
+        "weekly": "Semanal",
+        "other": "Otro"
+      },
+      "noMedications": "Sin medicamentos",
+      "addAndContinue": "Agregar y continuar",
+      "addedTitle": "Medicamento agregado",
+      "addedMessage": "Has agregado {{name}}. Puedes agregar más desde la sección de Medicamentos más tarde."
+    },
+    "emergencyProtocol": {
+      "title": "¿Configurar un protocolo de emergencia para {{childName}}?",
+      "subtitle": "Instrucciones paso a paso que un cuidador puede seguir en una situación médica.",
+      "protocolTitle": "Título del protocolo",
+      "protocolTitlePlaceholder": "ej., Plan de respuesta ante convulsiones",
+      "severityLevel": "Nivel de gravedad",
+      "severityPlaceholder": "Seleccionar gravedad",
+      "severities": {
+        "moderate": "Moderado",
+        "urgent": "Urgente",
+        "critical": "Crítico"
+      },
+      "immediateSteps": "Pasos inmediatos a seguir",
+      "immediateStepsPlaceholder": "Escribe pasos claros y numerados que cualquier persona pueda seguir.",
+      "skipButton": "Lo configuraré más tarde",
+      "addedTitle": "Protocolo de emergencia agregado",
+      "addedMessage": "Has agregado {{title}}. Puedes agregar más desde la sección de Protocolos de Emergencia más tarde."
+    },
+    "completion": {
+      "title": "¡El perfil de {{childName}} está listo!",
+      "subtitle": "¡Buen comienzo! Has configurado lo esencial. Esto es lo que has completado:",
+      "setupProgress": "Progreso de configuración",
+      "items": {
+        "birthDate": "Fecha de nacimiento",
+        "medicalConditions": "Condiciones médicas",
+        "allergies": "Alergias",
+        "emergencyContact": "Contacto de emergencia",
+        "emergencyPhone": "Teléfono de emergencia",
+        "medication": "Medicamento",
+        "emergencyProtocol": "Protocolo de emergencia"
+      },
+      "goToDashboard": "Ir al panel",
+      "completeFullProfile": "Completar perfil completo",
+      "suggestedNextSteps": "Próximos pasos sugeridos",
+      "nextSteps": {
+        "completeProfile": {
+          "label": "Completar perfil completo",
+          "description": "Agrega dirección, seguro y preferencias"
+        },
+        "addEmergencyCards": {
+          "label": "Agregar tarjetas de emergencia",
+          "description": "Sube fotos de identificación y tarjeta de seguro"
+        },
+        "startDailyLog": {
+          "label": "Iniciar registro diario",
+          "description": "Registra actividades diarias de cuidado y estados de ánimo"
+        },
+        "inviteCaregivers": {
+          "label": "Invitar cuidadores",
+          "description": "Comparte acceso con tu equipo de cuidado"
+        }
+      }
+    }
+  },
+  "dashboard": {
+    "hero": {
+      "goodMorning": "Buenos días",
+      "goodAfternoon": "Buenas tardes",
+      "goodEvening": "Buenas noches",
+      "greeting": "{{greeting}}, {{name}}!",
+      "emptyTitle": "Comencemos agregando a tu hijo — es la estrella de este sistema.",
+      "addFirstChild": "Agregar tu primer hijo",
+      "caringFor": "Cuidando a {{childName}}"
+    },
+    "summary": {
+      "medications": "Medicamentos",
+      "activeMedications": "medicamentos activos",
+      "refillsDueSoon_one": "{{count}} recarga próxima",
+      "refillsDueSoon_other": "{{count}} recargas próximas",
+      "recentLogs": "Registros recientes",
+      "noLogsYet": "Aún no hay registros diarios.",
+      "careTeam": "Equipo de cuidado",
+      "teamMembers_one": "{{count}} miembro del equipo con acceso",
+      "teamMembers_other": "{{count}} miembros del equipo con acceso",
+      "profile": "Perfil",
+      "complete": "completado",
+      "fillMoreFields_one": "Completa {{count}} campo más para un perfil completo",
+      "fillMoreFields_other": "Completa {{count}} campos más para un perfil completo"
+    },
+    "quickActions": {
+      "dailyLog": "Registro diario",
+      "medication": "Medicamento",
+      "emergencyCard": "Tarjeta de emergencia",
+      "export": "Exportar"
+    },
+    "todaySnapshot": {
+      "title": "Resumen de hoy",
+      "medications": "Medicamentos ({{count}})",
+      "noMedications": "Aún no hay medicamentos registrados.",
+      "refillsDueSoon": "{{count}} recarga(s) próxima(s):",
+      "lastLog": "Último registro:",
+      "profileComplete": "Perfil {{percent}}% completado",
+      "fieldsRemaining": "{{count}} campos restantes"
+    },
+    "sectionGroups": {
+      "medicalAndEmergency": "Médico y Emergencias",
+      "dailyLifeAndSafety": "Vida Diaria y Seguridad",
+      "resourcesAndAdmin": "Recursos y Administración"
+    },
+    "sectionCards": {
+      "childProfile": {
+        "label": "Perfil del niño",
+        "desc": "Información esencial y preferencias"
+      },
+      "emergencyCards": {
+        "label": "Tarjetas de emergencia",
+        "desc": "ID digital y tarjetas de seguro"
+      },
+      "emergencyProtocols": {
+        "label": "Protocolos de emergencia",
+        "desc": "Guías de emergencia médica"
+      },
+      "medications": {
+        "label": "Medicamentos",
+        "desc": "Dosis y horarios"
+      },
+      "medicalContacts": {
+        "label": "Contactos médicos",
+        "desc": "Proveedores de salud"
+      },
+      "suppliers": {
+        "label": "Proveedores y suministros",
+        "desc": "Medicinas y suministros"
+      },
+      "dailyLog": {
+        "label": "Registro diario",
+        "desc": "Actividades y observaciones"
+      },
+      "homeSafety": {
+        "label": "Seguridad del hogar",
+        "desc": "Protocolos y listas de verificación"
+      },
+      "celebrations": {
+        "label": "Celebraciones",
+        "desc": "Logros e hitos"
+      },
+      "communityServices": {
+        "label": "Servicios comunitarios",
+        "desc": "Recursos y apoyo local"
+      },
+      "employment": {
+        "label": "Empleo",
+        "desc": "Acuerdos del equipo de cuidado"
+      },
+      "financialLegal": {
+        "label": "Financiero y legal",
+        "desc": "Documentos importantes"
+      },
+      "endOfLife": {
+        "label": "Voluntades anticipadas",
+        "desc": "Directivas anticipadas"
+      },
+      "documents": {
+        "label": "Documentos",
+        "desc": "Archivos y registros subidos"
+      }
+    }
+  },
+  "layout": {
+    "sidebar": {
+      "dashboard": "Panel",
+      "adminPanel": "Panel de administración",
+      "childProfile": "Perfil del niño",
+      "emergencyCards": "Tarjetas de emergencia",
+      "emergencyProtocols": "Protocolos de emergencia",
+      "medications": "Medicamentos",
+      "suppliersProviders": "Proveedores y suministros",
+      "medicalContacts": "Contactos médicos y registro",
+      "homeSafety": "Seguridad del hogar",
+      "communityServices": "Servicios comunitarios",
+      "employmentAgreement": "Acuerdo de empleo",
+      "dailyLog": "Registro diario",
+      "celebrations": "Celebraciones",
+      "financialLegal": "Financiero y legal",
+      "endOfLifeWishes": "Voluntades anticipadas",
+      "documents": "Documentos",
+      "home": "Inicio",
+      "profile": "Perfil",
+      "signOut": "Cerrar sesión"
+    }
+  },
+  "sections": {
+    "keyInformation": {
+      "title": "Perfil del niño",
+      "completeProfile": "Completar el perfil de {{childName}}",
+      "editProfile": "Editar perfil",
+      "saveChanges": "Guardar cambios",
+      "noMedicalInfo": "No se registraron condiciones médicas ni alergias.",
+      "basicInfo": "Información básica",
+      "medicalInfo": "Información médica",
+      "preferencesPersonality": "Preferencias y personalidad",
+      "contactEmergency": "Información de contacto y emergencia",
+      "fields": {
+        "fullName": "Nombre completo",
+        "preferredName": "Nombre preferido",
+        "dateOfBirth": "Fecha de nacimiento",
+        "healthCardNumber": "Número de tarjeta de salud",
+        "pronouns": "Pronombres",
+        "schoolProgram": "Escuela / Programa",
+        "medicalConditions": "Condiciones médicas",
+        "allergies": "Alergias",
+        "bloodType": "Tipo de sangre",
+        "dietaryNeeds": "Necesidades dietéticas",
+        "sensoryPreferences": "Preferencias sensoriales",
+        "communicationStyle": "Estilo de comunicación",
+        "favouriteActivities": "Actividades favoritas",
+        "soothingStrategies": "Estrategias de calma",
+        "personalityNotes": "Notas de personalidad",
+        "address": "Dirección",
+        "phoneNumber": "Número de teléfono",
+        "emergencyContact": "Contacto de emergencia",
+        "emergencyPhone": "Teléfono de emergencia",
+        "familyDoctor": "Médico de familia",
+        "hospital": "Hospital preferido",
+        "healthCardNumberOptional": "Número de tarjeta de salud (Opcional)",
+        "email": "Correo electrónico",
+        "emailOptional": "Correo electrónico (Opcional)",
+        "insuranceProvider": "Proveedor de seguro",
+        "insuranceProviderOptional": "Proveedor de seguro (Opcional)",
+        "insuranceNumber": "Número de póliza",
+        "insuranceNumberOptional": "Número de póliza (Opcional)",
+        "additionalNotesOptional": "Notas adicionales (Opcional)",
+        "likes": "Lo que les encanta",
+        "dislikes": "Lo que no les gusta",
+        "doNots": "Importante: NO hacer"
+      },
+      "placeholders": {
+        "fullName": "Nombre legal completo del niño",
+        "preferredName": "Apodo o nombre que prefiere",
+        "healthCardNumber": "Número de tarjeta de salud",
+        "pronouns": "ej., ella, él, elle",
+        "schoolProgram": "ej., Escuela Primaria Maple Ridge — PEI",
+        "medicalConditions": "ej., Trastorno del Espectro Autista, Epilepsia...",
+        "allergies": "ej., Maní (anafilaxia), Penicilina...",
+        "bloodType": "Seleccionar tipo de sangre",
+        "dietaryNeeds": "ej., Sin gluten, Solo alimentos blandos...",
+        "sensoryPreferences": "ej., Evita ruidos fuertes, le gusta la presión profunda...",
+        "communicationStyle": "ej., Usa dispositivo CAA, responde a señales visuales...",
+        "favouriteActivities": "ej., Natación, musicoterapia, dibujar...",
+        "soothingStrategies": "ej., Manta con peso, mecerse, cuarto tranquilo...",
+        "personalityNotes": "ej., Muy sociable, ama los animales, ansioso en multitudes...",
+        "address": "Dirección del hogar",
+        "phoneNumber": "Número de teléfono de contacto",
+        "emergencyContact": "Nombre del contacto de emergencia",
+        "emergencyPhone": "Teléfono del contacto de emergencia",
+        "familyDoctor": "Nombre del médico de familia",
+        "hospital": "Nombre del hospital preferido",
+        "email": "correo@ejemplo.com",
+        "insuranceProvider": "Nombre del proveedor de seguro",
+        "insuranceNumber": "Número de póliza de seguro",
+        "additionalNotes": "Cualquier otra información importante sobre tu hijo",
+        "likes": "Actividades, alimentos, juguetes, rutinas que disfrutan...",
+        "dislikes": "Cosas que les molestan, desencadenantes a evitar...",
+        "doNots": "Instrucciones críticas de seguridad (ej., \"No dar objetos pequeños - riesgo de asfixia\", \"No forzar actividades de motricidad fina\"...)"
+      },
+      "bloodTypes": {
+        "aPositive": "A+",
+        "aNegative": "A-",
+        "bPositive": "B+",
+        "bNegative": "B-",
+        "abPositive": "AB+",
+        "abNegative": "AB-",
+        "oPositive": "O+",
+        "oNegative": "O-"
+      },
+      "subtitle": "Resumen completo de la información esencial de tu hijo",
+      "completeProfileHelp": "Completa todo lo que puedas ahora — siempre puedes volver para agregar más después",
+      "editChildProfile": "Editar perfil del niño",
+      "createChildProfile": "Crear perfil del niño",
+      "currentMedications": "Medicamentos actuales",
+      "whatTheyLove": "Lo que les encanta",
+      "whatTheyDontLike": "Lo que no les gusta",
+      "doNots": "Importante: NO hacer",
+      "additionalNotes": "Notas adicionales",
+      "healthCard": "Tarjeta de salud: {{number}}",
+      "yearsOld": "({{age}} años)",
+      "active": "Activo",
+      "forPurpose": "Para: {{purpose}}",
+      "notProvided": "No proporcionado",
+      "noMedicationsRecorded": "No hay medicamentos registrados.",
+      "noPreferencesRecorded": "No se han registrado preferencias aún.",
+      "noDislikesRecorded": "No se han registrado aversiones aún.",
+      "noRestrictionsRecorded": "No se han registrado restricciones específicas.",
+      "toast": {
+        "profileUpdated": "Perfil del niño actualizado",
+        "profileUpdatedDesc": "La información del niño se ha actualizado correctamente.",
+        "errorSaving": "Error",
+        "errorSavingDesc": "Error al guardar la información. Por favor intenta de nuevo."
+      }
+    },
+    "medications": {
+      "title": "Medicamentos",
+      "subtitle": "Gestiona medicamentos recetados y horarios",
+      "addNew": "Agregar nuevo medicamento",
+      "editMedication": "Editar medicamento",
+      "noMedications": "Aún no se han agregado medicamentos",
+      "noMedicationsDesc": "Agrega tu primer medicamento para comenzar a registrar recetas y horarios.",
+      "refillSoon": "Recarga próxima",
+      "deleteMedication": "¿Eliminar medicamento?",
+      "deleteConfirm": "Esto eliminará permanentemente este registro de medicamento.",
+      "fields": {
+        "name": "Nombre del medicamento",
+        "dosage": "Dosis",
+        "frequency": "Frecuencia",
+        "purpose": "Propósito / Razón",
+        "prescriber": "Prescriptor",
+        "pharmacy": "Farmacia",
+        "startDate": "Fecha de inicio",
+        "refillDate": "Fecha de recarga",
+        "sideEffects": "Efectos secundarios",
+        "notes": "Notas",
+        "endDate": "Fecha de finalización",
+        "instructions": "Instrucciones especiales"
+      },
+      "frequencies": {
+        "once_daily": "Una vez al día",
+        "twice_daily": "Dos veces al día",
+        "three_daily": "Tres veces al día",
+        "four_daily": "Cuatro veces al día",
+        "as_needed": "Según sea necesario",
+        "weekly": "Semanal",
+        "monthly": "Mensual",
+        "other": "Otro",
+        "three_times_daily": "Tres veces al día",
+        "four_times_daily": "Cuatro veces al día",
+        "every_morning": "Cada mañana",
+        "every_night": "Cada noche"
+      },
+      "tableHeaders": {
+        "name": "Nombre",
+        "dosage": "Dosis",
+        "frequency": "Frecuencia",
+        "purpose": "Propósito",
+        "prescriber": "Prescriptor",
+        "refillDate": "Fecha de recarga",
+        "actions": "Acciones",
+        "medication": "Medicamento"
+      },
+      "yourMedications": "Tus medicamentos",
+      "trackingCount": "Actualmente registrando {{count}} medicamento(s)",
+      "addFirstMedication": "Agrega tu primer medicamento",
+      "noMedicationsDescFull": "Registra todos los medicamentos, dosis y horarios en un solo lugar organizado.",
+      "dialogDescription": "Completa los detalles del medicamento a continuación.",
+      "formSections": {
+        "basicInfo": "Información básica",
+        "healthcareProvider": "Proveedor de salud",
+        "scheduleDates": "Horario y fechas",
+        "additionalInfo": "Información adicional"
+      },
+      "placeholders": {
+        "name": "ej., Lisinopril",
+        "dosage": "ej., 10mg",
+        "frequency": "Seleccionar frecuencia",
+        "purpose": "ej., Presión arterial",
+        "prescriber": "ej., Dr. García",
+        "pharmacy": "ej., Farmacia del Centro",
+        "instructions": "ej., Tomar con alimentos",
+        "sideEffects": "Lista de efectos secundarios conocidos"
+      },
+      "toast": {
+        "medicationUpdated": "Medicamento actualizado",
+        "medicationAdded": "Medicamento agregado",
+        "medicationRemoved": "Medicamento eliminado"
+      }
+    },
+    "emergencyCards": {
+      "title": "Tarjetas de identificación de emergencia",
+      "subtitle": "Almacena copias digitales de tarjetas de identificación importantes",
+      "tabs": {
+        "front": "Lado frontal",
+        "back": "Lado posterior"
+      },
+      "addNew": "Agregar nueva tarjeta",
+      "editCard": "Editar tarjeta",
+      "noCards": "Aún no se han agregado tarjetas de emergencia.",
+      "noCardsDesc": "Agrega tarjetas de identificación para acceso rápido durante emergencias.",
+      "uploadFront": "Subir imagen frontal",
+      "uploadBack": "Subir imagen posterior",
+      "noImageUploaded": "No se ha subido imagen",
+      "deleteCard": "¿Eliminar tarjeta?",
+      "deleteConfirm": "Esto eliminará permanentemente esta tarjeta.",
+      "fields": {
+        "idType": "Tipo de tarjeta",
+        "idNumber": "Número de tarjeta",
+        "issueDate": "Fecha de emisión",
+        "expiryDate": "Fecha de vencimiento",
+        "issuingBody": "Entidad emisora",
+        "notes": "Notas",
+        "issueDateOptional": "Fecha de emisión (Opcional)",
+        "expiryDateOptional": "Fecha de vencimiento (Opcional)"
+      },
+      "cardTypes": {
+        "healthCard": "Tarjeta de salud",
+        "insuranceCard": "Tarjeta de seguro",
+        "identificationCard": "Tarjeta de identificación",
+        "disabilityCard": "Tarjeta de discapacidad",
+        "other": "Otro"
+      },
+      "editCards": "Editar tarjetas",
+      "uploadFrontImage": "Subir imagen frontal",
+      "uploadBackImage": "Subir imagen posterior",
+      "idCardFront": "Frente de la tarjeta de ID",
+      "idCardBack": "Reverso de la tarjeta de ID",
+      "addEmergencyCards": "Agregar tarjetas de ID de emergencia",
+      "editEmergencyCards": "Editar tarjetas de ID de emergencia",
+      "uploadDescription": "Sube imágenes de tarjetas de identificación y agrega los detalles relevantes",
+      "saveCardInfo": "Guardar información de la tarjeta",
+      "uploading": "Subiendo...",
+      "invalidFile": "Archivo no válido",
+      "invalidFileDesc": "Por favor selecciona un archivo de imagen.",
+      "informationSaved": "Información guardada",
+      "informationSavedDesc": "La información de la tarjeta de emergencia se ha actualizado correctamente.",
+      "cardDeleted": "Tarjeta eliminada",
+      "cardDeletedDesc": "La información de la tarjeta de emergencia ha sido eliminada.",
+      "placeholders": {
+        "idType": "ej., Licencia de conducir, Tarjeta de seguro médico",
+        "idNumber": "Número de tarjeta/ID"
+      }
+    },
+    "emergencyProtocols": {
+      "title": "Protocolos de emergencia médica",
+      "subtitle": "Guías de referencia rápida para manejar emergencias médicas",
+      "emergencyReminder": "Recordatorio de emergencia",
+      "emergencyReminderText": "Si se trata de una emergencia que pone en riesgo la vida, llama al 911 inmediatamente.",
+      "addNew": "Agregar protocolo",
+      "addFirstProtocol": "Agrega tu primer protocolo",
+      "editProtocol": "Editar protocolo",
+      "dialogDescription": "Crea instrucciones detalladas paso a paso para manejar emergencias médicas.",
+      "noProtocols": "Aún no hay protocolos de emergencia",
+      "noProtocolsDesc": "Crea planes de respuesta de emergencia paso a paso para los cuidadores.",
+      "noProtocolsDescFull": "Crea tu primer protocolo de emergencia para estar preparado ante situaciones críticas.",
+      "deleteProtocol": "¿Eliminar protocolo?",
+      "deleteConfirm": "Esto eliminará permanentemente este protocolo de emergencia.",
+      "emergencyReminderTextFull": "En una emergencia que pone en riesgo la vida, siempre llama al 911 primero. Estos protocolos son guías complementarias.",
+      "priority": "Prioridad {{level}}",
+      "severity": {
+        "label": "Nivel de gravedad",
+        "low": "Bajo",
+        "moderate": "Moderado",
+        "moderatePriority": "Prioridad moderada",
+        "high": "Alto",
+        "critical": "Crítico",
+        "criticalPriority": "Prioridad crítica",
+        "urgentPriority": "Prioridad urgente"
+      },
+      "fields": {
+        "title": "Título del protocolo",
+        "immediateSteps": "Pasos inmediatos",
+        "immediateStepsToTake": "Pasos inmediatos a seguir",
+        "whenToCall911": "Cuándo llamar al 911",
+        "whenToCall911Optional": "Cuándo llamar al 911 (Opcional)",
+        "notes": "Notas adicionales",
+        "notesOptional": "Notas adicionales (Opcional)",
+        "lastReviewed": "Última revisión",
+        "triggers": "Desencadenantes conocidos",
+        "emergencyContacts": "Contactos de emergencia"
+      },
+      "placeholders": {
+        "title": "ej., Respuesta ante convulsiones",
+        "immediateSteps": "Enumera instrucciones paso a paso...",
+        "whenToCall911": "Especifica las condiciones...",
+        "notes": "Cualquier información adicional...",
+        "emergencyContacts": "Enumera contactos de emergencia..."
+      },
+      "toast": {
+        "protocolAdded": "Protocolo agregado",
+        "protocolDeleted": "Protocolo eliminado",
+        "protocolUpdated": "Protocolo actualizado"
+      }
+    },
+    "medicalContacts": {
+      "title": "Contactos médicos",
+      "subtitle": "Gestiona proveedores de salud y contactos médicos importantes",
+      "addNew": "Agregar contacto",
+      "addFirstContact": "Agrega tu primer contacto",
+      "editContact": "Editar contacto",
+      "noContacts": "Aún no se han agregado contactos",
+      "noContactsDesc": "Agrega los proveedores de salud y contactos importantes de tu hijo.",
+      "primaryContact": "Contacto principal",
+      "deleteContact": "¿Eliminar contacto?",
+      "deleteConfirm": "Esto eliminará permanentemente este contacto.",
+      "fields": {
+        "name": "Nombre del contacto",
+        "specialty": "Especialidad",
+        "phoneNumber": "Número de teléfono",
+        "email": "Correo electrónico",
+        "address": "Dirección",
+        "notes": "Notas",
+        "isPrimary": "Contacto principal"
+      },
+      "placeholders": {
+        "name": "Dr. Juan García",
+        "specialty": "ej., Cardiología",
+        "phone": "(555) 123-4567",
+        "email": "correo@ejemplo.com",
+        "address": "Av. Centro Médico 123",
+        "notes": "Notas adicionales"
+      },
+      "contactTypes": {
+        "doctor": "Médico",
+        "specialist": "Especialista",
+        "therapist": "Terapeuta",
+        "dentist": "Dentista",
+        "hospital": "Hospital",
+        "pharmacy": "Farmacia",
+        "insurance": "Seguro",
+        "emergency": "Contacto de emergencia",
+        "primary_physician": "Médico de atención primaria",
+        "other": "Otro"
+      },
+      "toast": {
+        "contactAdded": "Contacto agregado",
+        "contactRemoved": "Contacto eliminado",
+        "contactUpdated": "Contacto actualizado"
+      }
+    },
+    "suppliers": {
+      "title": "Proveedores y suministros",
+      "subtitle": "Gestiona proveedores de medicinas, suplementos y artículos de cuidado",
+      "addNew": "Agregar proveedor",
+      "editSupplier": "Editar proveedor",
+      "noSuppliers": "No se encontraron proveedores",
+      "noSuppliersDesc": "Agrega tu primer proveedor para comenzar a registrar proveedores.",
+      "searchPlaceholder": "Buscar proveedores...",
+      "allCategories": "Todas las categorías",
+      "deleteSupplier": "¿Eliminar proveedor?",
+      "deleteConfirm": "Esto eliminará permanentemente este registro de proveedor.",
+      "fields": {
+        "providerName": "Nombre del proveedor",
+        "itemName": "Artículo / Nombre del servicio",
+        "category": "Categoría",
+        "phoneNumber": "Número de teléfono",
+        "website": "Sitio web",
+        "address": "Dirección",
+        "notes": "Notas",
+        "accountNumber": "Número de cuenta",
+        "contactPhone": "Teléfono de contacto",
+        "dosageOrSize": "Dosis/Tamaño",
+        "brandOrStrength": "Marca/Concentración",
+        "inventoryThreshold": "Umbral de inventario",
+        "lastOrderDate": "Fecha del último pedido",
+        "orderingInstructions": "Instrucciones de pedido"
+      },
+      "categories": {
+        "medicine": "Medicina",
+        "supplement": "Suplemento",
+        "supply": "Suministro",
+        "other": "Otro"
+      },
+      "addNewSupplier": "Agregar nuevo proveedor",
+      "updateSupplier": "Actualizar proveedor",
+      "addSupplier": "Agregar proveedor",
+      "editDescription": "Actualizar información del proveedor",
+      "addDescription": "Agrega un nuevo proveedor a tu lista",
+      "noSuppliersGetStarted": "Comienza agregando tu primer proveedor.",
+      "noSuppliersNoMatch": "Ningún proveedor coincide con tu búsqueda actual.",
+      "lastOrder": "Último pedido: {{date}}",
+      "lowStockThreshold": "Umbral de stock bajo: {{value}}",
+      "placeholders": {
+        "dosageOrSize": "ej., 2.4 mL, 50 unid.",
+        "optional": "Opcional",
+        "orderingInstructions": "Instrucciones especiales para el pedido",
+        "notes": "Notas adicionales"
+      },
+      "toast": {
+        "supplierAdded": "Proveedor agregado correctamente",
+        "supplierUpdated": "Proveedor actualizado correctamente",
+        "supplierDeleted": "Proveedor eliminado correctamente",
+        "saveFailed": "Error al guardar el proveedor",
+        "deleteFailed": "Error al eliminar el proveedor"
+      }
+    },
+    "homeSafety": {
+      "title": "Seguridad del hogar",
+      "subtitle": "Planificación integral de seguridad para el cuidado de necesidades especiales",
+      "areas": {
+        "general": "Seguridad general",
+        "kitchen": "Seguridad en la cocina",
+        "bathroom": "Seguridad en el baño",
+        "outdoor": "Seguridad al aire libre"
+      },
+      "checklist": {
+        "general": {
+          "emergencyNumbers": "Números de emergencia visibles",
+          "firstAidKit": "Botiquín de primeros auxilios accesible y surtido",
+          "smokeDetectors": "Detectores de humo en cada piso",
+          "coDetectors": "Detectores de CO instalados",
+          "fireExtinguisher": "Extintor de incendios accesible",
+          "electricalOutlets": "Enchufes eléctricos cubiertos",
+          "windowGuards": "Protecciones en ventanas instaladas",
+          "stairGates": "Puertas de seguridad en escaleras aseguradas",
+          "heavyFurniture": "Muebles pesados anclados a las paredes",
+          "emergencyExits": "Salidas de emergencia libres y accesibles"
+        },
+        "kitchen": {
+          "hazardousLocked": "Artículos peligrosos bajo llave",
+          "knivesSecured": "Cuchillos afilados asegurados",
+          "stoveGuard": "Protector de estufa en su lugar",
+          "hotLiquids": "Líquidos calientes fuera del alcance",
+          "cleaningProducts": "Productos de limpieza bajo llave"
+        },
+        "bathroom": {
+          "nonSlipMats": "Tapetes antideslizantes instalados",
+          "waterTemperature": "Temperatura del agua regulada",
+          "medicationsLocked": "Medicamentos bajo llave",
+          "grabBars": "Barras de apoyo instaladas",
+          "toiletLock": "Seguro de inodoro si es necesario"
+        },
+        "outdoor": {
+          "fencedYard": "Patio cercado con portón",
+          "poolSafety": "Medidas de seguridad en la piscina en su lugar",
+          "playEquipment": "Equipo de juegos inspeccionado",
+          "toxicPlants": "Plantas tóxicas removidas",
+          "gateSecured": "Entrada y portón asegurados",
+          "sunProtection": "Protección solar disponible"
+        }
+      },
+      "emergencyContacts": "Tarjetas de contacto de emergencia",
+      "emergencyContactCards": "Contactos de emergencia",
+      "safetyTips": "Consejos de seguridad y recursos",
+      "documentSafety": "Verificación de seguridad de documentos",
+      "generateReport": "Generar reporte",
+      "lastChecked": "Última revisión: {{date}}",
+      "markComplete": "Marcar como completado",
+      "completionLabel": "Lista de seguridad: {{percent}}% completada",
+      "itemsCompleted": "{{completed}} de {{total}} elementos completados",
+      "addDoctorNumber": "Agrega el número de tu médico",
+      "addSpecialistNumber": "Agrega el número del especialista",
+      "emergencyProcedures": "Procedimientos de emergencia",
+      "emergencyServices": "Servicios de emergencia",
+      "equipmentMaintenanceLog": "Registro de mantenimiento de equipos",
+      "fireSafetyPlan": "Plan de seguridad contra incendios",
+      "manageEmergencyContacts": "Gestionar contactos de emergencia",
+      "poisonControl": "Control de envenenamiento",
+      "primaryDoctor": "Médico primario",
+      "quickAccessNumbers": "Acceso rápido a números importantes",
+      "safetyDocumentation": "Documentación de seguridad",
+      "safetyDocsDesc": "Mantén los documentos de seguridad importantes actualizados",
+      "safetyTipsTitle": "Consejos de seguridad",
+      "safetyTipsDesc": "Recordatorios importantes para la seguridad diaria",
+      "safetyTip1": "Siempre supervisa la administración de medicamentos y documenta los horarios",
+      "safetyTip2": "Verifica que todos los dispositivos de seguridad funcionen semanalmente",
+      "safetyTip3": "Mantén supervisión constante y apropiada según las necesidades individuales",
+      "specialist": "Especialista",
+      "transportationSafety": "Seguridad en el transporte",
+      "safetyAreas": {
+        "physical": {
+          "title": "Entorno físico",
+          "description": "Modificaciones del hogar y accesibilidad"
+        },
+        "medical": {
+          "title": "Seguridad médica",
+          "description": "Seguridad de equipos médicos y medicamentos"
+        },
+        "monitoring": {
+          "title": "Monitoreo y supervisión",
+          "description": "Sistemas de supervisión y monitoreo de seguridad"
+        },
+        "emergency": {
+          "title": "Preparación para emergencias",
+          "description": "Planes de emergencia y contactos esenciales"
+        }
+      },
+      "physicalEnvironment": {
+        "title": "Lista de seguridad física",
+        "flooringSafe": "El piso es antideslizante y libre de obstáculos",
+        "furnitureSecured": "Muebles pesados anclados a las paredes",
+        "outletsCovered": "Enchufes eléctricos cubiertos o asegurados",
+        "stairsGates": "Puertas de seguridad instaladas en escaleras si es necesario",
+        "sharpObjects": "Objetos afilados y artículos peligrosos asegurados",
+        "kitchenSafety": "Electrodomésticos y utensilios de cocina asegurados",
+        "bathroomSafety": "Baño equipado con características de seguridad",
+        "sensoryConsiderations": "Entorno adaptado para necesidades sensoriales"
+      },
+      "medicalSafety": {
+        "title": "Lista de seguridad médica",
+        "medStorage": "Medicamentos almacenados de forma segura",
+        "firstAid": "Botiquín de primeros auxilios surtido y accesible",
+        "equipmentCheck": "Equipo médico inspeccionado y mantenido regularmente",
+        "medicalDevices": "Dispositivos médicos calibrados y cargados correctamente",
+        "allergyAlerts": "Información de alergias visible en todo el hogar",
+        "therapyEquipment": "Equipo de terapia almacenado de forma segura cuando no se usa"
+      },
+      "monitoringSystems": {
+        "title": "Lista de sistemas de monitoreo",
+        "babyMonitors": "Sistema de monitoreo de audio/video en su lugar",
+        "doorAlarms": "Alarmas de puertas y ventanas instaladas si es necesario",
+        "motionSensors": "Sensores de movimiento en áreas críticas",
+        "wearableDevices": "Dispositivos GPS o de rastreo para prevenir extravío",
+        "callSystem": "Sistema de llamada de emergencia accesible",
+        "caregiverSchedule": "Horario de supervisión claro y mantenido"
+      },
+      "emergencyChecklist": {
+        "title": "Lista de preparación para emergencias",
+        "evacuationPlan": "Plan de evacuación adaptado para necesidades especiales",
+        "emergencyKit": "Kit de emergencia con medicamentos y suministros adicionales",
+        "emergencyContacts": "Lista de contactos de emergencia publicada en lugar visible",
+        "medicalInfo": "Información médica y alergias claramente documentadas",
+        "communicationPlan": "Plan de comunicación para personas no verbales",
+        "backupPower": "Energía de respaldo para equipo médico esencial"
+      }
+    },
+    "communityServices": {
+      "title": "Servicios comunitarios",
+      "subtitle": "Recursos locales, grupos de apoyo y servicios para familias con necesidades especiales",
+      "tabs": {
+        "education": "Educación",
+        "healthcare": "Salud",
+        "support": "Apoyo",
+        "recreation": "Recreación"
+      },
+      "subtitleShort": "Recursos locales, grupos de apoyo y servicios para familias con necesidades especiales",
+      "savedServices": "Servicios guardados",
+      "savedServicesCount": "Servicios guardados ({{count}})",
+      "savedServicesDesc": "Servicios que has marcado para acceso fácil",
+      "contact": "Contacto",
+      "noSavedServices": "Aún no hay servicios guardados.",
+      "saveService": "Guardar",
+      "unsaveService": "Guardado"
+    },
+    "dailyLog": {
+      "title": "Registro diario",
+      "subtitle": "Registra actividades diarias, comportamientos e hitos",
+      "addEntry": "Agregar entrada",
+      "editEntry": "Editar entrada",
+      "noEntries": "Aún no hay entradas en el registro diario.",
+      "noEntriesDesc": "Comienza a registrar actividades y observaciones diarias.",
+      "deleteEntry": "¿Eliminar entrada?",
+      "deleteConfirm": "Esto eliminará permanentemente esta entrada del registro.",
+      "todaysSummary": "Resumen de hoy",
+      "entriesToday": "Entradas de hoy",
+      "overallMood": "Estado de ánimo general",
+      "tabs": {
+        "today": "Hoy",
+        "thisWeek": "Esta semana",
+        "allEntries": "Todas las entradas"
+      },
+      "fields": {
+        "title": "Título",
+        "date": "Fecha",
+        "category": "Categoría",
+        "mood": "Estado de ánimo",
+        "priority": "Prioridad",
+        "description": "Descripción",
+        "notes": "Notas"
+      },
+      "categories": {
+        "general": "General",
+        "medical": "Médico",
+        "therapy": "Terapia",
+        "behavior": "Comportamiento",
+        "milestone": "Hito",
+        "school": "Escuela",
+        "social": "Social",
+        "sleep": "Sueño",
+        "nutrition": "Nutrición",
+        "medication": "Medicamento",
+        "meals": "Comidas y nutrición"
+      },
+      "moods": {
+        "great": "Excelente",
+        "good": "Bien",
+        "okay": "Regular",
+        "difficult": "Difícil",
+        "challenging": "Desafiante"
+      },
+      "moodStates": {
+        "happy": "Feliz",
+        "calm": "Tranquilo",
+        "anxious": "Ansioso",
+        "upset": "Molesto",
+        "tired": "Cansado",
+        "energetic": "Enérgico"
+      },
+      "priorities": {
+        "low": "Baja",
+        "medium": "Media",
+        "high": "Alta",
+        "urgent": "Urgente",
+        "important": "Importante"
+      },
+      "newEntry": "Nueva entrada",
+      "updateEntry": "Actualizar entrada",
+      "newJournalEntry": "Nueva entrada de diario",
+      "createAnEntry": "Crear una entrada",
+      "noEntriesFound": "No se encontraron entradas.",
+      "importantEvents": "Eventos importantes",
+      "moodPositive": "Día positivo",
+      "moodStable": "Día estable",
+      "moodChallenging": "Día desafiante",
+      "noEntriesYet": "Sin entradas aún",
+      "details": "Detalles",
+      "placeholders": {
+        "title": "Breve descripción de lo que sucedió...",
+        "description": "Proporciona más detalles sobre el evento, comportamiento u observación..."
+      },
+      "moodLabels": {
+        "happy": "Feliz",
+        "neutral": "Neutral",
+        "sad": "Desafiante"
+      },
+      "toast": {
+        "entryAdded": "Entrada agregada",
+        "entryAddedDesc": "Entrada del registro diario guardada.",
+        "entryUpdated": "Entrada actualizada",
+        "entryDeleted": "Entrada eliminada",
+        "errorSaving": "Error al guardar la entrada"
+      }
+    },
+    "employmentAgreement": {
+      "title": "Acuerdos de empleo",
+      "subtitle": "Gestiona los detalles de empleo y contratos de cuidadores",
+      "addNew": "Agregar acuerdo",
+      "editAgreement": "Editar acuerdo",
+      "noAgreements": "No hay acuerdos de empleo",
+      "noAgreementsDesc": "Agrega acuerdos de empleo para los cuidadores que trabajan con tu hijo.",
+      "deleteAgreement": "¿Eliminar acuerdo?",
+      "deleteConfirm": "Esto eliminará permanentemente este acuerdo de empleo.",
+      "fields": {
+        "caregiverName": "Nombre del cuidador",
+        "positionTitle": "Título del cargo",
+        "startDate": "Fecha de inicio",
+        "endDate": "Fecha de finalización",
+        "status": "Estado",
+        "payRate": "Tarifa de pago",
+        "paymentFrequency": "Frecuencia de pago",
+        "workSchedule": "Horario de trabajo",
+        "responsibilities": "Responsabilidades",
+        "notes": "Notas",
+        "caregiverNameRequired": "Nombre del cuidador *",
+        "hourlyRate": "Tarifa por hora",
+        "duties": "Deberes y responsabilidades",
+        "emergencyProcedures": "Procedimientos de emergencia",
+        "confidentialityTerms": "Términos de confidencialidad",
+        "terminationTerms": "Términos de terminación",
+        "additionalTerms": "Términos adicionales"
+      },
+      "statuses": {
+        "active": "Activo",
+        "draft": "Borrador",
+        "terminated": "Terminado",
+        "expired": "Vencido"
+      },
+      "paymentFrequencies": {
+        "weekly": "Semanal",
+        "biweekly": "Quincenal",
+        "monthly": "Mensual",
+        "hourly": "Por hora"
+      },
+      "addFirstAgreement": "Agregar primer acuerdo",
+      "newAgreement": "Nuevo acuerdo de empleo",
+      "updateAgreement": "Actualizar acuerdo",
+      "createAgreement": "Crear acuerdo",
+      "present": "Presente",
+      "notAvailable": "N/D",
+      "placeholders": {
+        "workSchedule": "ej., Lun-Vie 8AM-5PM",
+        "hourlyRate": "ej., $25/hr",
+        "select": "Seleccionar"
+      },
+      "toast": {
+        "agreementAdded": "Acuerdo agregado",
+        "agreementUpdated": "Acuerdo actualizado",
+        "agreementDeleted": "Acuerdo eliminado"
+      }
+    },
+    "financialLegal": {
+      "title": "Financiero y legal",
+      "subtitle": "Documentos financieros y legales importantes",
+      "addNew": "Agregar documento",
+      "addFinancialDocument": "Agregar documento financiero/legal",
+      "addFirstDocument": "Agregar primer documento",
+      "editDocument": "Editar documento",
+      "updateDocument": "Actualizar documento",
+      "noDocuments": "Aún no hay documentos",
+      "noDocumentsDesc": "Comienza a registrar documentos financieros y legales importantes.",
+      "noDocumentsDescFull": "Agrega documentos financieros y legales importantes para resguardarlos.",
+      "deleteDocument": "¿Eliminar documento?",
+      "deleteConfirm": "Esto eliminará permanentemente este registro de documento.",
+      "expires": "Vence: {{date}}",
+      "fields": {
+        "title": "Título del documento",
+        "docType": "Tipo de documento",
+        "institution": "Institución / Emisor",
+        "accountNumber": "Número de cuenta / referencia",
+        "status": "Estado",
+        "expiryDate": "Fecha de vencimiento",
+        "notes": "Notas",
+        "contactName": "Nombre de contacto",
+        "contactPhone": "Teléfono de contacto",
+        "contactEmail": "Correo de contacto",
+        "description": "Descripción"
+      },
+      "docTypes": {
+        "insurance": "Póliza de seguro",
+        "trust": "Documento de fideicomiso",
+        "will": "Testamento",
+        "guardianship": "Documento de tutela",
+        "benefitsPlan": "Plan de beneficios",
+        "taxDocument": "Documento fiscal",
+        "bankAccount": "Cuenta bancaria",
+        "rdsp": "RDSP",
+        "bank": "Cuenta bancaria",
+        "disability_benefits": "Beneficios por discapacidad",
+        "power_of_attorney": "Poder notarial",
+        "tax": "Documento fiscal",
+        "other": "Otro"
+      },
+      "statuses": {
+        "active": "Activo",
+        "pending": "Pendiente",
+        "expired": "Vencido",
+        "archived": "Archivado"
+      },
+      "toast": {
+        "documentAdded": "Documento agregado",
+        "documentRemoved": "Documento eliminado",
+        "documentUpdated": "Documento actualizado"
+      }
+    },
+    "endOfLifeWishes": {
+      "title": "Voluntades anticipadas",
+      "subtitle": "Documenta directivas anticipadas y preferencias",
+      "noInfo": "No se ha registrado información",
+      "noInfoDesc": "Comienza a documentar las voluntades anticipadas y directivas importantes.",
+      "noDirectives": "No se han registrado directivas.",
+      "notSpecified": "No especificado",
+      "beginDocumentation": "Comenzar documentación",
+      "sections": {
+        "medicalDirectives": "Directivas médicas",
+        "legalGuardianship": "Legal y tutela",
+        "personalWishes": "Deseos personales"
+      },
+      "fields": {
+        "medicalDirectives": "Directivas médicas",
+        "preferredHospital": "Hospital preferido",
+        "dnrStatus": "Estado de DNR",
+        "organDonation": "Donación de órganos",
+        "legalGuardian": "Tutor legal",
+        "alternateGuardian": "Tutor alterno",
+        "powerOfAttorney": "Poder notarial",
+        "specialInstructions": "Instrucciones especiales",
+        "personalWishes": "Deseos personales",
+        "religiousPreferences": "Preferencias religiosas",
+        "memorialPreferences": "Preferencias conmemorativas",
+        "additionalNotes": "Notas adicionales",
+        "funeralPreferences": "Preferencias funerarias",
+        "preferredPhysician": "Médico preferido",
+        "religiousCulturalWishes": "Deseos religiosos/culturales"
+      },
+      "placeholders": {
+        "medicalDirectives": "Documenta cualquier directiva médica anticipada, órdenes de DNR o preferencias de tratamiento...",
+        "nameAndContact": "Nombre y contacto"
+      },
+      "organDonationOptions": {
+        "yes": "Sí, todos los órganos",
+        "yesSpecific": "Sí, solo órganos específicos",
+        "no": "No",
+        "undecided": "Indeciso",
+        "notSpecified": "No especificado"
+      }
+    },
+    "celebrations": {
+      "title": "Celebraciones",
+      "subtitle": "Cada logro es un camino que vale la pena celebrar",
+      "startJourney": "Iniciar un camino",
+      "startFirstJourney": "Inicia tu primer camino",
+      "startCelebrating": "¡Comienza a celebrar!",
+      "emptyDescription": "Cada logro importa, grande o pequeño. Inicia un camino para registrar el progreso y celebrar los momentos que hacen brillar a tu hijo.",
+      "noChildProfile": "Por favor selecciona o crea un perfil de niño primero.",
+      "stats": {
+        "journeys": "Caminos",
+        "moments": "Momentos",
+        "shining": "Brillando",
+        "inProgress": "En progreso"
+      },
+      "stages": {
+        "emerging": "Emergiendo",
+        "growing": "Creciendo",
+        "blooming": "Floreciendo",
+        "shining": "Brillando"
+      },
+      "journeyDialog": {
+        "createTitle": "Iniciar un nuevo camino",
+        "editTitle": "Editar camino",
+        "createSubtitle": "¿Qué habilidad o logro te gustaría registrar?",
+        "editSubtitle": "Actualiza los detalles de este camino",
+        "whatCelebrating": "¿Qué estás celebrando? *",
+        "whatCelebratingPlaceholder": "ej., Aprender a usar la cuchara, Hacer contacto visual, Primeras palabras...",
+        "descriptionLabel": "Descripción (opcional)",
+        "descriptionPlaceholder": "Contexto u objetivos para este camino...",
+        "category": "Categoría",
+        "categoryPlaceholder": "Seleccionar categoría",
+        "currentStage": "Etapa actual",
+        "whenStarted": "¿Cuándo comenzó este camino?",
+        "startJourney": "Iniciar camino",
+        "saveChanges": "Guardar cambios"
+      },
+      "momentDialog": {
+        "captureTitle": "Capturar un momento",
+        "captureSubtitle": "Registra un momento de progreso para {{journeyTitle}}",
+        "editTitle": "Editar momento",
+        "editSubtitle": "Actualiza los detalles de este momento",
+        "whatHappened": "¿Qué pasó? *",
+        "whatHappenedPlaceholder": "ej., ¡Sostuvo la cuchara sola!, Dijo 'mamá' claramente...",
+        "storyLabel": "La historia (opcional)",
+        "storyPlaceholder": "¿Qué llevó a este momento? ¿Cómo sucedió?",
+        "howCelebrated": "¿Cómo lo celebraron? (opcional)",
+        "howCelebratedPlaceholder": "ej., ¡Abrazos grandes y baile de alegría!, Helado de premio...",
+        "whenHappened": "¿Cuándo sucedió?",
+        "saveMoment": "Guardar momento",
+        "saveChanges": "Guardar cambios"
+      },
+      "addMoment": "Agregar momento",
+      "hideMoments": "Ocultar momentos",
+      "showMoments_one": "Mostrar {{count}} momento",
+      "showMoments_other": "Mostrar {{count}} momentos",
+      "started": "Iniciado {{date}}",
+      "moments": "{{count}} momentos",
+      "deleteJourney": {
+        "title": "¿Eliminar camino?",
+        "description": "Esto eliminará permanentemente este camino y todos sus momentos. Esta acción no se puede deshacer."
+      },
+      "deleteMoment": {
+        "title": "¿Eliminar momento?",
+        "description": "Esto eliminará permanentemente este momento. Esta acción no se puede deshacer."
+      },
+      "toast": {
+        "journeyUpdated": "¡Camino actualizado!",
+        "journeyStarted": "¡Nuevo camino iniciado!",
+        "journeyStartedDesc": "¡Cada paso adelante es una celebración!",
+        "momentCaptured": "¡Momento capturado!",
+        "momentCapturedDesc": "¡Qué maravilloso logro para recordar!",
+        "momentUpdated": "¡Momento actualizado!",
+        "journeyRemoved": "Camino eliminado",
+        "momentRemoved": "Momento eliminado",
+        "stageUpdated": "¡Ahora {{stage}}!"
+      }
+    },
+    "documents": {
+      "title": "Documentos",
+      "subtitle": "Sube y gestiona documentos importantes",
+      "noChildProfile": "Por favor selecciona o crea un perfil de niño para gestionar documentos.",
+      "importantDocuments": "Documentos importantes",
+      "importantDocumentsDesc": "Sube y gestiona registros médicos, documentos de seguro e instrucciones de cuidado.",
+      "dragOrClick": "Arrastra archivos aquí o haz clic para buscar",
+      "maxFileSize": "Máximo {{size}}MB por archivo. Se aceptan PDF, imágenes y documentos.",
+      "noDocuments": "Aún no se han subido documentos. Sube registros médicos importantes, tarjetas de seguro o instrucciones de cuidado."
+    }
+  },
+  "pages": {
+    "profile": {
+      "title": "Tu perfil",
+      "fullName": "Nombre completo",
+      "fullNamePlaceholder": "Ingresa tu nombre completo",
+      "dangerZone": "Zona de peligro",
+      "dangerZoneDesc": "Elimina permanentemente tu cuenta y todos los datos asociados. Esta acción no se puede deshacer.",
+      "deleteMyAccount": "Eliminar mi cuenta",
+      "deleteConfirmTitle": "¿Estás completamente seguro?",
+      "deleteConfirmMessage": "Esto eliminará permanentemente tu cuenta y todos los datos asociados, incluyendo:",
+      "deleteItems": {
+        "childrenProfiles": "Todos los perfiles de niños que posees",
+        "medicalRecords": "Todos los registros médicos, medicamentos y registros de cuidado",
+        "documents": "Todos los documentos y tarjetas de emergencia",
+        "accountCredentials": "Tu perfil y credenciales de cuenta"
+      },
+      "deleteIrreversible": "Esta acción es irreversible.",
+      "typeDeleteConfirm": "Escribe <1>DELETE</1> para confirmar:",
+      "deleteEverything": "Eliminar todo"
+    },
+    "admin": {
+      "title": "Panel de administración",
+      "subtitle": "Gestiona usuarios, roles y aprobaciones de incorporación",
+      "totalUsers": "Total de usuarios",
+      "pendingApproval": "Pendientes de aprobación",
+      "approvedUsers": "Usuarios aprobados",
+      "tabs": {
+        "pending": "Pendientes",
+        "allUsers": "Todos los usuarios"
+      },
+      "pendingTitle": "Aprobaciones de incorporación pendientes",
+      "pendingSubtitle": "Nuevos usuarios esperando aprobación de acceso",
+      "allCaughtUp": "¡Todo al día!",
+      "allCaughtUpDesc": "No hay aprobaciones pendientes en este momento.",
+      "allUsersTitle": "Todos los usuarios",
+      "allUsersSubtitle": "Gestiona roles y acceso de usuarios",
+      "tableHeaders": {
+        "name": "Nombre",
+        "role": "Rol",
+        "status": "Estado",
+        "registered": "Registrado",
+        "joined": "Incorporado",
+        "actions": "Acciones"
+      },
+      "approve": "Aprobar",
+      "revoke": "Revocar",
+      "deleteUser": "Eliminar usuario",
+      "deleteUserConfirm": "¿Estás seguro de que deseas eliminar permanentemente a {{name}}? Esta acción no se puede deshacer y eliminará todos sus datos.",
+      "roles": {
+        "admin": "Administrador",
+        "caregiver": "Cuidador",
+        "viewer": "Visualizador"
+      }
+    },
+    "help": {
+      "title": "Ayuda y soporte",
+      "subtitle": "Encuentra respuestas a preguntas frecuentes a continuación. Si necesitas más ayuda, no dudes en contactarnos.",
+      "faqTitle": "Preguntas frecuentes",
+      "faqs": {
+        "addChild": {
+          "q": "¿Cómo agrego un perfil de niño?",
+          "a": "Después de iniciar sesión, haz clic en el botón \"Agregar niño\" en tu panel. Completa el nombre de tu hijo y cualquier otro dato que desees registrar. Siempre puedes actualizar esta información más tarde."
+        },
+        "inviteCaregiver": {
+          "q": "¿Cómo invito a un cuidador al perfil de mi hijo?",
+          "a": "Ve al panel de tu hijo y abre la sección de Equipo de Cuidado. Haz clic en \"Invitar miembro\", ingresa su dirección de correo electrónico y elige un rol (cuidador o visualizador). Recibirán un código de invitación para unirse."
+        },
+        "dataSecure": {
+          "q": "¿Los datos de mi hijo están seguros?",
+          "a": "Sí. Los campos sensibles como números de teléfono, direcciones e información médica están cifrados en reposo. Cada tabla está protegida con políticas de seguridad a nivel de fila para que solo los cuidadores autorizados puedan acceder a los datos. Consulta nuestra Política de Privacidad para más detalles."
+        },
+        "exportData": {
+          "q": "¿Puedo exportar mis datos?",
+          "a": "Sí. Puedes exportar los datos de cuidado de tu hijo en formato PDF, CSV o JSON desde las secciones correspondientes del panel. Los archivos exportados contienen solo información relevante de cuidado — los identificadores internos del sistema se eliminan."
+        },
+        "deleteAccount": {
+          "q": "¿Cómo elimino mi cuenta?",
+          "a": "Ve a tu página de Perfil y desplázate hasta el final. Haz clic en \"Eliminar cuenta\" — esto eliminará permanentemente tu cuenta y todos los perfiles de niños y registros de cuidado asociados. Esta acción no se puede deshacer."
+        },
+        "languages": {
+          "q": "¿Qué idiomas están disponibles?",
+          "a": "Special Caring actualmente soporta inglés (Canadá), francés (Canadá) y español. Puedes cambiar de idioma usando el selector de idioma en la barra de navegación."
+        },
+        "mobileApp": {
+          "q": "¿Hay una aplicación móvil?",
+          "a": "Special Caring es una aplicación web progresiva (PWA). Puedes agregarla a la pantalla de inicio de tu teléfono desde tu navegador para una experiencia similar a una aplicación — no se requiere descarga desde la tienda de aplicaciones."
+        }
+      },
+      "stillNeedHelp": "¿Aún necesitas ayuda?",
+      "contactUs": "Contacta a nuestro equipo de soporte y te responderemos lo antes posible.",
+      "emailLabel": "Correo electrónico:"
+    },
+    "privacy": {
+      "title": "Política de Privacidad",
+      "lastUpdated": "Última actualización: {{date}} · Versión {{version}}",
+      "sections": {
+        "infoCollect": {
+          "title": "1. Información que recopilamos"
+        },
+        "protectData": {
+          "title": "2. Cómo protegemos tus datos"
+        },
+        "dataMinimization": {
+          "title": "3. Minimización de datos"
+        },
+        "dataPortability": {
+          "title": "4. Portabilidad de datos"
+        },
+        "rightToErasure": {
+          "title": "5. Derecho al olvido"
+        },
+        "childrenPrivacy": {
+          "title": "6. Privacidad de los niños (COPPA)"
+        },
+        "dataSharing": {
+          "title": "7. Compartir datos"
+        },
+        "contactUs": {
+          "title": "8. Contáctanos"
+        }
+      }
+    },
+    "terms": {
+      "title": "Términos de Servicio",
+      "lastUpdated": "Última actualización: {{date}} · Versión {{version}}",
+      "sections": {
+        "acceptance": {
+          "title": "1. Aceptación de los términos"
+        },
+        "description": {
+          "title": "2. Descripción del servicio"
+        },
+        "userAccounts": {
+          "title": "3. Cuentas de usuario"
+        },
+        "acceptableUse": {
+          "title": "4. Uso aceptable"
+        },
+        "dataOwnership": {
+          "title": "5. Propiedad de los datos"
+        },
+        "careTeamSharing": {
+          "title": "6. Compartir con el equipo de cuidado"
+        },
+        "medicalDisclaimer": {
+          "title": "7. Aviso legal médico"
+        },
+        "limitation": {
+          "title": "8. Limitación de responsabilidad"
+        },
+        "termination": {
+          "title": "9. Terminación"
+        },
+        "changes": {
+          "title": "10. Cambios en los términos"
+        },
+        "contactUs": {
+          "title": "11. Contáctanos"
+        }
+      }
+    },
+    "notFound": {
+      "title": "Página no encontrada",
+      "message": "La página que buscas no existe o ha sido movida.",
+      "returnHome": "Volver al inicio"
+    },
+    "addChild": {
+      "orJoinTeam": "O únete al equipo de cuidado de un niño existente",
+      "joinWithInviteCode": "Unirse con código de invitación"
+    }
+  },
+  "export": {
+    "title": "Exportar datos",
+    "descriptionWithName": "Exportar datos de cuidado de {{childName}}",
+    "descriptionGeneric": "Exporta datos de cuidado en tu formato preferido",
+    "format": "Formato de exportación",
+    "sectionsToInclude": "Secciones a incluir",
+    "allSections": "Todas las secciones",
+    "exportEverything": "Exportar todo",
+    "formats": {
+      "pdf": {
+        "label": "Documento PDF",
+        "description": "Ideal para imprimir y compartir"
+      },
+      "csv": {
+        "label": "Hoja de cálculo CSV",
+        "description": "Para Excel, Google Sheets"
+      },
+      "json": {
+        "label": "Datos JSON",
+        "description": "Respaldo legible por máquina"
+      }
+    },
+    "sections": {
+      "keyInformation": {
+        "label": "Información clave",
+        "description": "Perfil básico, contacto, condiciones médicas"
+      },
+      "medications": {
+        "label": "Medicamentos",
+        "description": "Medicamentos actuales, dosis, horarios"
+      },
+      "medicalContacts": {
+        "label": "Contactos médicos",
+        "description": "Médicos, especialistas, proveedores de salud"
+      },
+      "emergencyProtocols": {
+        "label": "Protocolos de emergencia",
+        "description": "Procedimientos e instrucciones de emergencia"
+      },
+      "emergencyCards": {
+        "label": "Tarjetas de emergencia",
+        "description": "Tarjetas de identificación y documentos de seguro"
+      },
+      "dailyLogs": {
+        "label": "Registros diarios",
+        "description": "Registros y notas recientes de cuidado diario"
+      },
+      "suppliers": {
+        "label": "Proveedores",
+        "description": "Proveedores de equipo médico y suministros"
+      },
+      "employmentAgreements": {
+        "label": "Acuerdos de empleo",
+        "description": "Detalles de empleo del equipo de cuidado"
+      },
+      "financialLegal": {
+        "label": "Financiero y legal",
+        "description": "Documentos financieros y legales"
+      },
+      "endOfLifeWishes": {
+        "label": "Voluntades anticipadas",
+        "description": "Directivas anticipadas y preferencias"
+      },
+      "homeSafety": {
+        "label": "Seguridad del hogar",
+        "description": "Verificaciones y protocolos de seguridad"
+      },
+      "celebrations": {
+        "label": "Celebraciones",
+        "description": "Hitos y momentos del camino"
+      },
+      "documents": {
+        "label": "Documentos",
+        "description": "Metadatos de documentos subidos"
+      }
+    },
+    "emailDialog": {
+      "title": "Enviar {{label}} por correo electrónico",
+      "recipientEmail": "Correo del destinatario *",
+      "recipientEmailPlaceholder": "ej., doctor@clinica.com",
+      "recipientName": "Nombre del destinatario (opcional)",
+      "recipientNamePlaceholder": "ej., Dr. García"
+    }
+  },
+  "search": {
+    "placeholder": "Buscar medicamentos, contactos, protocolos...",
+    "noResults": "No se encontraron resultados.",
+    "noResultsHint": "Intenta buscar el nombre de un medicamento, médico o condición.",
+    "suggestions": "Sugerencias",
+    "keyboardHints": "Presiona <1>↵</1> para seleccionar, <2>↑↓</2> para navegar, <3>esc</3> para cerrar",
+    "typeLabels": {
+      "medication": "Medicamentos",
+      "contact": "Contactos médicos",
+      "protocol": "Protocolos de emergencia",
+      "log": "Registros diarios",
+      "supplier": "Proveedores",
+      "info": "Información"
+    },
+    "defaultSuggestions": {
+      "medicationName": "nombre de medicamento",
+      "doctorName": "nombre de médico",
+      "pharmacy": "farmacia",
+      "allergy": "alergia",
+      "seizure": "convulsión",
+      "emergency": "emergencia"
+    }
+  },
+  "careTeam": {
+    "title": "Equipo de cuidado",
+    "invite": "Invitar",
+    "unknownUser": "Usuario desconocido",
+    "youLabel": "(Tú)",
+    "pendingInvites": "Invitaciones pendientes",
+    "codeOnly": "Solo código",
+    "inviteDialog": {
+      "title": "Invitar cuidador",
+      "description": "Comparte el acceso a la información de cuidado de tu hijo con un cuidador de confianza.",
+      "shareCode": "Comparte este código de invitación",
+      "copyCode": "Copiar código",
+      "codeExpiry": "Este código expira en 7 días. El cuidador puede canjearlo desde la página de Agregar niño.",
+      "emailLabel": "Correo electrónico (opcional)",
+      "emailPlaceholder": "cuidador@email.com",
+      "roleLabel": "Rol",
+      "roles": {
+        "caregiver": "Cuidador — Puede ver y editar",
+        "viewer": "Visualizador — Solo lectura"
+      },
+      "createInvite": "Crear invitación"
+    },
+    "removeDialog": {
+      "title": "Eliminar miembro del equipo",
+      "description": "¿Estás seguro de que deseas eliminar a {{name}} del equipo de cuidado? Perderá el acceso a la información de este niño.",
+      "removeButton": "Eliminar"
+    }
+  },
+  "childSwitcher": {
+    "addFirstChild": "Agregar tu primer hijo",
+    "childrenLabel": "Hijos",
+    "yourChild": "Tu hijo",
+    "sharedWithYou": "Compartido contigo",
+    "viewOnly": "Solo lectura",
+    "shared": "Compartido",
+    "rename": "Renombrar",
+    "delete": "Eliminar",
+    "changePhoto": "Cambiar foto",
+    "removePhoto": "Eliminar foto",
+    "addChild": "Agregar niño",
+    "joinWithInviteCode": "Unirse con código de invitación",
+    "renameDialog": {
+      "title": "Renombrar niño",
+      "label": "Nombre del niño",
+      "cancel": "Cancelar",
+      "save": "Guardar"
+    },
+    "deleteDialog": {
+      "title": "Eliminar niño",
+      "description": "¿Estás seguro de que deseas eliminar a {{name}}? Esto eliminará permanentemente todos sus datos de cuidado, incluyendo registros médicos, medicamentos y registros diarios. Esta acción no se puede deshacer."
+    }
+  },
+  "redeemInvite": {
+    "title": "Canjear código de invitación",
+    "description": "Ingresa el código de invitación compartido por otro cuidador para acceder a la información de cuidado de su hijo.",
+    "placeholder": "Ingresa el código de invitación",
+    "cancel": "Cancelar",
+    "redeem": "Canjear",
+    "redeeming": "Canjeando..."
   }
 }

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/form";
 import { useChild } from "@/contexts/ChildContext";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import type { OnboardingWizardAPI } from "../useOnboardingWizard";
 
 const schema = z.object({
@@ -29,6 +30,7 @@ interface StepBirthDateProps {
 const StepBirthDate = ({ wizard }: StepBirthDateProps) => {
   const { updateChildProfile } = useChild();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -53,7 +55,7 @@ const StepBirthDate = ({ wizard }: StepBirthDateProps) => {
       wizard.updateStepData({ birthDate: values.birthDate });
       wizard.goNext();
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t('toast.error'), description: error.message, variant: "destructive" });
     } finally {
       wizard.setSaving(null);
     }
@@ -66,10 +68,10 @@ const StepBirthDate = ({ wizard }: StepBirthDateProps) => {
           <Cake className="h-6 w-6 text-pink-600" />
         </div>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-          When was {wizard.state.childName} born?
+          {t('onboarding.birthDate.title', { childName: wizard.state.childName })}
         </h1>
         <p className="text-muted-foreground text-lg">
-          This helps us calculate their age for caregivers.
+          {t('onboarding.birthDate.subtitle')}
         </p>
       </div>
 
@@ -80,7 +82,7 @@ const StepBirthDate = ({ wizard }: StepBirthDateProps) => {
             name="birthDate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date of Birth</FormLabel>
+                <FormLabel>{t('onboarding.birthDate.label')}</FormLabel>
                 <FormControl>
                   <Input type="date" className="h-12 text-lg" {...field} />
                 </FormControl>
@@ -96,7 +98,7 @@ const StepBirthDate = ({ wizard }: StepBirthDateProps) => {
               className="gap-1 text-muted-foreground"
               onClick={() => wizard.goPrev()}
             >
-              <ArrowLeft className="h-4 w-4" /> Back
+              <ArrowLeft className="h-4 w-4" /> {t('common.back')}
             </Button>
             <div className="flex items-center gap-3">
               <Button
@@ -105,7 +107,7 @@ const StepBirthDate = ({ wizard }: StepBirthDateProps) => {
                 className="text-muted-foreground"
                 onClick={() => wizard.skipStep()}
               >
-                Skip for now
+                {t('common.skipForNow')}
               </Button>
               <Button
                 type="submit"
@@ -113,7 +115,7 @@ const StepBirthDate = ({ wizard }: StepBirthDateProps) => {
                 className="bg-special-600 hover:bg-special-700 px-8 h-11"
               >
                 {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                Continue
+                {t('common.continue')}
               </Button>
             </div>
           </div>

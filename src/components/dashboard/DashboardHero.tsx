@@ -6,17 +6,19 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Heart, Star } from "lucide-react";
 import { Link } from "react-router-dom";
-
-const getGreeting = () => {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
-};
+import { useTranslation } from "react-i18next";
 
 const DashboardHero = () => {
   const { user } = useAuth();
   const { activeChild, children } = useChild();
+  const { t } = useTranslation();
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return t('dashboard.hero.goodMorning');
+    if (hour < 17) return t('dashboard.hero.goodAfternoon');
+    return t('dashboard.hero.goodEvening');
+  };
 
   const { data: profile } = useQuery({
     queryKey: ["profile", user?.id],
@@ -43,10 +45,10 @@ const DashboardHero = () => {
           </div>
           <div className="space-y-2">
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-              {getGreeting()}, {firstName}! 👋
+              {t('dashboard.hero.greeting', { greeting: getGreeting(), name: firstName })}
             </h1>
             <p className="text-primary-foreground/80 text-sm md:text-base">
-              Let's get started by adding your child — they're the star of this system.
+              {t('dashboard.hero.emptyTitle')}
             </p>
           </div>
           <Button
@@ -56,7 +58,7 @@ const DashboardHero = () => {
           >
             <Link to="/add-child">
               <Heart className="h-4 w-4" />
-              Add Your First Child
+              {t('dashboard.hero.addFirstChild')}
             </Link>
           </Button>
         </div>
@@ -71,11 +73,11 @@ const DashboardHero = () => {
       <div className="flex items-center justify-between gap-4">
         <div className="space-y-1">
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-            {getGreeting()}, {firstName}! 👋
+            {t('dashboard.hero.greeting', { greeting: getGreeting(), name: firstName })}
           </h1>
           {activeChild && (
             <p className="text-primary-foreground/80 text-sm md:text-base">
-              Caring for <span className="font-semibold">{activeChild.full_name || activeChild.name}</span>
+              {t('dashboard.hero.caringFor', { childName: activeChild.full_name || activeChild.name })}
             </p>
           )}
         </div>

@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,22 +32,23 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useChild } from "@/contexts/ChildContext";
 import { useUserRole } from "@/hooks/useUserRole";
 
-const protocolSchema = z.object({
-  title: z.string().min(1, "Title is required"),
+const createProtocolSchema = (t: (key: string) => string) => z.object({
+  title: z.string().min(1, t('validation.titleRequired')),
   severity: z.enum(["critical", "urgent", "moderate"]),
-  emergencyContacts: z.string().min(1, "Emergency contacts are required"),
-  immediateSteps: z.string().min(1, "Immediate steps are required"),
+  emergencyContacts: z.string().min(1, t('validation.fieldRequired')),
+  immediateSteps: z.string().min(1, t('validation.fieldRequired')),
   whenToCall911: z.string().optional(),
   additionalNotes: z.string().optional(),
 });
 
-type ProtocolValues = z.infer<typeof protocolSchema>;
+type ProtocolValues = z.infer<ReturnType<typeof createProtocolSchema>>;
 
 interface Protocol extends ProtocolValues {
   id: string;
 }
 
 const MedicalEmergencyProtocols = () => {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -55,6 +57,8 @@ const MedicalEmergencyProtocols = () => {
   const { activeChild } = useChild();
   const { canEdit } = useUserRole();
   const queryClient = useQueryClient();
+
+  const protocolSchema = useMemo(() => createProtocolSchema(t), [t]);
 
   const form = useForm<ProtocolValues>({
     resolver: zodResolver(protocolSchema),
@@ -97,12 +101,12 @@ const MedicalEmergencyProtocols = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['emergencyProtocols', activeChild?.id] });
-      toast({ title: editingId ? "Protocol updated" : "Protocol added" });
+      toast({ title: editingId ? t('sections.emergencyProtocols.toast.protocolUpdated') : t('sections.emergencyProtocols.toast.protocolAdded') });
       setIsEditing(false);
       setEditingId(null);
       form.reset();
     },
-    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+    onError: (error: any) => toast({ title: t('toast.error'), description: error.message, variant: "destructive" }),
   });
 
   const deleteMutation = useMutation({
@@ -112,11 +116,11 @@ const MedicalEmergencyProtocols = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['emergencyProtocols', activeChild?.id] });
-      toast({ title: "Protocol deleted" });
+      toast({ title: t('sections.emergencyProtocols.toast.protocolDeleted') });
       setDeletingId(null);
     },
     onError: (error: any) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t('toast.error'), description: error.message, variant: "destructive" });
       setDeletingId(null);
     },
   });
@@ -147,11 +151,20 @@ const MedicalEmergencyProtocols = () => {
     }
   };
 
+  const getSeverityLabel = (severity: string) => {
+    switch (severity) {
+      case "critical": return t('sections.emergencyProtocols.severity.criticalPriority');
+      case "urgent": return t('sections.emergencyProtocols.severity.urgentPriority');
+      case "moderate": return t('sections.emergencyProtocols.severity.moderatePriority');
+      default: return severity;
+    }
+  };
+
   if (!activeChild) {
     return (
       <div className="space-y-6">
-        <h2 className="text-3xl font-bold text-foreground">Medical Emergency Protocols</h2>
-        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>Please select or create a child profile first.</AlertDescription></Alert>
+        <h2 className="text-3xl font-bold text-foreground">{t('sections.emergencyProtocols.title')}</h2>
+        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>{t('common.noChildProfile')}</AlertDescription></Alert>
       </div>
     );
   }
@@ -164,21 +177,21 @@ const MedicalEmergencyProtocols = () => {
     <div className="animate-fadeIn">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Medical Emergency Protocols</h2>
-          <p className="text-muted-foreground">Quick reference guides for managing medical emergencies</p>
+          <h2 className="text-2xl font-bold">{t('sections.emergencyProtocols.title')}</h2>
+          <p className="text-muted-foreground">{t('sections.emergencyProtocols.subtitle')}</p>
         </div>
         {canEdit && (
           <Button onClick={() => { setEditingId(null); form.reset(); setIsEditing(true); }} className="bg-special-600 hover:bg-special-700 flex items-center gap-2">
-            <PlusCircle size={16} />Add Protocol
+            <PlusCircle size={16} />{t('sections.emergencyProtocols.addNew')}
           </Button>
         )}
       </div>
 
       <Alert className="mb-6 border-red-200 bg-red-50">
         <AlertTriangle className="h-4 w-4 text-red-600" />
-        <AlertTitle className="text-red-800">Emergency Reminder</AlertTitle>
+        <AlertTitle className="text-red-800">{t('sections.emergencyProtocols.emergencyReminder')}</AlertTitle>
         <AlertDescription className="text-red-700">
-          In a life-threatening emergency, always call 911 first. These protocols are supplementary guidance.
+          {t('sections.emergencyProtocols.emergencyReminderTextFull')}
         </AlertDescription>
       </Alert>
 
@@ -190,7 +203,7 @@ const MedicalEmergencyProtocols = () => {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     {getSeverityIcon(protocol.severity)}
-                    <div><CardTitle className="text-xl">{protocol.title}</CardTitle><CardDescription className="capitalize">{protocol.severity} Priority</CardDescription></div>
+                    <div><CardTitle className="text-xl">{protocol.title}</CardTitle><CardDescription className="capitalize">{getSeverityLabel(protocol.severity)}</CardDescription></div>
                   </div>
                   {canEdit && (
                     <div className="flex gap-2">
@@ -202,22 +215,22 @@ const MedicalEmergencyProtocols = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <div className="flex items-center gap-2 mb-2"><Phone className="h-4 w-4 text-special-600" /><h4 className="font-medium">Emergency Contacts</h4></div>
+                  <div className="flex items-center gap-2 mb-2"><Phone className="h-4 w-4 text-special-600" /><h4 className="font-medium">{t('sections.emergencyProtocols.fields.emergencyContacts')}</h4></div>
                   <p className="text-sm text-gray-700 bg-white p-3 rounded-md">{protocol.emergencyContacts}</p>
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 mb-2"><AlertTriangle className="h-4 w-4 text-special-600" /><h4 className="font-medium">Immediate Steps</h4></div>
+                  <div className="flex items-center gap-2 mb-2"><AlertTriangle className="h-4 w-4 text-special-600" /><h4 className="font-medium">{t('sections.emergencyProtocols.fields.immediateSteps')}</h4></div>
                   <div className="text-sm text-gray-700 bg-white p-3 rounded-md whitespace-pre-line">{protocol.immediateSteps}</div>
                 </div>
                 {protocol.whenToCall911 && (
                   <div>
-                    <div className="flex items-center gap-2 mb-2"><Phone className="h-4 w-4 text-red-600" /><h4 className="font-medium text-red-700">When to Call 911</h4></div>
+                    <div className="flex items-center gap-2 mb-2"><Phone className="h-4 w-4 text-red-600" /><h4 className="font-medium text-red-700">{t('sections.emergencyProtocols.fields.whenToCall911')}</h4></div>
                     <div className="text-sm text-red-700 bg-red-50 p-3 rounded-md whitespace-pre-line border border-red-200">{protocol.whenToCall911}</div>
                   </div>
                 )}
                 {protocol.additionalNotes && (
                   <div>
-                    <div className="flex items-center gap-2 mb-2"><FileText className="h-4 w-4 text-special-600" /><h4 className="font-medium">Additional Notes</h4></div>
+                    <div className="flex items-center gap-2 mb-2"><FileText className="h-4 w-4 text-special-600" /><h4 className="font-medium">{t('sections.emergencyProtocols.fields.notes')}</h4></div>
                     <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-md">{protocol.additionalNotes}</p>
                   </div>
                 )}
@@ -229,10 +242,10 @@ const MedicalEmergencyProtocols = () => {
         <Card className="text-center py-12">
           <CardContent>
             <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">No Emergency Protocols Yet</h3>
-            <p className="text-muted-foreground mb-4">Create your first emergency protocol to be prepared for critical situations.</p>
+            <h3 className="text-lg font-medium mb-2">{t('sections.emergencyProtocols.noProtocols')}</h3>
+            <p className="text-muted-foreground mb-4">{t('sections.emergencyProtocols.noProtocolsDescFull')}</p>
             {canEdit && (
-              <Button onClick={() => setIsEditing(true)} className="bg-special-600 hover:bg-special-700"><PlusCircle size={16} className="mr-2" />Add Your First Protocol</Button>
+              <Button onClick={() => setIsEditing(true)} className="bg-special-600 hover:bg-special-700"><PlusCircle size={16} className="mr-2" />{t('sections.emergencyProtocols.addFirstProtocol')}</Button>
             )}
           </CardContent>
         </Card>
@@ -241,22 +254,22 @@ const MedicalEmergencyProtocols = () => {
       <Dialog open={isEditing} onOpenChange={setIsEditing}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingId ? "Edit Emergency Protocol" : "Add New Emergency Protocol"}</DialogTitle>
-            <DialogDescription>Create detailed step-by-step instructions for handling medical emergencies.</DialogDescription>
+            <DialogTitle>{editingId ? t('sections.emergencyProtocols.editProtocol') : t('sections.emergencyProtocols.addNew')}</DialogTitle>
+            <DialogDescription>{t('sections.emergencyProtocols.dialogDescription')}</DialogDescription>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField control={form.control} name="title" render={({ field }) => (<FormItem><FormLabel>Protocol Title</FormLabel><FormControl><Input placeholder="e.g., Seizure Response" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="severity" render={({ field }) => (<FormItem><FormLabel>Severity Level</FormLabel><FormControl><select {...field} className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"><option value="moderate">Moderate Priority</option><option value="urgent">Urgent Priority</option><option value="critical">Critical Priority</option></select></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="title" render={({ field }) => (<FormItem><FormLabel>{t('sections.emergencyProtocols.fields.title')}</FormLabel><FormControl><Input placeholder={t('sections.emergencyProtocols.placeholders.title')} {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="severity" render={({ field }) => (<FormItem><FormLabel>{t('sections.emergencyProtocols.severity.label')}</FormLabel><FormControl><select {...field} className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"><option value="moderate">{t('sections.emergencyProtocols.severity.moderatePriority')}</option><option value="urgent">{t('sections.emergencyProtocols.severity.urgentPriority')}</option><option value="critical">{t('sections.emergencyProtocols.severity.criticalPriority')}</option></select></FormControl><FormMessage /></FormItem>)} />
               </div>
-              <FormField control={form.control} name="emergencyContacts" render={({ field }) => (<FormItem><FormLabel>Emergency Contacts</FormLabel><FormControl><Textarea placeholder="List emergency contacts..." className="min-h-[80px]" {...field} /></FormControl><FormMessage /></FormItem>)} />
-              <FormField control={form.control} name="immediateSteps" render={({ field }) => (<FormItem><FormLabel>Immediate Steps to Take</FormLabel><FormControl><Textarea placeholder="List step-by-step instructions..." className="min-h-[120px]" {...field} /></FormControl><FormMessage /></FormItem>)} />
-              <FormField control={form.control} name="whenToCall911" render={({ field }) => (<FormItem><FormLabel>When to Call 911 (Optional)</FormLabel><FormControl><Textarea placeholder="Specify conditions..." className="min-h-[80px]" {...field} /></FormControl><FormMessage /></FormItem>)} />
-              <FormField control={form.control} name="additionalNotes" render={({ field }) => (<FormItem><FormLabel>Additional Notes (Optional)</FormLabel><FormControl><Textarea placeholder="Any additional information..." className="min-h-[80px]" {...field} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="emergencyContacts" render={({ field }) => (<FormItem><FormLabel>{t('sections.emergencyProtocols.fields.emergencyContacts')}</FormLabel><FormControl><Textarea placeholder={t('sections.emergencyProtocols.placeholders.emergencyContacts')} className="min-h-[80px]" {...field} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="immediateSteps" render={({ field }) => (<FormItem><FormLabel>{t('sections.emergencyProtocols.fields.immediateStepsToTake')}</FormLabel><FormControl><Textarea placeholder={t('sections.emergencyProtocols.placeholders.immediateSteps')} className="min-h-[120px]" {...field} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="whenToCall911" render={({ field }) => (<FormItem><FormLabel>{t('sections.emergencyProtocols.fields.whenToCall911Optional')}</FormLabel><FormControl><Textarea placeholder={t('sections.emergencyProtocols.placeholders.whenToCall911')} className="min-h-[80px]" {...field} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="additionalNotes" render={({ field }) => (<FormItem><FormLabel>{t('sections.emergencyProtocols.fields.notesOptional')}</FormLabel><FormControl><Textarea placeholder={t('sections.emergencyProtocols.placeholders.notes')} className="min-h-[80px]" {...field} /></FormControl><FormMessage /></FormItem>)} />
               <div className="flex justify-end gap-3">
-                <Button type="button" variant="outline" onClick={() => { setIsEditing(false); setEditingId(null); form.reset(); }}>Cancel</Button>
-                <Button type="submit" className="bg-special-600 hover:bg-special-700 flex items-center gap-2"><Save size={16} />{editingId ? "Update Protocol" : "Save Protocol"}</Button>
+                <Button type="button" variant="outline" onClick={() => { setIsEditing(false); setEditingId(null); form.reset(); }}>{t('common.cancel')}</Button>
+                <Button type="submit" className="bg-special-600 hover:bg-special-700 flex items-center gap-2"><Save size={16} />{editingId ? t('sections.emergencyProtocols.editProtocol') : t('sections.emergencyProtocols.addNew')}</Button>
               </div>
             </form>
           </Form>
@@ -266,18 +279,18 @@ const MedicalEmergencyProtocols = () => {
       <AlertDialog open={deletingId !== null} onOpenChange={(open) => { if (!open) setDeletingId(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Protocol?</AlertDialogTitle>
+            <AlertDialogTitle>{t('sections.emergencyProtocols.deleteProtocol')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove this emergency protocol. This action cannot be undone.
+              {t('sections.emergencyProtocols.deleteConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => { if (deletingId) deleteMutation.mutate(deletingId); }}
             >
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

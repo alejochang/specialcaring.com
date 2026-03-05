@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -22,9 +23,10 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import type { OnboardingWizardAPI } from "../useOnboardingWizard";
 
-const schema = z
+const createSchema = (t: (key: string) => string) => z
   .object({
     name: z.string(),
     dosage: z.string(),
@@ -35,13 +37,13 @@ const schema = z
     if (anyFilled && !data.name.trim()) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Medication name is required",
+        message: t('validation.medicationNameRequired'),
         path: ["name"],
       });
     }
   });
 
-type FormValues = z.infer<typeof schema>;
+type FormValues = z.infer<ReturnType<typeof createSchema>>;
 
 interface StepMedicationProps {
   wizard: OnboardingWizardAPI;
@@ -50,6 +52,9 @@ interface StepMedicationProps {
 const StepMedication = ({ wizard }: StepMedicationProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
+
+  const schema = useMemo(() => createSchema(t), [t]);
 
   // If medication already saved (user navigated back), show confirmation
   if (wizard.state.stepData.medication) {
@@ -60,11 +65,10 @@ const StepMedication = ({ wizard }: StepMedicationProps) => {
             <Check className="h-6 w-6 text-green-600" />
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-            Medication added
+            {t('onboarding.medication.addedTitle')}
           </h1>
           <p className="text-muted-foreground text-lg">
-            You've added <span className="font-medium text-foreground">{wizard.state.stepData.medication.name}</span>.
-            You can add more from the Medications section later.
+            {t('onboarding.medication.addedMessage', { name: wizard.state.stepData.medication.name })}
           </p>
         </div>
         <div className="flex items-center justify-between pt-2">
@@ -74,13 +78,13 @@ const StepMedication = ({ wizard }: StepMedicationProps) => {
             className="gap-1 text-muted-foreground"
             onClick={() => wizard.goPrev()}
           >
-            <ArrowLeft className="h-4 w-4" /> Back
+            <ArrowLeft className="h-4 w-4" /> {t('common.back')}
           </Button>
           <Button
             onClick={() => wizard.goNext()}
             className="bg-special-600 hover:bg-special-700 px-8 h-11"
           >
-            Continue
+            {t('common.continue')}
           </Button>
         </div>
       </div>
@@ -129,7 +133,7 @@ const StepMedication = ({ wizard }: StepMedicationProps) => {
       });
       wizard.goNext();
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t('toast.error'), description: error.message, variant: "destructive" });
     } finally {
       wizard.setSaving(null);
     }
@@ -142,10 +146,10 @@ const StepMedication = ({ wizard }: StepMedicationProps) => {
           <Pill className="h-6 w-6 text-blue-600" />
         </div>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-          Does {wizard.state.childName} take any medications?
+          {t('onboarding.medication.title', { childName: wizard.state.childName })}
         </h1>
         <p className="text-muted-foreground text-lg">
-          Add the most important one now — you can add more later.
+          {t('onboarding.medication.subtitle')}
         </p>
       </div>
 
@@ -156,10 +160,10 @@ const StepMedication = ({ wizard }: StepMedicationProps) => {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Medication Name</FormLabel>
+                <FormLabel>{t('onboarding.medication.medicationName')}</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="e.g., Lisinopril"
+                    placeholder={t('onboarding.medication.medicationNamePlaceholder')}
                     className="h-12 text-base"
                     {...field}
                   />
@@ -175,10 +179,10 @@ const StepMedication = ({ wizard }: StepMedicationProps) => {
               name="dosage"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Dosage</FormLabel>
+                  <FormLabel>{t('onboarding.medication.dosage')}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="e.g., 10mg"
+                      placeholder={t('onboarding.medication.dosagePlaceholder')}
                       className="h-12 text-base"
                       {...field}
                     />
@@ -193,20 +197,20 @@ const StepMedication = ({ wizard }: StepMedicationProps) => {
               name="frequency"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Frequency</FormLabel>
+                  <FormLabel>{t('onboarding.medication.frequency')}</FormLabel>
                   <FormControl>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger className="h-12 text-base">
-                        <SelectValue placeholder="How often?" />
+                        <SelectValue placeholder={t('onboarding.medication.frequencyPlaceholder')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="once_daily">Once Daily</SelectItem>
-                        <SelectItem value="twice_daily">Twice Daily</SelectItem>
-                        <SelectItem value="three_daily">Three Times Daily</SelectItem>
-                        <SelectItem value="four_daily">Four Times Daily</SelectItem>
-                        <SelectItem value="as_needed">As Needed</SelectItem>
-                        <SelectItem value="weekly">Weekly</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
+                        <SelectItem value="once_daily">{t('onboarding.medication.frequencies.once_daily')}</SelectItem>
+                        <SelectItem value="twice_daily">{t('onboarding.medication.frequencies.twice_daily')}</SelectItem>
+                        <SelectItem value="three_daily">{t('onboarding.medication.frequencies.three_daily')}</SelectItem>
+                        <SelectItem value="four_daily">{t('onboarding.medication.frequencies.four_daily')}</SelectItem>
+                        <SelectItem value="as_needed">{t('onboarding.medication.frequencies.as_needed')}</SelectItem>
+                        <SelectItem value="weekly">{t('onboarding.medication.frequencies.weekly')}</SelectItem>
+                        <SelectItem value="other">{t('onboarding.medication.frequencies.other')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -223,7 +227,7 @@ const StepMedication = ({ wizard }: StepMedicationProps) => {
               className="gap-1 text-muted-foreground"
               onClick={() => wizard.goPrev()}
             >
-              <ArrowLeft className="h-4 w-4" /> Back
+              <ArrowLeft className="h-4 w-4" /> {t('common.back')}
             </Button>
             <div className="flex items-center gap-3">
               <Button
@@ -232,7 +236,7 @@ const StepMedication = ({ wizard }: StepMedicationProps) => {
                 className="text-muted-foreground"
                 onClick={() => wizard.skipStep()}
               >
-                No medications
+                {t('onboarding.medication.noMedications')}
               </Button>
               <Button
                 type="submit"
@@ -240,7 +244,7 @@ const StepMedication = ({ wizard }: StepMedicationProps) => {
                 className="bg-special-600 hover:bg-special-700 px-8 h-11"
               >
                 {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                Add & Continue
+                {t('onboarding.medication.addAndContinue')}
               </Button>
             </div>
           </div>

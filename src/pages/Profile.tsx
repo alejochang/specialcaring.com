@@ -1,6 +1,7 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Loader2, User, Save, Trash2, AlertTriangle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -35,19 +36,24 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
-const profileSchema = z.object({
-  fullName: z.string().min(2, "Name must be at least 2 characters"),
-});
+type ProfileFormValues = z.infer<ReturnType<typeof createProfileSchema>>;
 
-type ProfileFormValues = z.infer<typeof profileSchema>;
+function createProfileSchema(t: (key: string) => string) {
+  return z.object({
+    fullName: z.string().min(2, t("validation.nameMinLength")),
+  });
+}
 
 const Profile = () => {
+  const { t } = useTranslation();
   const { user, isLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [profile, setProfile] = useState<{ full_name: string; avatar_url: string | null } | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  const profileSchema = useMemo(() => createProfileSchema(t), [t]);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -67,16 +73,16 @@ const Profile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) return;
-      
+
       try {
         const { data, error } = await supabase
           .from("profiles")
           .select("full_name, avatar_url")
           .eq("id", user.id)
           .single();
-        
+
         if (error) throw error;
-        
+
         setProfile(data);
         if (data) {
           form.setValue("fullName", data.full_name || "");
@@ -84,8 +90,8 @@ const Profile = () => {
       } catch (error: any) {
         console.error("Error fetching profile:", error);
         toast({
-          title: "Error",
-          description: "Failed to load profile information.",
+          title: t("toast.error"),
+          description: t("toast.profileLoadFailed"),
           variant: "destructive",
         });
       } finally {
@@ -102,7 +108,7 @@ const Profile = () => {
     if (!user) return;
 
     setIsSubmitting(true);
-    
+
     try {
       const { error } = await supabase
         .from("profiles")
@@ -111,27 +117,27 @@ const Profile = () => {
           updated_at: new Date().toISOString(),
         })
         .eq("id", user.id);
-      
+
       if (error) throw error;
-      
+
       // Update the user metadata as well
       await supabase.auth.updateUser({
         data: { full_name: values.fullName }
       });
-      
+
       toast({
-        title: "Profile Updated",
-        description: "Your profile information has been successfully updated.",
+        title: t("toast.success"),
+        description: t("toast.profileUpdated"),
       });
-      
+
       // Update local state
       setProfile(prev => prev ? {...prev, full_name: values.fullName} : null);
-      
+
     } catch (error: any) {
       console.error("Error updating profile:", error);
       toast({
-        title: "Error",
-        description: "Failed to update profile. Please try again.",
+        title: t("toast.error"),
+        description: t("toast.profileUpdateFailed"),
         variant: "destructive",
       });
     } finally {
@@ -167,11 +173,11 @@ const Profile = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       <main className="flex-1 container py-16 px-4 mt-16">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-3xl font-bold mb-8">Your Profile</h1>
-          
+          <h1 className="text-3xl font-bold mb-8">{t("pages.profile.title")}</h1>
+
           <Card>
             <CardHeader className="flex flex-col items-center sm:flex-row sm:items-start gap-4">
               <Avatar className="h-24 w-24">
@@ -184,7 +190,7 @@ const Profile = () => {
                 {/* Future feature: Avatar upload button */}
               </div>
             </CardHeader>
-            
+
             <CardContent className="mt-4">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -193,32 +199,32 @@ const Profile = () => {
                     name="fullName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Full Name</FormLabel>
+                        <FormLabel>{t("pages.profile.fullName")}</FormLabel>
                         <FormControl>
                           <div className="relative">
                             <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                            <Input placeholder="Enter your full name" className="pl-10" {...field} />
+                            <Input placeholder={t("pages.profile.fullNamePlaceholder")} className="pl-10" {...field} />
                           </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
-                  <Button 
-                    type="submit" 
+
+                  <Button
+                    type="submit"
                     className="bg-caregiver-600 hover:bg-caregiver-700"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
                       <>
                         <Loader2 size={16} className="mr-2 animate-spin" />
-                        Saving...
+                        {t("common.saving")}
                       </>
                     ) : (
                       <>
                         <Save size={16} className="mr-2" />
-                        Save Changes
+                        {t("common.saveChanges")}
                       </>
                     )}
                   </Button>
@@ -231,10 +237,10 @@ const Profile = () => {
             <CardHeader>
               <CardTitle className="text-lg text-destructive flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5" />
-                Danger Zone
+                {t("pages.profile.dangerZone")}
               </CardTitle>
               <CardDescription>
-                Permanently delete your account and all associated data. This action cannot be undone.
+                {t("pages.profile.dangerZoneDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -243,13 +249,14 @@ const Profile = () => {
           </Card>
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );
 };
 
 const DeleteAccountButton = () => {
+  const { t } = useTranslation();
   const [isDeleting, setIsDeleting] = useState(false);
   const [confirmText, setConfirmText] = useState("");
   const { toast } = useToast();
@@ -269,8 +276,8 @@ const DeleteAccountButton = () => {
       if (data?.error) throw new Error(data.error);
 
       toast({
-        title: "Account Deleted",
-        description: "Your account and all data have been permanently removed.",
+        title: t("toast.accountDeleted"),
+        description: t("toast.accountDeletedDesc"),
       });
 
       await supabase.auth.signOut();
@@ -278,8 +285,8 @@ const DeleteAccountButton = () => {
     } catch (err: any) {
       console.error("Delete account error:", err);
       toast({
-        title: "Error",
-        description: err.message || "Failed to delete account. Please try again.",
+        title: t("toast.error"),
+        description: err.message || t("toast.accountDeleteFailed"),
         variant: "destructive",
       });
     } finally {
@@ -292,28 +299,28 @@ const DeleteAccountButton = () => {
       <AlertDialogTrigger asChild>
         <Button variant="destructive" className="gap-2">
           <Trash2 className="h-4 w-4" />
-          Delete My Account
+          {t("pages.profile.deleteMyAccount")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogTitle>{t("pages.profile.deleteConfirmTitle")}</AlertDialogTitle>
           <AlertDialogDescription className="space-y-3">
             <p>
-              This will <strong>permanently delete</strong> your account and all associated data, including:
+              {t("pages.profile.deleteConfirmMessage")}
             </p>
             <ul className="list-disc pl-6 space-y-1 text-sm">
-              <li>All children profiles you own</li>
-              <li>All medical records, medications, and care logs</li>
-              <li>All documents and emergency cards</li>
-              <li>Your profile and account credentials</li>
+              <li>{t("pages.profile.deleteItems.childrenProfiles")}</li>
+              <li>{t("pages.profile.deleteItems.medicalRecords")}</li>
+              <li>{t("pages.profile.deleteItems.documents")}</li>
+              <li>{t("pages.profile.deleteItems.accountCredentials")}</li>
             </ul>
             <p className="font-medium text-destructive">
-              This action is irreversible.
+              {t("pages.profile.deleteIrreversible")}
             </p>
             <div className="pt-2">
               <label className="text-sm font-medium text-foreground">
-                Type <span className="font-mono bg-muted px-1 rounded">DELETE</span> to confirm:
+                {t("pages.profile.typeDeleteConfirm").replace("<1>", "").replace("</1>", "")}
               </label>
               <Input
                 className="mt-1"
@@ -325,7 +332,7 @@ const DeleteAccountButton = () => {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDeleteAccount}
             disabled={confirmText !== "DELETE" || isDeleting}
@@ -334,10 +341,10 @@ const DeleteAccountButton = () => {
             {isDeleting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Deleting...
+                {t("common.deleting")}
               </>
             ) : (
-              "Delete Everything"
+              t("pages.profile.deleteEverything")
             )}
           </AlertDialogAction>
         </AlertDialogFooter>

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useUserRole } from "@/hooks/useUserRole";
 
 const HomeSafety = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { activeChild } = useChild();
   const { toast } = useToast();
@@ -51,7 +53,6 @@ const HomeSafety = () => {
       return checkId;
     },
     onMutate: async (checkId: string) => {
-      // Optimistic update
       await queryClient.cancelQueries({ queryKey });
       const previous = queryClient.getQueryData<string[]>(queryKey);
       queryClient.setQueryData<string[]>(queryKey, (old = []) =>
@@ -61,7 +62,7 @@ const HomeSafety = () => {
     },
     onError: (_error: any, _checkId, context: any) => {
       queryClient.setQueryData(queryKey, context?.previous);
-      toast({ title: "Error", description: _error.message, variant: "destructive" });
+      toast({ title: t('toast.error'), description: _error.message, variant: "destructive" });
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey }),
   });
@@ -71,78 +72,78 @@ const HomeSafety = () => {
     toggleMutation.mutate(checkId);
   };
 
-  const safetyAreas = [
+  const safetyAreas = useMemo(() => [
     {
       id: "emergency",
-      title: "Emergency Preparedness",
+      title: t('sections.homeSafety.safetyAreas.emergency.title'),
       icon: AlertTriangle,
       color: "text-red-600",
       bgColor: "bg-red-50",
-      description: "Essential emergency plans and contacts"
+      description: t('sections.homeSafety.safetyAreas.emergency.description')
     },
     {
       id: "medical",
-      title: "Medical Safety",
+      title: t('sections.homeSafety.safetyAreas.medical.title'),
       icon: Heart,
       color: "text-pink-600",
       bgColor: "bg-pink-50",
-      description: "Medical equipment and medication safety"
+      description: t('sections.homeSafety.safetyAreas.medical.description')
     },
     {
       id: "physical",
-      title: "Physical Environment",
+      title: t('sections.homeSafety.safetyAreas.physical.title'),
       icon: Home,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
-      description: "Home modifications and accessibility"
+      description: t('sections.homeSafety.safetyAreas.physical.description')
     },
     {
       id: "monitoring",
-      title: "Monitoring & Supervision",
+      title: t('sections.homeSafety.safetyAreas.monitoring.title'),
       icon: Eye,
       color: "text-green-600",
       bgColor: "bg-green-50",
-      description: "Supervision systems and safety monitoring"
+      description: t('sections.homeSafety.safetyAreas.monitoring.description')
     }
-  ];
+  ], [t]);
 
-  const emergencyChecklist = [
-    { id: "emergency-contacts", text: "Emergency contact list posted in visible location" },
-    { id: "medical-info", text: "Medical information and allergies clearly documented" },
-    { id: "evacuation-plan", text: "Evacuation plan adapted for special needs" },
-    { id: "emergency-kit", text: "Emergency kit with extra medications and supplies" },
-    { id: "backup-power", text: "Backup power for essential medical equipment" },
-    { id: "communication-plan", text: "Communication plan for non-verbal individuals" }
-  ];
+  const emergencyChecklist = useMemo(() => [
+    { id: "emergency-contacts", text: t('sections.homeSafety.emergencyChecklist.emergencyContacts') },
+    { id: "medical-info", text: t('sections.homeSafety.emergencyChecklist.medicalInfo') },
+    { id: "evacuation-plan", text: t('sections.homeSafety.emergencyChecklist.evacuationPlan') },
+    { id: "emergency-kit", text: t('sections.homeSafety.emergencyChecklist.emergencyKit') },
+    { id: "backup-power", text: t('sections.homeSafety.emergencyChecklist.backupPower') },
+    { id: "communication-plan", text: t('sections.homeSafety.emergencyChecklist.communicationPlan') }
+  ], [t]);
 
-  const medicalSafety = [
-    { id: "med-storage", text: "Medications stored safely and securely" },
-    { id: "equipment-check", text: "Medical equipment regularly inspected and maintained" },
-    { id: "allergy-alerts", text: "Allergy information visible throughout home" },
-    { id: "first-aid", text: "First aid kit stocked and accessible" },
-    { id: "medical-devices", text: "Medical devices properly calibrated and charged" },
-    { id: "therapy-equipment", text: "Therapy equipment safely stored when not in use" }
-  ];
+  const medicalSafety = useMemo(() => [
+    { id: "med-storage", text: t('sections.homeSafety.medicalSafety.medStorage') },
+    { id: "equipment-check", text: t('sections.homeSafety.medicalSafety.equipmentCheck') },
+    { id: "allergy-alerts", text: t('sections.homeSafety.medicalSafety.allergyAlerts') },
+    { id: "first-aid", text: t('sections.homeSafety.medicalSafety.firstAid') },
+    { id: "medical-devices", text: t('sections.homeSafety.medicalSafety.medicalDevices') },
+    { id: "therapy-equipment", text: t('sections.homeSafety.medicalSafety.therapyEquipment') }
+  ], [t]);
 
-  const physicalEnvironment = [
-    { id: "sharp-objects", text: "Sharp objects and hazardous items secured" },
-    { id: "outlets-covered", text: "Electrical outlets covered or secured" },
-    { id: "stairs-gates", text: "Safety gates installed on stairs if needed" },
-    { id: "flooring-safe", text: "Flooring is non-slip and obstacle-free" },
-    { id: "furniture-secured", text: "Heavy furniture anchored to walls" },
-    { id: "bathroom-safety", text: "Bathroom equipped with safety features" },
-    { id: "kitchen-safety", text: "Kitchen appliances and utensils secured" },
-    { id: "sensory-considerations", text: "Environment adapted for sensory needs" }
-  ];
+  const physicalEnvironment = useMemo(() => [
+    { id: "sharp-objects", text: t('sections.homeSafety.physicalEnvironment.sharpObjects') },
+    { id: "outlets-covered", text: t('sections.homeSafety.physicalEnvironment.outletsCovered') },
+    { id: "stairs-gates", text: t('sections.homeSafety.physicalEnvironment.stairsGates') },
+    { id: "flooring-safe", text: t('sections.homeSafety.physicalEnvironment.flooringSafe') },
+    { id: "furniture-secured", text: t('sections.homeSafety.physicalEnvironment.furnitureSecured') },
+    { id: "bathroom-safety", text: t('sections.homeSafety.physicalEnvironment.bathroomSafety') },
+    { id: "kitchen-safety", text: t('sections.homeSafety.physicalEnvironment.kitchenSafety') },
+    { id: "sensory-considerations", text: t('sections.homeSafety.physicalEnvironment.sensoryConsiderations') }
+  ], [t]);
 
-  const monitoringSystems = [
-    { id: "door-alarms", text: "Door and window alarms installed if needed" },
-    { id: "baby-monitors", text: "Audio/video monitoring system in place" },
-    { id: "wearable-devices", text: "GPS or tracking devices for wandering prevention" },
-    { id: "motion-sensors", text: "Motion sensors in critical areas" },
-    { id: "call-system", text: "Emergency call system accessible" },
-    { id: "caregiver-schedule", text: "Clear supervision schedule maintained" }
-  ];
+  const monitoringSystems = useMemo(() => [
+    { id: "door-alarms", text: t('sections.homeSafety.monitoringSystems.doorAlarms') },
+    { id: "baby-monitors", text: t('sections.homeSafety.monitoringSystems.babyMonitors') },
+    { id: "wearable-devices", text: t('sections.homeSafety.monitoringSystems.wearableDevices') },
+    { id: "motion-sensors", text: t('sections.homeSafety.monitoringSystems.motionSensors') },
+    { id: "call-system", text: t('sections.homeSafety.monitoringSystems.callSystem') },
+    { id: "caregiver-schedule", text: t('sections.homeSafety.monitoringSystems.caregiverSchedule') }
+  ], [t]);
 
   const ChecklistSection = ({ title, items }: { title: string, items: any[] }) => (
     <div className="space-y-3">
@@ -172,8 +173,8 @@ const HomeSafety = () => {
   if (!activeChild) {
     return (
       <div className="space-y-6">
-        <h2 className="text-3xl font-bold text-foreground">Home Safety</h2>
-        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>Please select or create a child profile first.</AlertDescription></Alert>
+        <h2 className="text-3xl font-bold text-foreground">{t('sections.homeSafety.title')}</h2>
+        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>{t('common.noChildProfile')}</AlertDescription></Alert>
       </div>
     );
   }
@@ -185,17 +186,17 @@ const HomeSafety = () => {
   return (
     <div className="space-y-6">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Home Safety</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-2">{t('sections.homeSafety.title')}</h1>
         <p className="text-muted-foreground">
-          Comprehensive safety planning for special needs caregiving
+          {t('sections.homeSafety.subtitle')}
         </p>
         <div className="mt-4 flex items-center gap-4">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            <span className="text-sm">Safety Checklist: {completionPercentage}% Complete</span>
+            <span className="text-sm">{t('sections.homeSafety.completionLabel', { percent: completionPercentage })}</span>
           </div>
           <Badge variant="outline">
-            {completedChecks.length} of {totalItems} items completed
+            {t('sections.homeSafety.itemsCompleted', { completed: completedChecks.length, total: totalItems })}
           </Badge>
         </div>
       </div>
@@ -217,15 +218,15 @@ const HomeSafety = () => {
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="h-5 w-5 text-red-600" />
-                    <CardTitle>Emergency Preparedness</CardTitle>
+                    <CardTitle>{t('sections.homeSafety.safetyAreas.emergency.title')}</CardTitle>
                   </div>
                   <CardDescription>
-                    Ensure you're prepared for emergency situations
+                    {t('sections.homeSafety.safetyAreas.emergency.description')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ChecklistSection
-                    title="Emergency Readiness Checklist"
+                    title={t('sections.homeSafety.emergencyChecklist.title')}
                     items={emergencyChecklist}
                   />
                 </CardContent>
@@ -237,15 +238,15 @@ const HomeSafety = () => {
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <Heart className="h-5 w-5 text-pink-600" />
-                    <CardTitle>Medical Safety</CardTitle>
+                    <CardTitle>{t('sections.homeSafety.safetyAreas.medical.title')}</CardTitle>
                   </div>
                   <CardDescription>
-                    Maintain safe storage and handling of medications
+                    {t('sections.homeSafety.safetyAreas.medical.description')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ChecklistSection
-                    title="Medical Safety Checklist"
+                    title={t('sections.homeSafety.medicalSafety.title')}
                     items={medicalSafety}
                   />
                 </CardContent>
@@ -257,15 +258,15 @@ const HomeSafety = () => {
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <Home className="h-5 w-5 text-blue-600" />
-                    <CardTitle>Physical Environment</CardTitle>
+                    <CardTitle>{t('sections.homeSafety.safetyAreas.physical.title')}</CardTitle>
                   </div>
                   <CardDescription>
-                    Create a safe physical environment
+                    {t('sections.homeSafety.safetyAreas.physical.description')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ChecklistSection
-                    title="Physical Safety Checklist"
+                    title={t('sections.homeSafety.physicalEnvironment.title')}
                     items={physicalEnvironment}
                   />
                 </CardContent>
@@ -277,15 +278,15 @@ const HomeSafety = () => {
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <Eye className="h-5 w-5 text-green-600" />
-                    <CardTitle>Monitoring & Supervision</CardTitle>
+                    <CardTitle>{t('sections.homeSafety.safetyAreas.monitoring.title')}</CardTitle>
                   </div>
                   <CardDescription>
-                    Implement appropriate monitoring systems
+                    {t('sections.homeSafety.safetyAreas.monitoring.description')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ChecklistSection
-                    title="Monitoring Systems Checklist"
+                    title={t('sections.homeSafety.monitoringSystems.title')}
                     items={monitoringSystems}
                   />
                 </CardContent>
@@ -299,32 +300,32 @@ const HomeSafety = () => {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Phone className="h-5 w-5 text-special-600" />
-                <CardTitle>Emergency Contacts</CardTitle>
+                <CardTitle>{t('sections.homeSafety.emergencyContactCards')}</CardTitle>
               </div>
-              <CardDescription>Quick access to important numbers</CardDescription>
+              <CardDescription>{t('sections.homeSafety.quickAccessNumbers')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-3 bg-red-50 rounded-lg">
                   <div className="font-medium text-red-800">911</div>
-                  <div className="text-sm text-red-600">Emergency Services</div>
+                  <div className="text-sm text-red-600">{t('sections.homeSafety.emergencyServices')}</div>
                 </div>
                 <div className="p-3 bg-blue-50 rounded-lg">
-                  <div className="font-medium text-blue-800">Poison Control</div>
+                  <div className="font-medium text-blue-800">{t('sections.homeSafety.poisonControl')}</div>
                   <div className="text-sm text-blue-600">1-800-222-1222</div>
                 </div>
                 <div className="p-3 bg-green-50 rounded-lg">
-                  <div className="font-medium text-green-800">Primary Doctor</div>
-                  <div className="text-sm text-green-600">Add your doctor's number</div>
+                  <div className="font-medium text-green-800">{t('sections.homeSafety.primaryDoctor')}</div>
+                  <div className="text-sm text-green-600">{t('sections.homeSafety.addDoctorNumber')}</div>
                 </div>
                 <div className="p-3 bg-purple-50 rounded-lg">
-                  <div className="font-medium text-purple-800">Specialist</div>
-                  <div className="text-sm text-purple-600">Add specialist's number</div>
+                  <div className="font-medium text-purple-800">{t('sections.homeSafety.specialist')}</div>
+                  <div className="text-sm text-purple-600">{t('sections.homeSafety.addSpecialistNumber')}</div>
                 </div>
               </div>
               <Button variant="outline" className="w-full">
                 <Phone className="h-4 w-4 mr-2" />
-                Manage Emergency Contacts
+                {t('sections.homeSafety.manageEmergencyContacts')}
               </Button>
             </CardContent>
           </Card>
@@ -333,27 +334,27 @@ const HomeSafety = () => {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Lightbulb className="h-5 w-5 text-yellow-600" />
-                <CardTitle>Safety Tips</CardTitle>
+                <CardTitle>{t('sections.homeSafety.safetyTipsTitle')}</CardTitle>
               </div>
-              <CardDescription>Important reminders for daily safety</CardDescription>
+              <CardDescription>{t('sections.homeSafety.safetyTipsDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <Alert>
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
-                  Always supervise medication administration and document times
+                  {t('sections.homeSafety.safetyTip1')}
                 </AlertDescription>
               </Alert>
               <Alert>
                 <Shield className="h-4 w-4" />
                 <AlertDescription>
-                  Check that all safety devices are functioning weekly
+                  {t('sections.homeSafety.safetyTip2')}
                 </AlertDescription>
               </Alert>
               <Alert>
                 <Eye className="h-4 w-4" />
                 <AlertDescription>
-                  Maintain constant appropriate supervision based on individual needs
+                  {t('sections.homeSafety.safetyTip3')}
                 </AlertDescription>
               </Alert>
             </CardContent>
@@ -363,26 +364,26 @@ const HomeSafety = () => {
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Camera className="h-5 w-5 text-special-600" />
-                <CardTitle>Safety Documentation</CardTitle>
+                <CardTitle>{t('sections.homeSafety.safetyDocumentation')}</CardTitle>
               </div>
-              <CardDescription>Keep important safety documents updated</CardDescription>
+              <CardDescription>{t('sections.homeSafety.safetyDocsDesc')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <Button variant="outline" className="w-full justify-start">
                 <FireExtinguisher className="h-4 w-4 mr-2" />
-                Fire Safety Plan
+                {t('sections.homeSafety.fireSafetyPlan')}
               </Button>
               <Button variant="outline" className="w-full justify-start">
                 <Car className="h-4 w-4 mr-2" />
-                Transportation Safety
+                {t('sections.homeSafety.transportationSafety')}
               </Button>
               <Button variant="outline" className="w-full justify-start">
                 <Bell className="h-4 w-4 mr-2" />
-                Emergency Procedures
+                {t('sections.homeSafety.emergencyProcedures')}
               </Button>
               <Button variant="outline" className="w-full justify-start">
                 <Wrench className="h-4 w-4 mr-2" />
-                Equipment Maintenance Log
+                {t('sections.homeSafety.equipmentMaintenanceLog')}
               </Button>
             </CardContent>
           </Card>

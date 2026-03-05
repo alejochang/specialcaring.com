@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -15,13 +16,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useChild } from "@/contexts/ChildContext";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import type { OnboardingWizardAPI } from "../useOnboardingWizard";
 
-const schema = z.object({
-  fullName: z.string().min(2, "Name must be at least 2 characters"),
+const createSchema = (t: (key: string) => string) => z.object({
+  fullName: z.string().min(2, t('validation.nameMinLength')),
 });
 
-type FormValues = z.infer<typeof schema>;
+type FormValues = z.infer<ReturnType<typeof createSchema>>;
 
 interface StepChildNameProps {
   wizard: OnboardingWizardAPI;
@@ -31,6 +33,9 @@ const StepChildName = ({ wizard }: StepChildNameProps) => {
   const { user } = useAuth();
   const { refetch, setActiveChildId } = useChild();
   const { toast } = useToast();
+  const { t } = useTranslation();
+
+  const schema = useMemo(() => createSchema(t), [t]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -48,17 +53,17 @@ const StepChildName = ({ wizard }: StepChildNameProps) => {
         </div>
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-            You've added {wizard.state.childName}
+            {t('onboarding.childName.alreadyAdded', { childName: wizard.state.childName })}
           </h1>
           <p className="text-muted-foreground mt-2">
-            Let's continue setting up their profile.
+            {t('onboarding.childName.alreadyAddedSubtitle')}
           </p>
         </div>
         <Button
           onClick={() => wizard.goNext()}
           className="bg-special-600 hover:bg-special-700 px-8"
         >
-          Continue
+          {t('common.continue')}
         </Button>
       </div>
     );
@@ -85,11 +90,11 @@ const StepChildName = ({ wizard }: StepChildNameProps) => {
       setActiveChildId(childData.id);
       wizard.setChildCreated(childData.id, values.fullName);
       toast({
-        title: `${values.fullName}'s profile has been created!`,
+        title: t('onboarding.childName.createdToast', { name: values.fullName }),
       });
       wizard.goNext();
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t('toast.error'), description: error.message, variant: "destructive" });
     } finally {
       wizard.setSaving(null);
     }
@@ -102,10 +107,10 @@ const StepChildName = ({ wizard }: StepChildNameProps) => {
           <Star className="h-6 w-6 text-special-600" />
         </div>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-          What is your child's name?
+          {t('onboarding.childName.title')}
         </h1>
         <p className="text-muted-foreground text-lg">
-          Your child is the star of this system — let's get started.
+          {t('onboarding.childName.subtitle')}
         </p>
       </div>
 
@@ -118,7 +123,7 @@ const StepChildName = ({ wizard }: StepChildNameProps) => {
               <FormItem>
                 <FormControl>
                   <Input
-                    placeholder="Enter your child's full name"
+                    placeholder={t('onboarding.childName.placeholder')}
                     className="h-12 text-lg"
                     autoFocus
                     {...field}
@@ -136,7 +141,7 @@ const StepChildName = ({ wizard }: StepChildNameProps) => {
               className="bg-special-600 hover:bg-special-700 px-8 h-11"
             >
               {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Continue
+              {t('onboarding.childName.continueBtn')}
             </Button>
           </div>
         </form>

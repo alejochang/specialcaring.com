@@ -1,4 +1,5 @@
 import { jsPDF } from 'jspdf';
+import i18next from 'i18next';
 import Papa from 'papaparse';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -263,37 +264,37 @@ function generatePDF(data: ExportedData): Blob {
   };
 
   // Title
-  addTitle('Care Information Report');
+  addTitle(i18next.t('export.title'));
   if (data.childName) {
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(100, 100, 100);
-    doc.text(`For: ${data.childName}`, margin, y);
+    doc.text(`${i18next.t('export.descriptionWithName', { childName: data.childName })}`, margin, y);
     y += 6;
   }
-  doc.text(`Generated: ${new Date().toLocaleDateString()}`, margin, y);
+  doc.text(`${i18next.t('common.date')}: ${new Date().toLocaleDateString()}`, margin, y);
   y += 15;
 
   // Key Information
   if (data.keyInformation) {
-    addSubtitle('Key Information');
+    addSubtitle(i18next.t('sections.keyInformation.title'));
     const ki = data.keyInformation as Record<string, string>;
-    addField('Full Name', ki.full_name);
-    addField('Date of Birth', ki.birth_date);
-    addField('Phone', ki.phone_number);
-    addField('Address', ki.address);
-    addField('Health Card', ki.health_card_number);
-    addField('Emergency Contact', ki.emergency_contact);
-    addField('Emergency Phone', ki.emergency_phone);
-    addField('Medical Conditions', ki.medical_conditions);
-    addField('Allergies', ki.allergies);
+    addField(i18next.t('sections.keyInformation.fields.fullName'), ki.full_name);
+    addField(i18next.t('sections.keyInformation.fields.dateOfBirth'), ki.birth_date);
+    addField(i18next.t('sections.keyInformation.fields.phoneNumber'), ki.phone_number);
+    addField(i18next.t('sections.keyInformation.fields.address'), ki.address);
+    addField(i18next.t('sections.keyInformation.fields.healthCardNumber'), ki.health_card_number);
+    addField(i18next.t('sections.keyInformation.fields.emergencyContact'), ki.emergency_contact);
+    addField(i18next.t('sections.keyInformation.fields.emergencyPhone'), ki.emergency_phone);
+    addField(i18next.t('sections.keyInformation.fields.medicalConditions'), ki.medical_conditions);
+    addField(i18next.t('sections.keyInformation.fields.allergies'), ki.allergies);
     y += 10;
   }
 
   // Medications
   if (data.medications && data.medications.length > 0) {
     checkNewPage();
-    addSubtitle('Medications');
+    addSubtitle(i18next.t('sections.medications.title'));
     for (const med of data.medications) {
       const m = med as Record<string, string>;
       doc.setFontSize(11);
@@ -302,10 +303,10 @@ function generatePDF(data: ExportedData): Blob {
       y += 5;
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      doc.text(`  Frequency: ${m.frequency || 'N/A'}`, margin, y);
+      doc.text(`  ${i18next.t('sections.medications.fields.frequency')}: ${m.frequency || 'N/A'}`, margin, y);
       y += 4;
       if (m.purpose) {
-        doc.text(`  Purpose: ${m.purpose}`, margin, y);
+        doc.text(`  ${i18next.t('sections.medications.fields.purpose')}: ${m.purpose}`, margin, y);
         y += 4;
       }
       y += 3;
@@ -317,7 +318,7 @@ function generatePDF(data: ExportedData): Blob {
   // Medical Contacts
   if (data.medicalContacts && data.medicalContacts.length > 0) {
     checkNewPage();
-    addSubtitle('Medical Contacts');
+    addSubtitle(i18next.t('sections.medicalContacts.title'));
     for (const contact of data.medicalContacts) {
       const c = contact as Record<string, string>;
       doc.setFontSize(11);
@@ -326,8 +327,8 @@ function generatePDF(data: ExportedData): Blob {
       y += 5;
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      if (c.specialty) { doc.text(`  Specialty: ${c.specialty}`, margin, y); y += 4; }
-      if (c.phone_number) { doc.text(`  Phone: ${c.phone_number}`, margin, y); y += 4; }
+      if (c.specialty) { doc.text(`  ${i18next.t('sections.medicalContacts.fields.specialty')}: ${c.specialty}`, margin, y); y += 4; }
+      if (c.phone_number) { doc.text(`  ${i18next.t('sections.medicalContacts.fields.phoneNumber')}: ${c.phone_number}`, margin, y); y += 4; }
       y += 3;
       checkNewPage();
     }
@@ -337,7 +338,7 @@ function generatePDF(data: ExportedData): Blob {
   // Emergency Protocols
   if (data.emergencyProtocols && data.emergencyProtocols.length > 0) {
     checkNewPage();
-    addSubtitle('Emergency Protocols');
+    addSubtitle(i18next.t('sections.emergencyProtocols.title'));
     for (const protocol of data.emergencyProtocols) {
       const p = protocol as Record<string, string>;
       doc.setFontSize(11);
@@ -353,7 +354,7 @@ function generatePDF(data: ExportedData): Blob {
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
       if (p.immediate_steps) {
-        const lines = doc.splitTextToSize(`Steps: ${p.immediate_steps}`, 170);
+        const lines = doc.splitTextToSize(`${i18next.t('sections.emergencyProtocols.fields.immediateSteps')}: ${p.immediate_steps}`, 170);
         doc.text(lines, margin + 3, y);
         y += lines.length * 4;
       }
@@ -365,13 +366,13 @@ function generatePDF(data: ExportedData): Blob {
   // Emergency Cards
   if (data.emergencyCards && data.emergencyCards.length > 0) {
     checkNewPage();
-    addSubtitle('Emergency Cards');
+    addSubtitle(i18next.t('sections.emergencyCards.title'));
     for (const card of data.emergencyCards) {
       const c = card as Record<string, string>;
-      addField('Type', c.id_type);
-      addField('Number', c.id_number);
-      addField('Issue Date', c.issue_date);
-      addField('Expiry Date', c.expiry_date);
+      addField(i18next.t('common.type'), c.id_type);
+      addField(i18next.t('sections.emergencyCards.fields.idNumber'), c.id_number);
+      addField(i18next.t('sections.emergencyCards.fields.issueDate'), c.issue_date);
+      addField(i18next.t('sections.emergencyCards.fields.expiryDate'), c.expiry_date);
       y += 4;
       checkNewPage();
     }
@@ -380,13 +381,13 @@ function generatePDF(data: ExportedData): Blob {
   // Employment Agreements
   if (data.employmentAgreements && data.employmentAgreements.length > 0) {
     checkNewPage();
-    addSubtitle('Employment Agreements');
+    addSubtitle(i18next.t('sections.employmentAgreement.title'));
     for (const agreement of data.employmentAgreements) {
       const a = agreement as Record<string, string>;
-      addField('Caregiver', a.caregiver_name);
-      addField('Position', a.position_title);
-      addField('Status', a.status);
-      addField('Schedule', a.work_schedule);
+      addField(i18next.t('sections.employmentAgreement.fields.caregiverName'), a.caregiver_name);
+      addField(i18next.t('sections.employmentAgreement.fields.positionTitle'), a.position_title);
+      addField(i18next.t('common.status'), a.status);
+      addField(i18next.t('sections.employmentAgreement.fields.workSchedule'), a.work_schedule);
       y += 4;
       checkNewPage();
     }
@@ -395,13 +396,13 @@ function generatePDF(data: ExportedData): Blob {
   // Financial & Legal
   if (data.financialLegal && data.financialLegal.length > 0) {
     checkNewPage();
-    addSubtitle('Financial & Legal Documents');
+    addSubtitle(i18next.t('sections.financialLegal.title'));
     for (const fdoc of data.financialLegal) {
       const f = fdoc as Record<string, string>;
-      addField('Title', f.title);
-      addField('Type', f.doc_type);
-      addField('Institution', f.institution);
-      addField('Status', f.status);
+      addField(i18next.t('common.title'), f.title);
+      addField(i18next.t('common.type'), f.doc_type);
+      addField(i18next.t('sections.financialLegal.fields.institution'), f.institution);
+      addField(i18next.t('common.status'), f.status);
       y += 4;
       checkNewPage();
     }
@@ -410,13 +411,13 @@ function generatePDF(data: ExportedData): Blob {
   // End-of-Life Wishes
   if (data.endOfLifeWishes && data.endOfLifeWishes.length > 0) {
     checkNewPage();
-    addSubtitle('End-of-Life Wishes');
+    addSubtitle(i18next.t('sections.endOfLifeWishes.title'));
     for (const wish of data.endOfLifeWishes) {
       const w = wish as Record<string, string>;
-      addField('Medical Directives', w.medical_directives);
-      addField('Legal Guardian', w.legal_guardian);
-      addField('Organ Donation', w.organ_donation);
-      addField('Preferred Hospital', w.preferred_hospital);
+      addField(i18next.t('sections.endOfLifeWishes.fields.medicalDirectives'), w.medical_directives);
+      addField(i18next.t('sections.endOfLifeWishes.fields.legalGuardian'), w.legal_guardian);
+      addField(i18next.t('sections.endOfLifeWishes.fields.organDonation'), w.organ_donation);
+      addField(i18next.t('sections.endOfLifeWishes.fields.preferredHospital'), w.preferred_hospital);
       y += 4;
       checkNewPage();
     }
@@ -429,7 +430,7 @@ function generatePDF(data: ExportedData): Blob {
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.text(
-      `Generated by Special Caring - Page ${i} of ${pageCount}`,
+      `${i18next.t('common.specialCaring')} - Page ${i} / ${pageCount}`,
       margin,
       285
     );

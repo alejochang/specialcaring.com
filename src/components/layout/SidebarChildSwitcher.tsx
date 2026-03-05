@@ -1,6 +1,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useChild } from "@/contexts/ChildContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -71,6 +72,7 @@ const getInitials = (name: string) =>
 
 const SidebarChildSwitcher = ({ isCollapsed }: SidebarChildSwitcherProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { toast } = useToast();
   const {
     children,
@@ -136,7 +138,7 @@ const SidebarChildSwitcher = ({ isCollapsed }: SidebarChildSwitcherProps) => {
       await updateChildAvatar(childId, `${publicUrl}?t=${Date.now()}`);
     } catch (error: any) {
       console.error("Avatar upload error:", error);
-      toast({ title: "Error", description: "Failed to upload photo.", variant: "destructive" });
+      toast({ title: t('common.error'), description: t('toast.photoUploadFailed'), variant: "destructive" });
     } finally {
       setUploadingAvatarId(null);
     }
@@ -151,7 +153,7 @@ const SidebarChildSwitcher = ({ isCollapsed }: SidebarChildSwitcherProps) => {
     if (role === "owner") return null;
     return (
       <Badge variant="secondary" className="text-[10px] px-1.5 py-0 shrink-0">
-        {role === "caregiver" ? "Shared" : "View only"}
+        {role === "caregiver" ? t('childSwitcher.shared') : t('childSwitcher.viewOnly')}
       </Badge>
     );
   };
@@ -174,7 +176,7 @@ const SidebarChildSwitcher = ({ isCollapsed }: SidebarChildSwitcherProps) => {
           onClick={() => navigate("/add-child")}
         >
           <Heart className="h-5 w-5" />
-          {!isCollapsed && <span className="text-sm font-medium">Add Your First Child</span>}
+          {!isCollapsed && <span className="text-sm font-medium">{t('childSwitcher.addFirstChild')}</span>}
         </Button>
       </div>
     );
@@ -207,10 +209,10 @@ const SidebarChildSwitcher = ({ isCollapsed }: SidebarChildSwitcherProps) => {
                     <p className="text-sm font-medium truncate">{activeChild.name}</p>
                     <p className="text-[11px] text-muted-foreground">
                       {activeChild.accessRole === "owner"
-                        ? "Your child"
+                        ? t('childSwitcher.yourChild')
                         : activeChild.accessRole === "caregiver"
-                        ? "Shared with you"
-                        : "View only"}
+                        ? t('childSwitcher.sharedWithYou')
+                        : t('childSwitcher.viewOnly')}
                     </p>
                   </div>
                   <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -227,7 +229,7 @@ const SidebarChildSwitcher = ({ isCollapsed }: SidebarChildSwitcherProps) => {
           >
             <div className="p-3 pb-2">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Children
+                {t('childSwitcher.childrenLabel')}
               </p>
             </div>
 
@@ -300,7 +302,7 @@ const SidebarChildSwitcher = ({ isCollapsed }: SidebarChildSwitcherProps) => {
                               setIsEditOpen(true);
                             }}
                           >
-                            <Pencil className="h-3.5 w-3.5 mr-2" /> Rename
+                            <Pencil className="h-3.5 w-3.5 mr-2" /> {t('childSwitcher.rename')}
                           </DropdownMenuItem>
                           {ownedCount > 1 && (
                             <DropdownMenuItem
@@ -310,20 +312,20 @@ const SidebarChildSwitcher = ({ isCollapsed }: SidebarChildSwitcherProps) => {
                                 setIsDeleteOpen(true);
                               }}
                             >
-                              <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
+                              <Trash2 className="h-3.5 w-3.5 mr-2" /> {t('childSwitcher.delete')}
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() => triggerAvatarUpload(child.id)}
                           >
-                            <Camera className="h-3.5 w-3.5 mr-2" /> Change Photo
+                            <Camera className="h-3.5 w-3.5 mr-2" /> {t('childSwitcher.changePhoto')}
                           </DropdownMenuItem>
                           {child.avatar_url && (
                             <DropdownMenuItem
                               onClick={() => updateChildAvatar(child.id, null)}
                             >
-                              <Trash2 className="h-3.5 w-3.5 mr-2" /> Remove Photo
+                              <Trash2 className="h-3.5 w-3.5 mr-2" /> {t('childSwitcher.removePhoto')}
                             </DropdownMenuItem>
                           )}
                         </DropdownMenuContent>
@@ -347,7 +349,7 @@ const SidebarChildSwitcher = ({ isCollapsed }: SidebarChildSwitcherProps) => {
                     navigate("/add-child");
                   }}
                 >
-                  <Plus className="h-4 w-4" /> Add Child
+                  <Plus className="h-4 w-4" /> {t('childSwitcher.addChild')}
                 </Button>
               )}
               <Button
@@ -359,7 +361,7 @@ const SidebarChildSwitcher = ({ isCollapsed }: SidebarChildSwitcherProps) => {
                   setIsRedeemOpen(true);
                 }}
               >
-                <Ticket className="h-4 w-4" /> Join with Invite Code
+                <Ticket className="h-4 w-4" /> {t('childSwitcher.joinWithInviteCode')}
               </Button>
             </div>
           </PopoverContent>
@@ -373,20 +375,20 @@ const SidebarChildSwitcher = ({ isCollapsed }: SidebarChildSwitcherProps) => {
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Rename Child</DialogTitle>
+            <DialogTitle>{t('childSwitcher.renameDialog.title')}</DialogTitle>
           </DialogHeader>
           <Input
-            placeholder="Child's name"
+            placeholder={t('childSwitcher.renameDialog.label')}
             value={editName}
             onChange={(e) => setEditName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleEdit()}
           />
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditOpen(false)}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button onClick={handleEdit} disabled={!editName.trim()}>
-              Save
+              {t('common.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -396,20 +398,18 @@ const SidebarChildSwitcher = ({ isCollapsed }: SidebarChildSwitcherProps) => {
       <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove Child</AlertDialogTitle>
+            <AlertDialogTitle>{t('childSwitcher.deleteDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this child's profile and all
-              associated data (medications, emergency cards, daily logs, etc.).
-              This cannot be undone.
+              {t('childSwitcher.deleteDialog.description', { name: children.find(c => c.id === deleteId)?.name || '' })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

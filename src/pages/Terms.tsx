@@ -1,20 +1,23 @@
+import { useTranslation } from "react-i18next";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
 const Terms = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
       <main className="flex-1 container py-16 px-4 mt-16 max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Terms of Service</h1>
+        <h1 className="text-3xl font-bold mb-8">{t("pages.terms.title")}</h1>
         <p className="text-sm text-muted-foreground mb-6">
-          Last updated: February 26, 2026 &middot; Version 1.0
+          {t("pages.terms.lastUpdated", { date: "February 26, 2026", version: "1.0" })}
         </p>
 
         <div className="prose prose-sm max-w-none space-y-6 text-foreground">
           <section>
-            <h2 className="text-xl font-semibold mt-6 mb-3">1. Acceptance of Terms</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3">{t("pages.terms.sections.acceptance.title")}</h2>
             <p>
               By accessing or using Special Caring (&ldquo;the Service&rdquo;), you agree to be
               bound by these Terms of Service. If you do not agree, please do not use the Service.
@@ -22,7 +25,7 @@ const Terms = () => {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-6 mb-3">2. Description of Service</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3">{t("pages.terms.sections.description.title")}</h2>
             <p>
               Special Caring is a care management platform that helps families organize essential
               care information, medical records, emergency contacts, and daily care activities for
@@ -32,7 +35,7 @@ const Terms = () => {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-6 mb-3">3. User Accounts</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3">{t("pages.terms.sections.userAccounts.title")}</h2>
             <ul className="list-disc pl-6 space-y-1">
               <li>You must provide accurate and complete information when creating an account.</li>
               <li>You are responsible for maintaining the confidentiality of your account credentials.</li>
@@ -42,7 +45,7 @@ const Terms = () => {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-6 mb-3">4. Acceptable Use</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3">{t("pages.terms.sections.acceptableUse.title")}</h2>
             <p>You agree not to:</p>
             <ul className="list-disc pl-6 space-y-1">
               <li>Use the Service for any unlawful purpose or in violation of any applicable laws.</li>
@@ -54,7 +57,7 @@ const Terms = () => {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-6 mb-3">5. Data Ownership</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3">{t("pages.terms.sections.dataOwnership.title")}</h2>
             <p>
               You retain full ownership of all data you enter into the Service. We do not claim
               any intellectual property rights over your content. You may export or delete your
@@ -63,7 +66,7 @@ const Terms = () => {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-6 mb-3">6. Care Team Sharing</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3">{t("pages.terms.sections.careTeamSharing.title")}</h2>
             <p>
               When you invite care team members to access a child&rsquo;s profile, you grant them
               access to the data associated with that profile at the permission level you specify
@@ -72,7 +75,7 @@ const Terms = () => {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-6 mb-3">7. Medical Disclaimer</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3">{t("pages.terms.sections.medicalDisclaimer.title")}</h2>
             <p>
               The Service is not a substitute for professional medical advice, diagnosis, or
               treatment. Always seek the advice of qualified health providers with any questions
@@ -82,7 +85,7 @@ const Terms = () => {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-6 mb-3">8. Limitation of Liability</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3">{t("pages.terms.sections.limitation.title")}</h2>
             <p>
               To the fullest extent permitted by law, Special Caring and its operators shall not
               be liable for any indirect, incidental, special, consequential, or punitive damages
@@ -92,17 +95,17 @@ const Terms = () => {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-6 mb-3">9. Termination</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3">{t("pages.terms.sections.termination.title")}</h2>
             <p>
               You may terminate your account at any time from your Profile page. We reserve the
               right to suspend or terminate accounts that violate these Terms. Upon termination,
               your data will be permanently deleted in accordance with our{" "}
-              <a href="/privacy" className="text-special-600 hover:underline">Privacy Policy</a>.
+              <a href="/privacy" className="text-special-600 hover:underline">{t("pages.privacy.title")}</a>.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-6 mb-3">10. Changes to Terms</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3">{t("pages.terms.sections.changes.title")}</h2>
             <p>
               We may update these Terms from time to time. We will notify users of material
               changes by updating the &ldquo;Last updated&rdquo; date at the top of this page.
@@ -112,7 +115,7 @@ const Terms = () => {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-6 mb-3">11. Contact Us</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3">{t("pages.terms.sections.contactUs.title")}</h2>
             <p>
               If you have questions about these Terms of Service, please contact us
               at <a href="mailto:support@specialcaring.com" className="text-special-600 hover:underline">support@specialcaring.com</a>.

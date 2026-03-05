@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -24,9 +25,10 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import type { OnboardingWizardAPI } from "../useOnboardingWizard";
 
-const schema = z
+const createSchema = (t: (key: string) => string) => z
   .object({
     title: z.string(),
     severity: z.string(),
@@ -37,20 +39,20 @@ const schema = z
     if (anyFilled && !data.title.trim()) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Protocol title is required",
+        message: t('validation.titleRequired'),
         path: ["title"],
       });
     }
     if (anyFilled && !data.immediateSteps.trim()) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Immediate steps are required",
+        message: t('validation.fieldRequired'),
         path: ["immediateSteps"],
       });
     }
   });
 
-type FormValues = z.infer<typeof schema>;
+type FormValues = z.infer<ReturnType<typeof createSchema>>;
 
 interface StepEmergencyProtocolProps {
   wizard: OnboardingWizardAPI;
@@ -59,6 +61,9 @@ interface StepEmergencyProtocolProps {
 const StepEmergencyProtocol = ({ wizard }: StepEmergencyProtocolProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
+
+  const schema = useMemo(() => createSchema(t), [t]);
 
   // If protocol already saved (user navigated back), show confirmation
   if (wizard.state.stepData.protocol) {
@@ -69,11 +74,10 @@ const StepEmergencyProtocol = ({ wizard }: StepEmergencyProtocolProps) => {
             <Check className="h-6 w-6 text-green-600" />
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-            Emergency protocol added
+            {t('onboarding.emergencyProtocol.addedTitle')}
           </h1>
           <p className="text-muted-foreground text-lg">
-            You've set up <span className="font-medium text-foreground">{wizard.state.stepData.protocol.title}</span>.
-            You can add more protocols from the Emergency Protocols section later.
+            {t('onboarding.emergencyProtocol.addedMessage', { title: wizard.state.stepData.protocol.title })}
           </p>
         </div>
         <div className="flex items-center justify-between pt-2">
@@ -83,13 +87,13 @@ const StepEmergencyProtocol = ({ wizard }: StepEmergencyProtocolProps) => {
             className="gap-1 text-muted-foreground"
             onClick={() => wizard.goPrev()}
           >
-            <ArrowLeft className="h-4 w-4" /> Back
+            <ArrowLeft className="h-4 w-4" /> {t('common.back')}
           </Button>
           <Button
             onClick={() => wizard.goNext()}
             className="bg-special-600 hover:bg-special-700 px-8 h-11"
           >
-            Continue
+            {t('common.continue')}
           </Button>
         </div>
       </div>
@@ -139,7 +143,7 @@ const StepEmergencyProtocol = ({ wizard }: StepEmergencyProtocolProps) => {
       });
       wizard.goNext();
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t('toast.error'), description: error.message, variant: "destructive" });
     } finally {
       wizard.setSaving(null);
     }
@@ -152,10 +156,10 @@ const StepEmergencyProtocol = ({ wizard }: StepEmergencyProtocolProps) => {
           <ShieldAlert className="h-6 w-6 text-orange-600" />
         </div>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-          Set up an emergency protocol for {wizard.state.childName}?
+          {t('onboarding.emergencyProtocol.title', { childName: wizard.state.childName })}
         </h1>
         <p className="text-muted-foreground text-lg">
-          Step-by-step instructions a caregiver can follow in a medical situation.
+          {t('onboarding.emergencyProtocol.subtitle')}
         </p>
       </div>
 
@@ -167,10 +171,10 @@ const StepEmergencyProtocol = ({ wizard }: StepEmergencyProtocolProps) => {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Protocol Title</FormLabel>
+                  <FormLabel>{t('onboarding.emergencyProtocol.protocolTitle')}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="e.g., Seizure Response"
+                      placeholder={t('onboarding.emergencyProtocol.protocolTitlePlaceholder')}
                       className="h-12 text-base"
                       {...field}
                     />
@@ -185,16 +189,16 @@ const StepEmergencyProtocol = ({ wizard }: StepEmergencyProtocolProps) => {
               name="severity"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Severity Level</FormLabel>
+                  <FormLabel>{t('onboarding.emergencyProtocol.severityLevel')}</FormLabel>
                   <FormControl>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger className="h-12 text-base">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="moderate">Moderate</SelectItem>
-                        <SelectItem value="urgent">Urgent</SelectItem>
-                        <SelectItem value="critical">Critical</SelectItem>
+                        <SelectItem value="moderate">{t('onboarding.emergencyProtocol.severities.moderate')}</SelectItem>
+                        <SelectItem value="urgent">{t('onboarding.emergencyProtocol.severities.urgent')}</SelectItem>
+                        <SelectItem value="critical">{t('onboarding.emergencyProtocol.severities.critical')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -209,16 +213,16 @@ const StepEmergencyProtocol = ({ wizard }: StepEmergencyProtocolProps) => {
             name="immediateSteps"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Immediate Steps to Take</FormLabel>
+                <FormLabel>{t('onboarding.emergencyProtocol.immediateSteps')}</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder={"1. Stay calm and note the time\n2. Clear the area of hazards\n3. Call 911 if lasting more than 5 minutes\n4. ..."}
+                    placeholder={t('onboarding.emergencyProtocol.immediateStepsPlaceholder')}
                     className="min-h-[120px] text-base"
                     {...field}
                   />
                 </FormControl>
                 <FormDescription>
-                  Write clear, numbered steps that anyone can follow.
+                  {t('onboarding.emergencyProtocol.immediateStepsPlaceholder')}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -232,7 +236,7 @@ const StepEmergencyProtocol = ({ wizard }: StepEmergencyProtocolProps) => {
               className="gap-1 text-muted-foreground"
               onClick={() => wizard.goPrev()}
             >
-              <ArrowLeft className="h-4 w-4" /> Back
+              <ArrowLeft className="h-4 w-4" /> {t('common.back')}
             </Button>
             <div className="flex items-center gap-3">
               <Button
@@ -241,7 +245,7 @@ const StepEmergencyProtocol = ({ wizard }: StepEmergencyProtocolProps) => {
                 className="text-muted-foreground"
                 onClick={() => wizard.skipStep()}
               >
-                I'll set this up later
+                {t('onboarding.emergencyProtocol.skipButton')}
               </Button>
               <Button
                 type="submit"
@@ -249,7 +253,7 @@ const StepEmergencyProtocol = ({ wizard }: StepEmergencyProtocolProps) => {
                 className="bg-special-600 hover:bg-special-700 px-8 h-11"
               >
                 {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                Add & Continue
+                {t('onboarding.medication.addAndContinue')}
               </Button>
             </div>
           </div>

@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,10 +35,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useChild } from "@/contexts/ChildContext";
 import { useUserRole } from "@/hooks/useUserRole";
 
-const medicationSchema = z.object({
-  name: z.string().min(1, "Medication name is required"),
-  dosage: z.string().min(1, "Dosage is required"),
-  frequency: z.string().min(1, "Frequency is required"),
+const createMedicationSchema = (t: (key: string) => string) => z.object({
+  name: z.string().min(1, t('validation.medicationNameRequired')),
+  dosage: z.string().min(1, t('validation.fieldRequired')),
+  frequency: z.string().min(1, t('validation.fieldRequired')),
   purpose: z.string().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
@@ -48,7 +49,7 @@ const medicationSchema = z.object({
   sideEffects: z.string().optional(),
 });
 
-type MedicationForm = z.infer<typeof medicationSchema>;
+type MedicationForm = z.infer<ReturnType<typeof createMedicationSchema>>;
 
 interface DbMedication {
   id: string;
@@ -66,6 +67,7 @@ interface DbMedication {
 }
 
 const MedicationsList = () => {
+  const { t } = useTranslation();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -74,6 +76,8 @@ const MedicationsList = () => {
   const { activeChild } = useChild();
   const { canEdit } = useUserRole();
   const queryClient = useQueryClient();
+
+  const medicationSchema = useMemo(() => createMedicationSchema(t), [t]);
 
   const form = useForm<MedicationForm>({
     resolver: zodResolver(medicationSchema),
@@ -122,12 +126,12 @@ const MedicationsList = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['medications', activeChild?.id] });
-      toast({ title: editingId ? "Medication updated" : "Medication added" });
+      toast({ title: editingId ? t('sections.medications.toast.medicationUpdated') : t('sections.medications.toast.medicationAdded') });
       form.reset();
       setEditingId(null);
       setIsAddDialogOpen(false);
     },
-    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+    onError: (error: any) => toast({ title: t('toast.error'), description: error.message, variant: "destructive" }),
   });
 
   const deleteMutation = useMutation({
@@ -137,11 +141,11 @@ const MedicationsList = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['medications', activeChild?.id] });
-      toast({ title: "Medication removed" });
+      toast({ title: t('sections.medications.toast.medicationRemoved') });
       setDeletingId(null);
     },
     onError: (error: any) => {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t('toast.error'), description: error.message, variant: "destructive" });
       setDeletingId(null);
     },
   });
@@ -157,19 +161,14 @@ const MedicationsList = () => {
   const resetForm = () => { form.reset(); setEditingId(null); };
 
   const formatFrequency = (freq: string) => {
-    const mapping: Record<string, string> = {
-      once_daily: "Once Daily", twice_daily: "Twice Daily", three_times_daily: "Three Times Daily",
-      four_times_daily: "Four Times Daily", every_morning: "Every Morning", every_night: "Every Night",
-      as_needed: "As Needed", weekly: "Weekly", monthly: "Monthly", other: "Custom Schedule",
-    };
-    return mapping[freq] || freq;
+    return t(`sections.medications.frequencies.${freq}`, freq);
   };
 
   if (!activeChild) {
     return (
       <div className="space-y-6">
-        <h2 className="text-3xl font-bold text-foreground">Medications</h2>
-        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>Please select or create a child profile first.</AlertDescription></Alert>
+        <h2 className="text-3xl font-bold text-foreground">{t('sections.medications.title')}</h2>
+        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>{t('common.noChildProfile')}</AlertDescription></Alert>
       </div>
     );
   }
@@ -186,8 +185,8 @@ const MedicationsList = () => {
             <Pill className="h-6 w-6 text-special-600" />
           </div>
           <div>
-            <h2 className="text-3xl font-bold text-foreground">Medications</h2>
-            <p className="text-muted-foreground">Manage prescribed medications and schedules</p>
+            <h2 className="text-3xl font-bold text-foreground">{t('sections.medications.title')}</h2>
+            <p className="text-muted-foreground">{t('sections.medications.subtitle')}</p>
           </div>
         </div>
 
@@ -196,50 +195,50 @@ const MedicationsList = () => {
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-special-600 hover:bg-special-700 text-white px-6 py-3 text-base font-medium rounded-lg shadow-sm" onClick={resetForm}>
-                  <Plus className="h-5 w-5 mr-2" />Add New Medication
+                  <Plus className="h-5 w-5 mr-2" />{t('sections.medications.addNew')}
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader className="pb-6">
-                  <DialogTitle className="text-2xl font-semibold">{editingId ? "Edit Medication" : "Add New Medication"}</DialogTitle>
-                  <p className="text-muted-foreground">Fill in the medication details below.</p>
+                  <DialogTitle className="text-2xl font-semibold">{editingId ? t('sections.medications.editMedication') : t('sections.medications.addNew')}</DialogTitle>
+                  <p className="text-muted-foreground">{t('sections.medications.dialogDescription')}</p>
                 </DialogHeader>
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                     <div className="bg-muted/50 p-6 rounded-lg">
-                      <h3 className="text-lg font-medium mb-4">Basic Information</h3>
+                      <h3 className="text-lg font-medium mb-4">{t('sections.medications.formSections.basicInfo')}</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>Medication Name *</FormLabel><FormControl><Input placeholder="e.g., Lisinopril" className="h-11" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        <FormField control={form.control} name="dosage" render={({ field }) => (<FormItem><FormLabel>Dosage *</FormLabel><FormControl><Input placeholder="e.g., 10mg" className="h-11" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        <FormField control={form.control} name="frequency" render={({ field }) => (<FormItem><FormLabel>How Often *</FormLabel><FormControl><Select onValueChange={field.onChange} value={field.value}><SelectTrigger className="h-11"><SelectValue placeholder="Select frequency" /></SelectTrigger><SelectContent><SelectItem value="once_daily">Once Daily</SelectItem><SelectItem value="twice_daily">Twice Daily</SelectItem><SelectItem value="three_times_daily">Three Times Daily</SelectItem><SelectItem value="four_times_daily">Four Times Daily</SelectItem><SelectItem value="every_morning">Every Morning</SelectItem><SelectItem value="every_night">Every Night</SelectItem><SelectItem value="as_needed">As Needed</SelectItem><SelectItem value="weekly">Weekly</SelectItem><SelectItem value="monthly">Monthly</SelectItem><SelectItem value="other">Other</SelectItem></SelectContent></Select></FormControl><FormMessage /></FormItem>)} />
-                        <FormField control={form.control} name="purpose" render={({ field }) => (<FormItem><FormLabel>Purpose</FormLabel><FormControl><Input placeholder="e.g., Blood pressure" className="h-11" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="name" render={({ field }) => (<FormItem><FormLabel>{t('sections.medications.fields.name')} *</FormLabel><FormControl><Input placeholder={t('sections.medications.placeholders.name')} className="h-11" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="dosage" render={({ field }) => (<FormItem><FormLabel>{t('sections.medications.fields.dosage')} *</FormLabel><FormControl><Input placeholder={t('sections.medications.placeholders.dosage')} className="h-11" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="frequency" render={({ field }) => (<FormItem><FormLabel>{t('sections.medications.fields.frequency')} *</FormLabel><FormControl><Select onValueChange={field.onChange} value={field.value}><SelectTrigger className="h-11"><SelectValue placeholder={t('sections.medications.placeholders.frequency')} /></SelectTrigger><SelectContent><SelectItem value="once_daily">{t('sections.medications.frequencies.once_daily')}</SelectItem><SelectItem value="twice_daily">{t('sections.medications.frequencies.twice_daily')}</SelectItem><SelectItem value="three_times_daily">{t('sections.medications.frequencies.three_times_daily')}</SelectItem><SelectItem value="four_times_daily">{t('sections.medications.frequencies.four_times_daily')}</SelectItem><SelectItem value="every_morning">{t('sections.medications.frequencies.every_morning')}</SelectItem><SelectItem value="every_night">{t('sections.medications.frequencies.every_night')}</SelectItem><SelectItem value="as_needed">{t('sections.medications.frequencies.as_needed')}</SelectItem><SelectItem value="weekly">{t('sections.medications.frequencies.weekly')}</SelectItem><SelectItem value="monthly">{t('sections.medications.frequencies.monthly')}</SelectItem><SelectItem value="other">{t('sections.medications.frequencies.other')}</SelectItem></SelectContent></Select></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="purpose" render={({ field }) => (<FormItem><FormLabel>{t('sections.medications.fields.purpose')}</FormLabel><FormControl><Input placeholder={t('sections.medications.placeholders.purpose')} className="h-11" {...field} /></FormControl><FormMessage /></FormItem>)} />
                       </div>
                     </div>
                     <div className="bg-blue-50/50 p-6 rounded-lg">
-                      <h3 className="text-lg font-medium mb-4">Healthcare Provider</h3>
+                      <h3 className="text-lg font-medium mb-4">{t('sections.medications.formSections.healthcareProvider')}</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField control={form.control} name="prescribedBy" render={({ field }) => (<FormItem><FormLabel>Prescribed By</FormLabel><FormControl><Input placeholder="e.g., Dr. Smith" className="h-11" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        <FormField control={form.control} name="pharmacy" render={({ field }) => (<FormItem><FormLabel>Pharmacy</FormLabel><FormControl><Input placeholder="e.g., CVS Pharmacy" className="h-11" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="prescribedBy" render={({ field }) => (<FormItem><FormLabel>{t('sections.medications.fields.prescriber')}</FormLabel><FormControl><Input placeholder={t('sections.medications.placeholders.prescriber')} className="h-11" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="pharmacy" render={({ field }) => (<FormItem><FormLabel>{t('sections.medications.fields.pharmacy')}</FormLabel><FormControl><Input placeholder={t('sections.medications.placeholders.pharmacy')} className="h-11" {...field} /></FormControl><FormMessage /></FormItem>)} />
                       </div>
                     </div>
                     <div className="bg-green-50/50 p-6 rounded-lg">
-                      <h3 className="text-lg font-medium mb-4">Schedule & Dates</h3>
+                      <h3 className="text-lg font-medium mb-4">{t('sections.medications.formSections.scheduleDates')}</h3>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <FormField control={form.control} name="startDate" render={({ field }) => (<FormItem><FormLabel>Start Date</FormLabel><FormControl><Input type="date" className="h-11" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        <FormField control={form.control} name="endDate" render={({ field }) => (<FormItem><FormLabel>End Date</FormLabel><FormControl><Input type="date" className="h-11" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        <FormField control={form.control} name="refillDate" render={({ field }) => (<FormItem><FormLabel>Next Refill Date</FormLabel><FormControl><Input type="date" className="h-11" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="startDate" render={({ field }) => (<FormItem><FormLabel>{t('sections.medications.fields.startDate')}</FormLabel><FormControl><Input type="date" className="h-11" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="endDate" render={({ field }) => (<FormItem><FormLabel>{t('sections.medications.fields.endDate')}</FormLabel><FormControl><Input type="date" className="h-11" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="refillDate" render={({ field }) => (<FormItem><FormLabel>{t('sections.medications.fields.refillDate')}</FormLabel><FormControl><Input type="date" className="h-11" {...field} /></FormControl><FormMessage /></FormItem>)} />
                       </div>
                     </div>
                     <div className="bg-amber-50/50 p-6 rounded-lg">
-                      <h3 className="text-lg font-medium mb-4">Additional Information</h3>
+                      <h3 className="text-lg font-medium mb-4">{t('sections.medications.formSections.additionalInfo')}</h3>
                       <div className="space-y-6">
-                        <FormField control={form.control} name="instructions" render={({ field }) => (<FormItem><FormLabel>Special Instructions</FormLabel><FormControl><Textarea placeholder="e.g., Take with food" className="min-h-[80px]" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        <FormField control={form.control} name="sideEffects" render={({ field }) => (<FormItem><FormLabel>Known Side Effects</FormLabel><FormControl><Textarea placeholder="List any known side effects" className="min-h-[80px]" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="instructions" render={({ field }) => (<FormItem><FormLabel>{t('sections.medications.fields.instructions')}</FormLabel><FormControl><Textarea placeholder={t('sections.medications.placeholders.instructions')} className="min-h-[80px]" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="sideEffects" render={({ field }) => (<FormItem><FormLabel>{t('sections.medications.fields.sideEffects')}</FormLabel><FormControl><Textarea placeholder={t('sections.medications.placeholders.sideEffects')} className="min-h-[80px]" {...field} /></FormControl><FormMessage /></FormItem>)} />
                       </div>
                     </div>
                     <DialogFooter className="gap-3 pt-6">
-                      <DialogClose asChild><Button type="button" variant="outline">Cancel</Button></DialogClose>
-                      <Button type="submit" className="bg-special-600 hover:bg-special-700 text-white px-8">{editingId ? "Update Medication" : "Add Medication"}</Button>
+                      <DialogClose asChild><Button type="button" variant="outline">{t('common.cancel')}</Button></DialogClose>
+                      <Button type="submit" className="bg-special-600 hover:bg-special-700 text-white px-8">{editingId ? t('sections.medications.editMedication') : t('sections.medications.addNew')}</Button>
                     </DialogFooter>
                   </form>
                 </Form>
@@ -255,20 +254,20 @@ const MedicationsList = () => {
       {medications.length > 0 ? (
         <Card className="shadow-lg border-0 bg-white">
           <CardHeader className="bg-gradient-to-r from-special-50 to-blue-50 border-b">
-            <CardTitle className="text-xl font-semibold">Your Medications</CardTitle>
-            <CardDescription>Currently tracking {medications.length} medication{medications.length !== 1 ? 's' : ''}</CardDescription>
+            <CardTitle className="text-xl font-semibold">{t('sections.medications.yourMedications')}</CardTitle>
+            <CardDescription>{t('sections.medications.trackingCount', { count: medications.length })}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow className="border-b bg-muted/30">
-                    <TableHead className="font-semibold py-4">Medication</TableHead>
-                    <TableHead className="font-semibold">Dosage</TableHead>
-                    <TableHead className="font-semibold">Frequency</TableHead>
-                    <TableHead className="font-semibold">Purpose</TableHead>
-                    <TableHead className="font-semibold">Refill Date</TableHead>
-                    {canEdit && <TableHead className="text-right font-semibold">Actions</TableHead>}
+                    <TableHead className="font-semibold py-4">{t('sections.medications.tableHeaders.medication')}</TableHead>
+                    <TableHead className="font-semibold">{t('sections.medications.tableHeaders.dosage')}</TableHead>
+                    <TableHead className="font-semibold">{t('sections.medications.tableHeaders.frequency')}</TableHead>
+                    <TableHead className="font-semibold">{t('sections.medications.tableHeaders.purpose')}</TableHead>
+                    <TableHead className="font-semibold">{t('sections.medications.tableHeaders.refillDate')}</TableHead>
+                    {canEdit && <TableHead className="text-right font-semibold">{t('sections.medications.tableHeaders.actions')}</TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -284,7 +283,7 @@ const MedicationsList = () => {
                           {med.refill_date ? (
                             <div className="flex items-center gap-2">
                               <span>{new Date(med.refill_date).toLocaleDateString()}</span>
-                              {needsRefill && <Badge variant="destructive" className="text-xs">Refill Soon</Badge>}
+                              {needsRefill && <Badge variant="destructive" className="text-xs">{t('sections.medications.refillSoon')}</Badge>}
                             </div>
                           ) : "-"}
                         </TableCell>
@@ -309,11 +308,11 @@ const MedicationsList = () => {
           <CardContent>
             <div className="flex flex-col items-center justify-center max-w-md mx-auto">
               <div className="bg-special-50 rounded-full p-6 mb-6"><Pill className="h-12 w-12 text-special-600" /></div>
-              <h3 className="text-2xl font-semibold mb-3">No medications added yet</h3>
-              <p className="text-muted-foreground mb-8 text-lg">Keep track of all medications, dosages, and schedules in one organized place.</p>
+              <h3 className="text-2xl font-semibold mb-3">{t('sections.medications.noMedications')}</h3>
+              <p className="text-muted-foreground mb-8 text-lg">{t('sections.medications.noMedicationsDescFull')}</p>
               {canEdit && (
                 <Button onClick={() => setIsAddDialogOpen(true)} className="bg-special-600 hover:bg-special-700 text-white px-8 py-3">
-                  <Plus className="h-5 w-5 mr-2" />Add Your First Medication
+                  <Plus className="h-5 w-5 mr-2" />{t('sections.medications.addFirstMedication')}
                 </Button>
               )}
             </div>
@@ -324,18 +323,18 @@ const MedicationsList = () => {
       <AlertDialog open={deletingId !== null} onOpenChange={(open) => { if (!open) setDeletingId(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Medication?</AlertDialogTitle>
+            <AlertDialogTitle>{t('sections.medications.deleteMedication')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove this medication from your list. This action cannot be undone.
+              {t('sections.medications.deleteConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => { if (deletingId) deleteMutation.mutate(deletingId); }}
             >
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

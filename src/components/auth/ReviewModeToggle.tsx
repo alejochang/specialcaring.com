@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, Play, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface ReviewModeToggleProps {
   onStartReview: () => void;
@@ -16,6 +17,8 @@ interface ReviewModeToggleProps {
  * The __REVIEW_MODE_ENABLED__ flag is checked before rendering.
  */
 const ReviewModeToggle = ({ onStartReview, onExitReview, isReviewMode }: ReviewModeToggleProps) => {
+  const { t } = useTranslation();
+
   // Only render in development mode
   if (!__REVIEW_MODE_ENABLED__) {
     return null;
@@ -26,26 +29,26 @@ const ReviewModeToggle = ({ onStartReview, onExitReview, isReviewMode }: ReviewM
       <CardHeader>
         <div className="flex items-center gap-2">
           <Eye className="h-5 w-5 text-blue-600" />
-          <CardTitle className="text-lg text-blue-800">Review Mode</CardTitle>
-          {isReviewMode && <Badge variant="secondary" className="bg-blue-100 text-blue-800">Active</Badge>}
+          <CardTitle className="text-lg text-blue-800">{t('auth.reviewMode.title')}</CardTitle>
+          {isReviewMode && <Badge variant="secondary" className="bg-blue-100 text-blue-800">{t('auth.reviewMode.active')}</Badge>}
           <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300 text-xs">
-            DEV ONLY
+            {t('auth.reviewMode.devOnly')}
           </Badge>
         </div>
         <CardDescription className="text-blue-700">
-          Explore the application with sample data without creating an account
+          {t('auth.reviewMode.description')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {!isReviewMode ? (
           <div className="space-y-3">
             <div className="text-sm text-blue-700">
-              <p className="font-medium mb-2">What you'll see in Review Mode:</p>
+              <p className="font-medium mb-2">{t('auth.reviewMode.whatYouSee')}</p>
               <ul className="space-y-1 text-sm">
-                <li>• Sample medical information and medications</li>
-                <li>• Pre-filled emergency protocols and contacts</li>
-                <li>• Demo daily logs and care activities</li>
-                <li>• All features with realistic example data</li>
+                <li>{t('auth.reviewMode.bullet1')}</li>
+                <li>{t('auth.reviewMode.bullet2')}</li>
+                <li>{t('auth.reviewMode.bullet3')}</li>
+                <li>{t('auth.reviewMode.bullet4')}</li>
               </ul>
             </div>
             <Button
@@ -54,14 +57,14 @@ const ReviewModeToggle = ({ onStartReview, onExitReview, isReviewMode }: ReviewM
               className="w-full border-blue-300 text-blue-700 hover:bg-blue-100"
             >
               <Play className="mr-2 h-4 w-4" />
-              Start Review Mode
+              {t('auth.reviewMode.startButton')}
             </Button>
           </div>
         ) : (
           <div className="space-y-3">
             <div className="p-3 bg-blue-100 rounded-lg">
               <p className="text-sm text-blue-800 font-medium">
-                You're currently exploring with sample data. Changes won't be saved.
+                {t('auth.reviewMode.activeMessage')}
               </p>
             </div>
             <Button
@@ -71,7 +74,7 @@ const ReviewModeToggle = ({ onStartReview, onExitReview, isReviewMode }: ReviewM
               className="w-full border-blue-300 text-blue-700 hover:bg-blue-100"
             >
               <X className="mr-2 h-4 w-4" />
-              Exit Review Mode
+              {t('auth.reviewMode.exitButton')}
             </Button>
           </div>
         )}

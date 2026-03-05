@@ -1,4 +1,5 @@
 import { useState } from "react";
+import i18next from "i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -11,7 +12,7 @@ export function useExportAndEmail() {
     setIsExporting(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("Please sign in to export");
+      if (!session) throw new Error(i18next.t("toast.pleaseSignInExport"));
 
       const response = await fetch(
         `https://ogkieklnxxmvjgikyzog.supabase.co/functions/v1/${functionName}`,
@@ -38,9 +39,9 @@ export function useExportAndEmail() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      toast({ title: "Export successful", description: `${filename} has been downloaded.` });
+      toast({ title: i18next.t("toast.exportSuccessful"), description: i18next.t("toast.fileDownloaded", { filename }) });
     } catch (error: any) {
-      toast({ title: "Export failed", description: error.message, variant: "destructive" });
+      toast({ title: i18next.t("toast.exportFailed"), description: error.message, variant: "destructive" });
     } finally {
       setIsExporting(false);
     }
@@ -50,7 +51,7 @@ export function useExportAndEmail() {
     setIsSending(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("Please sign in to send emails");
+      if (!session) throw new Error(i18next.t("toast.pleaseSignInEmail"));
 
       const response = await fetch(
         `https://ogkieklnxxmvjgikyzog.supabase.co/functions/v1/${functionName}`,
@@ -68,9 +69,9 @@ export function useExportAndEmail() {
       const result = await response.json();
       if (result.error) throw new Error(result.error);
 
-      toast({ title: "Email sent!", description: `Successfully sent to ${recipientEmail}` });
+      toast({ title: i18next.t("toast.emailSent"), description: i18next.t("toast.emailSentDesc", { email: recipientEmail }) });
     } catch (error: any) {
-      toast({ title: "Failed to send email", description: error.message, variant: "destructive" });
+      toast({ title: i18next.t("toast.emailFailed"), description: error.message, variant: "destructive" });
     } finally {
       setIsSending(false);
     }

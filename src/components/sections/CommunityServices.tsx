@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useUserRole } from "@/hooks/useUserRole";
 
 const CommunityServices = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { activeChild } = useChild();
   const { toast } = useToast();
@@ -59,7 +61,7 @@ const CommunityServices = () => {
     },
     onError: (_error: any, _serviceId, context: any) => {
       queryClient.setQueryData(queryKey, context?.previous);
-      toast({ title: "Error", description: _error.message, variant: "destructive" });
+      toast({ title: t('toast.error'), description: _error.message, variant: "destructive" });
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey }),
   });
@@ -284,7 +286,7 @@ const CommunityServices = () => {
           <div className="flex gap-2">
             <Button size="sm" className="flex-1">
               <Calendar className="h-4 w-4 mr-1" />
-              Contact
+              {t('sections.communityServices.contact')}
             </Button>
             <Button variant="outline" size="sm" asChild>
               <a href={`https://${service.website}`} target="_blank" rel="noopener noreferrer">
@@ -300,8 +302,8 @@ const CommunityServices = () => {
   if (!activeChild) {
     return (
       <div className="space-y-6">
-        <h2 className="text-3xl font-bold text-foreground">Community Services</h2>
-        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>Please select or create a child profile first.</AlertDescription></Alert>
+        <h2 className="text-3xl font-bold text-foreground">{t('sections.communityServices.title')}</h2>
+        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>{t('common.noChildProfile')}</AlertDescription></Alert>
       </div>
     );
   }
@@ -313,9 +315,9 @@ const CommunityServices = () => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-3">Community Services</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-3">{t('sections.communityServices.title')}</h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Discover local resources, services, and support programs designed to help families caring for children with special needs.
+          {t('sections.communityServices.subtitle')}
         </p>
       </div>
 
@@ -323,26 +325,26 @@ const CommunityServices = () => {
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="education" className="flex items-center gap-2">
             <GraduationCap className="h-4 w-4" />
-            <span className="hidden sm:inline">Education</span>
+            <span className="hidden sm:inline">{t('sections.communityServices.tabs.education')}</span>
           </TabsTrigger>
           <TabsTrigger value="health" className="flex items-center gap-2">
             <Heart className="h-4 w-4" />
-            <span className="hidden sm:inline">Healthcare</span>
+            <span className="hidden sm:inline">{t('sections.communityServices.tabs.healthcare')}</span>
           </TabsTrigger>
           <TabsTrigger value="support" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
-            <span className="hidden sm:inline">Support</span>
+            <span className="hidden sm:inline">{t('sections.communityServices.tabs.support')}</span>
           </TabsTrigger>
           <TabsTrigger value="recreation" className="flex items-center gap-2">
             <Building className="h-4 w-4" />
-            <span className="hidden sm:inline">Recreation</span>
+            <span className="hidden sm:inline">{t('sections.communityServices.tabs.recreation')}</span>
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="education" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {educationServices.map((service) => (
-              <ServiceCard key={service.id} service={service} category="Education" />
+              <ServiceCard key={service.id} service={service} category={t('sections.communityServices.tabs.education')} />
             ))}
           </div>
         </TabsContent>
@@ -350,7 +352,7 @@ const CommunityServices = () => {
         <TabsContent value="health" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {healthServices.map((service) => (
-              <ServiceCard key={service.id} service={service} category="Healthcare" />
+              <ServiceCard key={service.id} service={service} category={t('sections.communityServices.tabs.healthcare')} />
             ))}
           </div>
         </TabsContent>
@@ -358,7 +360,7 @@ const CommunityServices = () => {
         <TabsContent value="support" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {supportServices.map((service) => (
-              <ServiceCard key={service.id} service={service} category="Support" />
+              <ServiceCard key={service.id} service={service} category={t('sections.communityServices.tabs.support')} />
             ))}
           </div>
         </TabsContent>
@@ -366,7 +368,7 @@ const CommunityServices = () => {
         <TabsContent value="recreation" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {recreationServices.map((service) => (
-              <ServiceCard key={service.id} service={service} category="Recreation" />
+              <ServiceCard key={service.id} service={service} category={t('sections.communityServices.tabs.recreation')} />
             ))}
           </div>
         </TabsContent>
@@ -377,10 +379,10 @@ const CommunityServices = () => {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <BookmarkCheck className="h-5 w-5 text-special-600" />
-              Saved Services ({savedServices.length})
+              {t('sections.communityServices.savedServicesCount', { count: savedServices.length })}
             </CardTitle>
             <CardDescription>
-              Services you've bookmarked for easy access
+              {t('sections.communityServices.savedServicesDesc')}
             </CardDescription>
           </CardHeader>
         </Card>

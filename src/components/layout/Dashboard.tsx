@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ChevronLeft,
   ChevronRight,
@@ -55,88 +56,88 @@ type SidebarItem = {
 
 const sidebarItems: SidebarItem[] = [
   {
-    title: "Dashboard",
+    title: "layout.sidebar.dashboard",
     icon: Home,
     path: "/dashboard",
   },
   {
-    title: "Admin Panel",
+    title: "layout.sidebar.adminPanel",
     icon: Shield,
     path: "/dashboard/admin",
     roles: ["admin"],
   },
   {
-    title: "Child Profile",
+    title: "layout.sidebar.childProfile",
     icon: FileText,
     path: "/dashboard/key-information",
   },
   {
-    title: "Emergency Cards",
+    title: "layout.sidebar.emergencyCards",
     icon: AlertTriangle,
     path: "/dashboard/emergency-cards",
   },
   {
-    title: "Emergency Protocols",
+    title: "layout.sidebar.emergencyProtocols",
     icon: FileText,
     path: "/dashboard/medical-emergency-protocols",
   },
   {
-    title: "Medications",
+    title: "layout.sidebar.medications",
     icon: Pill,
     path: "/dashboard/medications",
   },
   {
-    title: "Suppliers & Providers",
+    title: "layout.sidebar.suppliersProviders",
     icon: Truck,
     path: "/dashboard/suppliers",
     roles: ["admin", "caregiver"],
   },
   {
-    title: "Medical Contacts & Log",
+    title: "layout.sidebar.medicalContacts",
     icon: Phone,
     path: "/dashboard/medical-contacts",
   },
   {
-    title: "Home Safety",
+    title: "layout.sidebar.homeSafety",
     icon: Shield,
     path: "/dashboard/home-safety",
   },
   {
-    title: "Community Services",
+    title: "layout.sidebar.communityServices",
     icon: Building,
     path: "/dashboard/community-services",
   },
   {
-    title: "Employment Agreement",
+    title: "layout.sidebar.employmentAgreement",
     icon: Briefcase,
     path: "/dashboard/employment",
     roles: ["admin", "caregiver"],
   },
   {
-    title: "Daily Log",
+    title: "layout.sidebar.dailyLog",
     icon: ClipboardList,
     path: "/dashboard/daily-log",
     roles: ["admin", "caregiver"],
   },
   {
-    title: "Celebrations",
+    title: "layout.sidebar.celebrations",
     icon: PartyPopper,
     path: "/dashboard/celebrations",
   },
   {
-    title: "Financial & Legal",
+    title: "layout.sidebar.financialLegal",
     icon: DollarSign,
     path: "/dashboard/financial-legal",
     roles: ["admin", "caregiver"],
   },
   {
-    title: "End-of-Life Wishes",
+    title: "layout.sidebar.endOfLifeWishes",
     icon: FileCheck,
     path: "/dashboard/end-of-life",
     roles: ["admin", "caregiver"],
   },
   {
-    title: "Documents",
+    title: "layout.sidebar.documents",
     icon: FolderOpen,
     path: "/dashboard/documents",
     roles: ["admin", "caregiver"],
@@ -147,6 +148,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const location = useLocation();
+  const { t } = useTranslation();
   const { user, signOut, isLoading } = useAuth();
   const { role } = useUserRole();
   const { activeChild } = useChild();
@@ -243,7 +245,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   )}
                 >
                   <item.icon size={18} />
-                  {!isCollapsed && <span>{item.title}</span>}
+                  {!isCollapsed && <span>{t(item.title)}</span>}
                 </Link>
               </li>
             ))}
@@ -257,7 +259,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <Menu size={24} />
         </Button>
         <img src={logoImg} alt="Special Caring" className="ml-3 h-7 w-7" />
-        <span className="ml-2 text-xl font-semibold">Special Caring</span>
+        <span className="ml-2 text-xl font-semibold">{t('common.specialCaring')}</span>
         
         <div className="ml-auto flex items-center gap-2">
           <LanguageSwitcher />
@@ -278,13 +280,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <DropdownMenuItem asChild>
                 <Link to="/profile" className="w-full cursor-pointer flex items-center">
                   <User size={16} className="mr-2" />
-                  Profile
+                  {t('layout.sidebar.profile')}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer flex items-center">
                 <LogOut size={16} className="mr-2" />
-                Sign Out
+                {t('layout.sidebar.signOut')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -295,8 +297,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <div className="fixed inset-0 z-50 bg-background md:hidden">
           <div className="flex justify-between items-center h-16 px-4 border-b border-border">
             <Link to="/dashboard" className="flex items-center gap-2">
-              <span className="text-xl font-bold text-special-600">Special</span>
-              <span className="text-xl font-light">Caring</span>
+              <span className="text-xl font-bold text-special-600">{t('common.specialCaring').split(' ')[0]}</span>
+              <span className="text-xl font-light">{t('common.specialCaring').split(' ')[1]}</span>
             </Link>
             <Button variant="ghost" size="icon" onClick={toggleMobileSidebar}>
               <X size={24} />
@@ -320,7 +322,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     onClick={toggleMobileSidebar}
                   >
                     <item.icon size={20} />
-                    <span>{item.title}</span>
+                    <span>{t(item.title)}</span>
                   </Link>
                 </li>
               ))}
@@ -357,7 +359,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <div className="flex items-center gap-4">
             <Link to="/" className="flex items-center gap-2 text-special-600 hover:text-special-700">
               <Home size={20} />
-              <span>Home</span>
+              <span>{t('layout.sidebar.home')}</span>
             </Link>
             <LanguageSwitcher />
             

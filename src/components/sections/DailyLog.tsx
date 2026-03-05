@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,34 +39,35 @@ interface LogEntry {
   priority: 'low' | 'medium' | 'high';
 }
 
-const entrySchema = z.object({
-  category: z.string().min(1, "Category is required"),
+const createEntrySchema = (t: (key: string) => string) => z.object({
+  category: z.string().min(1, t('validation.categoryRequired')),
   mood: z.enum(['happy', 'neutral', 'sad']),
-  title: z.string().min(1, "Title is required"),
+  title: z.string().min(1, t('validation.titleRequired')),
   description: z.string().optional(),
   priority: z.enum(['low', 'medium', 'high']),
 });
 
-type EntryFormValues = z.infer<typeof entrySchema>;
+type EntryFormValues = z.infer<ReturnType<typeof createEntrySchema>>;
 
-const categories = [
-  { id: 'medical', label: 'Medical', icon: Heart, color: 'bg-red-100 text-red-700' },
-  { id: 'medication', label: 'Medication', icon: Pill, color: 'bg-purple-100 text-purple-700' },
-  { id: 'meals', label: 'Meals & Nutrition', icon: Utensils, color: 'bg-green-100 text-green-700' },
-  { id: 'sleep', label: 'Sleep', icon: Moon, color: 'bg-blue-100 text-blue-700' },
-  { id: 'behavior', label: 'Behavior', icon: Activity, color: 'bg-yellow-100 text-yellow-700' },
-  { id: 'therapy', label: 'Therapy/Education', icon: BookOpen, color: 'bg-indigo-100 text-indigo-700' },
-  { id: 'social', label: 'Social', icon: Users, color: 'bg-pink-100 text-pink-700' },
-  { id: 'milestone', label: 'Milestone', icon: Star, color: 'bg-orange-100 text-orange-700' },
+const categoryMeta = [
+  { id: 'medical', icon: Heart, color: 'bg-red-100 text-red-700' },
+  { id: 'medication', icon: Pill, color: 'bg-purple-100 text-purple-700' },
+  { id: 'meals', icon: Utensils, color: 'bg-green-100 text-green-700' },
+  { id: 'sleep', icon: Moon, color: 'bg-blue-100 text-blue-700' },
+  { id: 'behavior', icon: Activity, color: 'bg-yellow-100 text-yellow-700' },
+  { id: 'therapy', icon: BookOpen, color: 'bg-indigo-100 text-indigo-700' },
+  { id: 'social', icon: Users, color: 'bg-pink-100 text-pink-700' },
+  { id: 'milestone', icon: Star, color: 'bg-orange-100 text-orange-700' },
 ];
 
-const moodIcons = {
-  happy: { icon: Smile, color: 'text-green-500', label: 'Happy' },
-  neutral: { icon: Meh, color: 'text-yellow-500', label: 'Neutral' },
-  sad: { icon: Frown, color: 'text-red-500', label: 'Challenging' }
+const moodMeta = {
+  happy: { icon: Smile, color: 'text-green-500' },
+  neutral: { icon: Meh, color: 'text-yellow-500' },
+  sad: { icon: Frown, color: 'text-red-500' },
 };
 
 const DailyLog = () => {
+  const { t } = useTranslation();
   const [showNewEntry, setShowNewEntry] = useState(false);
   const [editingEntry, setEditingEntry] = useState<LogEntry | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -74,6 +76,19 @@ const DailyLog = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { canEdit } = useUserRole();
+
+  const entrySchema = useMemo(() => createEntrySchema(t), [t]);
+
+  const categories = useMemo(() => categoryMeta.map(c => ({
+    ...c,
+    label: t(`sections.dailyLog.categories.${c.id}`),
+  })), [t]);
+
+  const moodIcons = useMemo(() => ({
+    happy: { ...moodMeta.happy, label: t('sections.dailyLog.moodLabels.happy') },
+    neutral: { ...moodMeta.neutral, label: t('sections.dailyLog.moodLabels.neutral') },
+    sad: { ...moodMeta.sad, label: t('sections.dailyLog.moodLabels.sad') },
+  }), [t]);
 
   const form = useForm<EntryFormValues>({
     resolver: zodResolver(entrySchema),
@@ -118,9 +133,9 @@ const DailyLog = () => {
       queryClient.invalidateQueries({ queryKey: ['dailyLogEntries', activeChild?.id] });
       form.reset();
       setShowNewEntry(false);
-      toast({ title: "Entry added", description: "Daily log entry saved." });
+      toast({ title: t('sections.dailyLog.toast.entryAdded'), description: t('sections.dailyLog.toast.entryAddedDesc') });
     },
-    onError: (error: any) => toast({ title: "Error saving entry", description: error.message, variant: "destructive" }),
+    onError: (error: any) => toast({ title: t('sections.dailyLog.toast.errorSaving'), description: error.message, variant: "destructive" }),
   });
 
   const updateMutation = useMutation({
@@ -136,9 +151,9 @@ const DailyLog = () => {
       setEditingEntry(null);
       setShowNewEntry(false);
       form.reset();
-      toast({ title: "Entry updated" });
+      toast({ title: t('sections.dailyLog.toast.entryUpdated') });
     },
-    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+    onError: (error: any) => toast({ title: t('toast.error'), description: error.message, variant: "destructive" }),
   });
 
   const deleteMutation = useMutation({
@@ -148,9 +163,9 @@ const DailyLog = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dailyLogEntries', activeChild?.id] });
-      toast({ title: "Entry deleted" });
+      toast({ title: t('sections.dailyLog.toast.entryDeleted') });
     },
-    onError: (error: any) => toast({ title: "Error", description: error.message, variant: "destructive" }),
+    onError: (error: any) => toast({ title: t('toast.error'), description: error.message, variant: "destructive" }),
   });
 
   const onSubmit = (values: EntryFormValues) => {
@@ -179,12 +194,17 @@ const DailyLog = () => {
     }
   };
 
+  const getPriorityLabel = (priority: string) => {
+    if (priority === 'high') return t('sections.dailyLog.priorities.important');
+    return t(`sections.dailyLog.priorities.${priority}`);
+  };
+
   // no-child guard
   if (!activeChild) {
     return (
       <div className="space-y-6">
-        <h2 className="text-3xl font-bold text-foreground">Daily Log</h2>
-        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>Please select or create a child profile first.</AlertDescription></Alert>
+        <h2 className="text-3xl font-bold text-foreground">{t('sections.dailyLog.title')}</h2>
+        <Alert><AlertCircle className="h-4 w-4" /><AlertDescription>{t('common.noChildProfile')}</AlertDescription></Alert>
       </div>
     );
   }
@@ -214,10 +234,10 @@ const DailyLog = () => {
       <Card>
         <CardContent className="text-center py-8">
           <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-muted-foreground">No entries found.</p>
+          <p className="text-muted-foreground">{t('sections.dailyLog.noEntriesFound')}</p>
           {canEdit && (
             <Button className="mt-4" onClick={() => setShowNewEntry(true)}>
-              Create an entry
+              {t('sections.dailyLog.createAnEntry')}
             </Button>
           )}
         </CardContent>
@@ -249,7 +269,7 @@ const DailyLog = () => {
                 <div className="flex items-center gap-2">
                   <MoodIcon className={`h-5 w-5 ${moodInfo.color}`} />
                   <Badge className={getPriorityColor(entry.priority)}>
-                    {entry.priority}
+                    {getPriorityLabel(entry.priority)}
                   </Badge>
                   {canEdit && (
                     <>
@@ -288,15 +308,15 @@ const DailyLog = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Daily Log</h1>
+          <h1 className="text-3xl font-bold text-foreground">{t('sections.dailyLog.title')}</h1>
           <p className="text-muted-foreground">
-            Track daily activities, behaviors, and milestones
+            {t('sections.dailyLog.subtitle')}
           </p>
         </div>
         {canEdit && (
           <Button onClick={() => { form.reset(); setEditingEntry(null); setShowNewEntry(true); }} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
-            New Entry
+            {t('sections.dailyLog.newEntry')}
           </Button>
         )}
       </div>
@@ -306,29 +326,29 @@ const DailyLog = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5 text-special-600" />
-            Today's Summary - {format(new Date(), 'EEEE, MMMM d, yyyy')}
+            {t('sections.dailyLog.todaysSummary')} - {format(new Date(), 'EEEE, MMMM d, yyyy')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-special-600">{todayEntries.length}</div>
-              <div className="text-sm text-muted-foreground">Entries Today</div>
+              <div className="text-sm text-muted-foreground">{t('sections.dailyLog.entriesToday')}</div>
             </div>
             <div className="text-center">
               <div className="text-lg font-semibold">
-                {overallMood === 'positive' && <span className="text-green-600">Positive Day</span>}
-                {overallMood === 'stable' && <span className="text-yellow-600">Stable Day</span>}
-                {overallMood === 'challenging' && <span className="text-red-600">Challenging Day</span>}
-                {overallMood === 'no-entries' && <span className="text-gray-600">No entries yet</span>}
+                {overallMood === 'positive' && <span className="text-green-600">{t('sections.dailyLog.moodPositive')}</span>}
+                {overallMood === 'stable' && <span className="text-yellow-600">{t('sections.dailyLog.moodStable')}</span>}
+                {overallMood === 'challenging' && <span className="text-red-600">{t('sections.dailyLog.moodChallenging')}</span>}
+                {overallMood === 'no-entries' && <span className="text-gray-600">{t('sections.dailyLog.noEntriesYet')}</span>}
               </div>
-              <div className="text-sm text-muted-foreground">Overall Mood</div>
+              <div className="text-sm text-muted-foreground">{t('sections.dailyLog.overallMood')}</div>
             </div>
             <div className="text-center">
               <div className="text-lg font-semibold text-purple-600">
                 {todayEntries.filter(e => e.priority === 'high').length}
               </div>
-              <div className="text-sm text-muted-foreground">Important Events</div>
+              <div className="text-sm text-muted-foreground">{t('sections.dailyLog.importantEvents')}</div>
             </div>
           </div>
         </CardContent>
@@ -340,7 +360,7 @@ const DailyLog = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Edit className="h-5 w-5" />
-              {editingEntry ? 'Edit Entry' : 'New Journal Entry'}
+              {editingEntry ? t('sections.dailyLog.editEntry') : t('sections.dailyLog.newJournalEntry')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -348,7 +368,7 @@ const DailyLog = () => {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Category</label>
+                    <label className="text-sm font-medium mb-2 block">{t('sections.dailyLog.fields.category')}</label>
                     <div className="grid grid-cols-2 gap-2">
                       {categories.map((category) => {
                         const Icon = category.icon;
@@ -375,7 +395,7 @@ const DailyLog = () => {
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Mood</label>
+                    <label className="text-sm font-medium mb-2 block">{t('sections.dailyLog.fields.mood')}</label>
                     <div className="flex gap-2">
                       {Object.entries(moodIcons).map(([mood, info]) => {
                         const Icon = info.icon;
@@ -400,9 +420,9 @@ const DailyLog = () => {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Title</label>
+                  <label className="text-sm font-medium mb-2 block">{t('sections.dailyLog.fields.title')}</label>
                   <Input
-                    placeholder="Brief description of what happened..."
+                    placeholder={t('sections.dailyLog.placeholders.title')}
                     {...form.register('title')}
                   />
                   {form.formState.errors.title && (
@@ -411,21 +431,21 @@ const DailyLog = () => {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Details</label>
+                  <label className="text-sm font-medium mb-2 block">{t('sections.dailyLog.details')}</label>
                   <Textarea
-                    placeholder="Provide more details about the event, behavior, or observation..."
+                    placeholder={t('sections.dailyLog.placeholders.description')}
                     {...form.register('description')}
                     rows={4}
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Priority</label>
+                  <label className="text-sm font-medium mb-2 block">{t('sections.dailyLog.fields.priority')}</label>
                   <div className="flex gap-2">
                     {[
-                      { value: 'low' as const, label: 'Low', color: 'bg-green-100 text-green-700' },
-                      { value: 'medium' as const, label: 'Medium', color: 'bg-yellow-100 text-yellow-700' },
-                      { value: 'high' as const, label: 'Important', color: 'bg-red-100 text-red-700' }
+                      { value: 'low' as const, label: t('sections.dailyLog.priorities.low'), color: 'bg-green-100 text-green-700' },
+                      { value: 'medium' as const, label: t('sections.dailyLog.priorities.medium'), color: 'bg-yellow-100 text-yellow-700' },
+                      { value: 'high' as const, label: t('sections.dailyLog.priorities.important'), color: 'bg-red-100 text-red-700' }
                     ].map((priority) => (
                       <button
                         type="button"
@@ -445,14 +465,14 @@ const DailyLog = () => {
 
                 <div className="flex gap-2">
                   <Button type="submit" disabled={!form.formState.isValid}>
-                    {editingEntry ? 'Update Entry' : 'Add Entry'}
+                    {editingEntry ? t('sections.dailyLog.updateEntry') : t('sections.dailyLog.addEntry')}
                   </Button>
                   <Button type="button" variant="outline" onClick={() => {
                     setShowNewEntry(false);
                     setEditingEntry(null);
                     form.reset();
                   }}>
-                    Cancel
+                    {t('common.cancel')}
                   </Button>
                 </div>
               </div>
@@ -464,9 +484,9 @@ const DailyLog = () => {
       {/* Entries */}
       <Tabs defaultValue="today" className="w-full">
         <TabsList>
-          <TabsTrigger value="today">Today</TabsTrigger>
-          <TabsTrigger value="week">This Week</TabsTrigger>
-          <TabsTrigger value="all">All Entries</TabsTrigger>
+          <TabsTrigger value="today">{t('sections.dailyLog.tabs.today')}</TabsTrigger>
+          <TabsTrigger value="week">{t('sections.dailyLog.tabs.thisWeek')}</TabsTrigger>
+          <TabsTrigger value="all">{t('sections.dailyLog.tabs.allEntries')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="today" className="space-y-4">
@@ -486,12 +506,12 @@ const DailyLog = () => {
       <AlertDialog open={deletingId !== null} onOpenChange={(open) => { if (!open) setDeletingId(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete this entry?</AlertDialogTitle>
-            <AlertDialogDescription>This action cannot be undone. The log entry will be permanently removed.</AlertDialogDescription>
+            <AlertDialogTitle>{t('sections.dailyLog.deleteEntry')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('sections.dailyLog.deleteConfirm')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => { if (deletingId) { deleteMutation.mutate(deletingId); setDeletingId(null); } }}>Delete</AlertDialogAction>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => { if (deletingId) { deleteMutation.mutate(deletingId); setDeletingId(null); } }}>{t('common.delete')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -6,21 +6,23 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Trans, useTranslation } from "react-i18next";
 
 const Register = () => {
   const [consentGiven, setConsentGiven] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       <main className="flex-1 flex items-center justify-center py-16 px-4 bg-gradient-to-br from-background to-caregiver-50">
         <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center animate-fadeIn">
           <div className="hidden md:block">
             <div className="space-y-6">
-              <h1 className="text-3xl font-bold">Create Your Caregiver Account</h1>
+              <h1 className="text-3xl font-bold">{t('auth.register.title')}</h1>
               <p className="text-muted-foreground">
-                Join thousands of caregivers who use our platform to organize and manage their caregiving responsibilities.
+                {t('auth.register.subtitle')}
               </p>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
@@ -28,9 +30,9 @@ const Register = () => {
                     <span className="text-caregiver-600 font-medium">1</span>
                   </div>
                   <div>
-                    <h3 className="font-medium">Create an account</h3>
+                    <h3 className="font-medium">{t('auth.register.step1Title')}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Register with your email and set a secure password.
+                      {t('auth.register.step1Desc')}
                     </p>
                   </div>
                 </div>
@@ -39,9 +41,9 @@ const Register = () => {
                     <span className="text-caregiver-600 font-medium">2</span>
                   </div>
                   <div>
-                    <h3 className="font-medium">Set up your profile</h3>
+                    <h3 className="font-medium">{t('auth.register.step2Title')}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Add essential information about the person receiving care.
+                      {t('auth.register.step2Desc')}
                     </p>
                   </div>
                 </div>
@@ -50,19 +52,19 @@ const Register = () => {
                     <span className="text-caregiver-600 font-medium">3</span>
                   </div>
                   <div>
-                    <h3 className="font-medium">Start organizing</h3>
+                    <h3 className="font-medium">{t('auth.register.step3Title')}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Begin adding medical information, contacts, and other important details.
+                      {t('auth.register.step3Desc')}
                     </p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          
+
           <div className="space-y-4">
             <AuthForm type="register" disabled={!consentGiven} />
-            
+
             <div className="flex items-start space-x-3 rounded-md border border-border p-4 bg-muted/30">
               <Checkbox
                 id="privacy-consent"
@@ -71,18 +73,19 @@ const Register = () => {
               />
               <div className="grid gap-1 leading-none">
                 <Label htmlFor="privacy-consent" className="text-sm cursor-pointer">
-                  I acknowledge and agree to the{" "}
-                  <Link to="/privacy" className="text-special-600 hover:underline font-medium">
-                    Privacy Policy
-                  </Link>
-                  , including how my data and my child&rsquo;s data will be collected, stored, and protected.
+                  <Trans
+                    i18nKey="auth.register.privacyConsent"
+                    components={{
+                      1: <Link to="/privacy" className="text-special-600 hover:underline font-medium" />,
+                    }}
+                  />
                 </Label>
               </div>
             </div>
           </div>
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );

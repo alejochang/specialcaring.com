@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Download, Mail, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +28,7 @@ const ExportEmailButtons = ({
   exportFilename,
   label,
 }: ExportEmailButtonsProps) => {
+  const { t } = useTranslation();
   const { exportAsHtml, sendByEmail, isExporting, isSending } = useExportAndEmail();
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [recipientEmail, setRecipientEmail] = useState("");
@@ -50,7 +52,7 @@ const ExportEmailButtons = ({
         className="flex items-center gap-2"
       >
         {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-        Export
+        {t('common.export')}
       </Button>
 
       <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
@@ -61,29 +63,29 @@ const ExportEmailButtons = ({
             className="flex items-center gap-2"
           >
             <Mail className="h-4 w-4" />
-            Email
+            {t('common.email')}
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Send {label} by Email</DialogTitle>
+            <DialogTitle>{t('export.emailDialog.title', { label })}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="recipientEmail">Recipient Email *</Label>
+              <Label htmlFor="recipientEmail">{t('export.emailDialog.recipientEmail')}</Label>
               <Input
                 id="recipientEmail"
                 type="email"
-                placeholder="e.g., doctor@clinic.com"
+                placeholder={t('export.emailDialog.recipientEmailPlaceholder')}
                 value={recipientEmail}
                 onChange={(e) => setRecipientEmail(e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="recipientName">Recipient Name (optional)</Label>
+              <Label htmlFor="recipientName">{t('export.emailDialog.recipientName')}</Label>
               <Input
                 id="recipientName"
-                placeholder="e.g., Dr. Smith"
+                placeholder={t('export.emailDialog.recipientNamePlaceholder')}
                 value={recipientName}
                 onChange={(e) => setRecipientName(e.target.value)}
               />
@@ -91,7 +93,7 @@ const ExportEmailButtons = ({
           </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t('common.cancel')}</Button>
             </DialogClose>
             <Button
               onClick={handleSendEmail}
@@ -99,7 +101,7 @@ const ExportEmailButtons = ({
               className="bg-special-600 hover:bg-special-700 text-white flex items-center gap-2"
             >
               {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-              Send
+              {t('common.send')}
             </Button>
           </DialogFooter>
         </DialogContent>

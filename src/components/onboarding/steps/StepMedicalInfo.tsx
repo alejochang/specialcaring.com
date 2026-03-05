@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { useChild } from "@/contexts/ChildContext";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import type { OnboardingWizardAPI } from "../useOnboardingWizard";
 
 const schema = z.object({
@@ -31,6 +32,7 @@ interface StepMedicalInfoProps {
 const StepMedicalInfo = ({ wizard }: StepMedicalInfoProps) => {
   const { updateChildProfile } = useChild();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -63,7 +65,7 @@ const StepMedicalInfo = ({ wizard }: StepMedicalInfoProps) => {
       });
       wizard.goNext();
     } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: t('toast.error'), description: error.message, variant: "destructive" });
     } finally {
       wizard.setSaving(null);
     }
@@ -76,10 +78,10 @@ const StepMedicalInfo = ({ wizard }: StepMedicalInfoProps) => {
           <HeartPulse className="h-6 w-6 text-red-600" />
         </div>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-          Tell us about {wizard.state.childName}'s health
+          {t('onboarding.medicalInfo.title', { childName: wizard.state.childName })}
         </h1>
         <p className="text-muted-foreground text-lg">
-          This is critical information for anyone caring for your child.
+          {t('onboarding.medicalInfo.subtitle')}
         </p>
       </div>
 
@@ -90,16 +92,16 @@ const StepMedicalInfo = ({ wizard }: StepMedicalInfoProps) => {
             name="medicalConditions"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Medical Conditions</FormLabel>
+                <FormLabel>{t('onboarding.medicalInfo.medicalConditions')}</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="e.g., Autism Spectrum Disorder, Epilepsy, Cerebral Palsy..."
+                    placeholder={t('onboarding.medicalInfo.medicalConditionsPlaceholder')}
                     className="min-h-[100px] text-base"
                     {...field}
                   />
                 </FormControl>
                 <FormDescription>
-                  List any diagnosed conditions, syndromes, or ongoing health concerns.
+                  {t('onboarding.medicalInfo.medicalConditionsDesc')}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -111,16 +113,16 @@ const StepMedicalInfo = ({ wizard }: StepMedicalInfoProps) => {
             name="allergies"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Allergies</FormLabel>
+                <FormLabel>{t('onboarding.medicalInfo.allergies')}</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="e.g., Peanuts, Penicillin, Latex..."
+                    placeholder={t('onboarding.medicalInfo.allergiesPlaceholder')}
                     className="min-h-[80px] text-base"
                     {...field}
                   />
                 </FormControl>
                 <FormDescription>
-                  Include food, medication, and environmental allergies.
+                  {t('onboarding.medicalInfo.allergiesDesc')}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -134,7 +136,7 @@ const StepMedicalInfo = ({ wizard }: StepMedicalInfoProps) => {
               className="gap-1 text-muted-foreground"
               onClick={() => wizard.goPrev()}
             >
-              <ArrowLeft className="h-4 w-4" /> Back
+              <ArrowLeft className="h-4 w-4" /> {t('common.back')}
             </Button>
             <div className="flex items-center gap-3">
               <Button
@@ -143,7 +145,7 @@ const StepMedicalInfo = ({ wizard }: StepMedicalInfoProps) => {
                 className="text-muted-foreground"
                 onClick={() => wizard.skipStep()}
               >
-                Skip for now
+                {t('common.skipForNow')}
               </Button>
               <Button
                 type="submit"
@@ -151,7 +153,7 @@ const StepMedicalInfo = ({ wizard }: StepMedicalInfoProps) => {
                 className="bg-special-600 hover:bg-special-700 px-8 h-11"
               >
                 {isSaving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                Continue
+                {t('common.continue')}
               </Button>
             </div>
           </div>

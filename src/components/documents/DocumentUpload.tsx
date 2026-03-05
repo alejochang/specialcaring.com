@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Upload, File, Trash2, Download, Loader2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -38,16 +39,20 @@ const DEFAULT_ACCEPTED_TYPES = [
 
 export function DocumentUpload({
   childId,
-  title = 'Documents',
-  description = 'Upload and manage important documents',
+  title,
+  description,
   maxSizeMB = DEFAULT_MAX_SIZE_MB,
   acceptedTypes = DEFAULT_ACCEPTED_TYPES,
 }: DocumentUploadProps) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+
+  const resolvedTitle = title ?? t('sections.documents.title');
+  const resolvedDescription = description ?? t('sections.documents.subtitle');
 
   // Fetch existing documents
   const { data: documents, isLoading: documentsLoading } = useQuery({
@@ -71,12 +76,12 @@ export function DocumentUpload({
       // Validate file size
       const maxBytes = maxSizeMB * 1024 * 1024;
       if (file.size > maxBytes) {
-        throw new Error(`File size exceeds ${maxSizeMB}MB limit`);
+        throw new Error(t('toast.fileSizeExceeded', { size: maxSizeMB }));
       }
 
       // Validate file type
       if (!acceptedTypes.includes(file.type)) {
-        throw new Error('File type not supported');
+        throw new Error(t('toast.fileTypeNotSupported'));
       }
 
       // Generate unique path
@@ -115,15 +120,15 @@ export function DocumentUpload({
       queryClient.invalidateQueries({ queryKey: ['documents', childId] });
       setUploadProgress(null);
       toast({
-        title: 'Document uploaded',
-        description: 'Your document has been uploaded successfully.',
+        title: t('toast.documentUploaded'),
+        description: t('toast.documentUploadedDesc'),
       });
     },
     onError: (error) => {
       setUploadProgress(null);
       toast({
-        title: 'Upload failed',
-        description: error instanceof Error ? error.message : 'Failed to upload document',
+        title: t('toast.uploadFailed'),
+        description: error instanceof Error ? error.message : t('toast.uploadFailedDesc'),
         variant: 'destructive',
       });
     },
@@ -150,14 +155,14 @@ export function DocumentUpload({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['documents', childId] });
       toast({
-        title: 'Document deleted',
-        description: 'The document has been removed.',
+        title: t('toast.documentDeleted'),
+        description: t('toast.documentDeletedDesc'),
       });
     },
     onError: (error) => {
       toast({
-        title: 'Delete failed',
-        description: error instanceof Error ? error.message : 'Failed to delete document',
+        title: t('toast.deleteFailed'),
+        description: error instanceof Error ? error.message : t('toast.deleteFailedDesc'),
         variant: 'destructive',
       });
     },
@@ -183,8 +188,8 @@ export function DocumentUpload({
       URL.revokeObjectURL(url);
     } catch (error) {
       toast({
-        title: 'Download failed',
-        description: 'Failed to download document',
+        title: t('toast.downloadFailed'),
+        description: t('toast.downloadFailedDesc'),
         variant: 'destructive',
       });
     }
@@ -240,8 +245,8 @@ export function DocumentUpload({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardTitle>{resolvedTitle}</CardTitle>
+        <CardDescription>{resolvedDescription}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Upload zone */}
@@ -266,16 +271,16 @@ export function DocumentUpload({
           {uploadMutation.isPending ? (
             <div className="flex flex-col items-center gap-2">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">Uploading...</p>
+              <p className="text-sm text-muted-foreground">{t('common.uploading')}</p>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">
               <Upload className="h-8 w-8 text-muted-foreground" />
               <p className="text-sm font-medium">
-                Drag files here or click to browse
+                {t('sections.documents.dragOrClick')}
               </p>
               <p className="text-xs text-muted-foreground">
-                Max {maxSizeMB}MB per file. PDF, images, and documents accepted.
+                {t('sections.documents.maxFileSize', { size: maxSizeMB })}
               </p>
             </div>
           )}
@@ -308,7 +313,7 @@ export function DocumentUpload({
                     variant="ghost"
                     size="icon"
                     onClick={() => downloadDocument(doc)}
-                    title="Download"
+                    title={t('common.download')}
                   >
                     <Download className="h-4 w-4" />
                   </Button>
@@ -317,7 +322,7 @@ export function DocumentUpload({
                     size="icon"
                     onClick={() => deleteMutation.mutate(doc)}
                     disabled={deleteMutation.isPending}
-                    title="Delete"
+                    title={t('common.delete')}
                     className="text-destructive hover:text-destructive"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -330,8 +335,7 @@ export function DocumentUpload({
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              No documents uploaded yet. Upload important medical records,
-              insurance cards, or care instructions.
+              {t('sections.documents.noDocuments')}
             </AlertDescription>
           </Alert>
         )}

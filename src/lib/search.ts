@@ -1,3 +1,4 @@
+import i18next from 'i18next';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
@@ -223,7 +224,7 @@ export async function searchAll(
       results.push({
         id: childProfile.id,
         type: 'info',
-        title: 'Child Profile',
+        title: i18next.t('sections.keyInformation.title'),
         subtitle: childProfile.full_name,
         description: childProfile.medical_conditions,
         url: TYPE_ROUTES.info,
@@ -244,11 +245,11 @@ export async function searchAll(
  */
 export function getSearchSuggestions(): string[] {
   return [
-    'medication name',
-    'doctor name',
-    'pharmacy',
-    'allergy',
-    'seizure',
-    'emergency',
+    i18next.t('search.defaultSuggestions.medicationName'),
+    i18next.t('search.defaultSuggestions.doctorName'),
+    i18next.t('search.defaultSuggestions.pharmacy'),
+    i18next.t('search.defaultSuggestions.allergy'),
+    i18next.t('search.defaultSuggestions.seizure'),
+    i18next.t('search.defaultSuggestions.emergency'),
   ];
 }

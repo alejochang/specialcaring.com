@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
 import type { OnboardingWizardAPI } from "../useOnboardingWizard";
 
 interface StepCompletionProps {
@@ -24,16 +25,17 @@ interface StepCompletionProps {
 const StepCompletion = ({ wizard }: StepCompletionProps) => {
   const navigate = useNavigate();
   const { stepData, childName } = wizard.state;
+  const { t } = useTranslation();
 
   // Calculate what was filled
   const items = [
-    { label: "Birth date", filled: !!stepData.birthDate },
-    { label: "Medical conditions", filled: !!stepData.medicalConditions?.trim() },
-    { label: "Allergies", filled: !!stepData.allergies?.trim() },
-    { label: "Emergency contact", filled: !!stepData.emergencyContact?.trim() },
-    { label: "Emergency phone", filled: !!stepData.emergencyPhone?.trim() },
-    { label: "Medication", filled: !!stepData.medication },
-    { label: "Emergency protocol", filled: !!stepData.protocol },
+    { label: t('onboarding.completion.items.birthDate'), filled: !!stepData.birthDate },
+    { label: t('onboarding.completion.items.medicalConditions'), filled: !!stepData.medicalConditions?.trim() },
+    { label: t('onboarding.completion.items.allergies'), filled: !!stepData.allergies?.trim() },
+    { label: t('onboarding.completion.items.emergencyContact'), filled: !!stepData.emergencyContact?.trim() },
+    { label: t('onboarding.completion.items.emergencyPhone'), filled: !!stepData.emergencyPhone?.trim() },
+    { label: t('onboarding.completion.items.medication'), filled: !!stepData.medication },
+    { label: t('onboarding.completion.items.emergencyProtocol'), filled: !!stepData.protocol },
   ];
 
   const filledCount = items.filter((i) => i.filled).length;
@@ -41,26 +43,26 @@ const StepCompletion = ({ wizard }: StepCompletionProps) => {
 
   const nextSteps = [
     {
-      label: "Complete Full Profile",
-      description: "Add address, insurance, and preferences",
+      label: t('onboarding.completion.nextSteps.completeProfile.label'),
+      description: t('onboarding.completion.nextSteps.completeProfile.description'),
       path: "/dashboard/key-information",
       icon: Heart,
     },
     {
-      label: "Add Emergency Cards",
-      description: "Upload ID and insurance card photos",
+      label: t('onboarding.completion.nextSteps.addEmergencyCards.label'),
+      description: t('onboarding.completion.nextSteps.addEmergencyCards.description'),
       path: "/dashboard/emergency-cards",
       icon: AlertTriangle,
     },
     {
-      label: "Start Daily Log",
-      description: "Track daily care activities and moods",
+      label: t('onboarding.completion.nextSteps.startDailyLog.label'),
+      description: t('onboarding.completion.nextSteps.startDailyLog.description'),
       path: "/dashboard/daily-log",
       icon: Calendar,
     },
     {
-      label: "Invite Caregivers",
-      description: "Share access with your care team",
+      label: t('onboarding.completion.nextSteps.inviteCaregivers.label'),
+      description: t('onboarding.completion.nextSteps.inviteCaregivers.description'),
       path: "/dashboard",
       icon: Users,
     },
@@ -75,17 +77,17 @@ const StepCompletion = ({ wizard }: StepCompletionProps) => {
           <PartyPopper className="h-10 w-10 text-pink-500 animate-bounce [animation-delay:150ms]" />
         </div>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-          {childName}'s profile is ready!
+          {t('onboarding.completion.title', { childName })}
         </h1>
         <p className="text-muted-foreground text-lg max-w-md mx-auto">
-          Great start! You've set up the essentials. Here's what you've covered:
+          {t('onboarding.completion.subtitle')}
         </p>
       </div>
 
       {/* Completeness bar */}
       <div className="max-w-sm mx-auto space-y-2">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Setup progress</span>
+          <span className="text-muted-foreground">{t('onboarding.completion.setupProgress')}</span>
           <span className="font-semibold text-foreground">{completeness}%</span>
         </div>
         <Progress value={completeness} className="h-2.5" />
@@ -118,7 +120,7 @@ const StepCompletion = ({ wizard }: StepCompletionProps) => {
             </span>
             {!item.filled && (
               <Badge variant="outline" className="text-[10px] px-1.5 py-0 ml-auto">
-                Later
+                {t('common.later')}
               </Badge>
             )}
           </div>
@@ -131,7 +133,7 @@ const StepCompletion = ({ wizard }: StepCompletionProps) => {
           onClick={() => navigate("/dashboard")}
           className="bg-special-600 hover:bg-special-700 px-8 h-11 w-full sm:w-auto"
         >
-          Go to Dashboard
+          {t('onboarding.completion.goToDashboard')}
           <ArrowRight className="h-4 w-4 ml-2" />
         </Button>
         <Button
@@ -139,14 +141,14 @@ const StepCompletion = ({ wizard }: StepCompletionProps) => {
           onClick={() => navigate("/dashboard/key-information")}
           className="px-8 h-11 w-full sm:w-auto"
         >
-          Complete Full Profile
+          {t('onboarding.completion.completeFullProfile')}
         </Button>
       </div>
 
       {/* Suggested next steps */}
       <div className="pt-4">
         <h3 className="text-sm font-medium text-muted-foreground mb-3">
-          Suggested next steps
+          {t('onboarding.completion.suggestedNextSteps')}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
           {nextSteps.map((step) => (
