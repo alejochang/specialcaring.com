@@ -30,12 +30,16 @@ i18n
   .init({
     resources,
     fallbackLng: 'en-CA',
+    supportedLngs: ['en-CA', 'fr-CA', 'es'],
     interpolation: {
       escapeValue: false, // React already escapes values
     },
     detection: {
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
+    },
+    react: {
+      useSuspense: false,
     },
   });
 

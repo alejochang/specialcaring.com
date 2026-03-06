@@ -380,13 +380,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <DropdownMenuItem asChild>
                   <Link to="/profile" className="w-full cursor-pointer flex items-center">
                     <User size={16} className="mr-2" />
-                    Profile
+                    {t('layout.sidebar.profile')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer flex items-center">
                   <LogOut size={16} className="mr-2" />
-                  Sign Out
+                  {t('layout.sidebar.signOut')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
